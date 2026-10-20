@@ -6,6 +6,8 @@
 
 > **当前版本：v0.0.1** — 内容还原 + 中文落地 + 路线入口/角色高亮，等待全量实机验证。
 
+![Beamer](https://shared.steamstatic.com/store_item_assets/steam/apps/923810/library_hero.jpg?t=1573643900)
+
 ---
 
 ## 安装方式
