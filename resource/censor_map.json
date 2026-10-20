@@ -1,0 +1,3051 @@
+{
+ "members": [
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip2.arc",
+   "bbox": [
+    655,
+    644,
+    1251,
+    697
+   ],
+   "big_pixels": 17536,
+   "big_ratio": 0.019028,
+   "class": "censor",
+   "dims": {
+    "orig_size": 617086,
+    "steam_size": 606605
+   },
+   "frame": "fdsdev14_02",
+   "max_abs": 255,
+   "mean_diff": 2.67,
+   "name": "FDSDEV14_02b.png",
+   "nearest": {
+    "distance": 1.98,
+    "frame": "fdsdev14_01",
+    "name": "FDSDEV14_01b.png"
+   },
+   "orig_name": "FDSDEV14_02b.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=255, big_ratio=0.019028）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "CHIP2.arc/fdsdev14_02",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip2.arc",
+   "bbox": [
+    3,
+    0,
+    814,
+    468
+   ],
+   "big_pixels": 8779,
+   "big_ratio": 0.022932,
+   "class": "censor",
+   "dims": {
+    "orig_size": 355811,
+    "steam_size": 349931
+   },
+   "frame": "fdsdev14_02",
+   "max_abs": 255,
+   "mean_diff": 2.58,
+   "name": "FDSDEV14_02s.png",
+   "nearest": {
+    "distance": 2.74,
+    "frame": "fdsdev14_02",
+    "name": "FDSDEV14_02s.png"
+   },
+   "orig_name": "FDSDEV14_02s.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=255, big_ratio=0.022932）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "CHIP2.arc/fdsdev14_02",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip7.arc",
+   "bbox": [
+    0,
+    0,
+    1824,
+    1026
+   ],
+   "big_pixels": 1733915,
+   "big_ratio": 0.926522,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3275830,
+    "steam_size": 1502030
+   },
+   "frame": "bef_03_001",
+   "max_abs": 255,
+   "mean_diff": 67.87,
+   "name": "BEF_03_001B.png",
+   "nearest": {
+    "distance": 68.9,
+    "frame": "bef_03_006",
+    "name": "BEF_03_006S.png"
+   },
+   "orig_name": "BEF_03_001B.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=255, big_ratio=0.926522）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip7.arc/bef_03",
+   "size_diff": true,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": {
+    "frame": "bef_03_006",
+    "mad": 0.23,
+    "name": "BEF_03_006S.png"
+   },
+   "archive": "Chip7.arc",
+   "bbox": [
+    0,
+    0,
+    1280,
+    720
+   ],
+   "big_pixels": 828994,
+   "big_ratio": 0.899516,
+   "class": "reuse",
+   "dims": {
+    "orig_size": 999862,
+    "steam_size": 892201
+   },
+   "frame": "bef_03_001",
+   "max_abs": 255,
+   "mean_diff": 64.45,
+   "name": "BEF_03_001S.png",
+   "nearest": {
+    "distance": 64.01,
+    "frame": "bef_03_006",
+    "name": "BEF_03_006S.png"
+   },
+   "orig_name": "BEF_03_001S.png",
+   "pna": null,
+   "reason": "顶包：Steam 图与原版另一帧 BEF_03_006S.png 全分辨率 MAD 0.23（副本级）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip7.arc/bef_03",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip7.arc",
+   "bbox": [
+    0,
+    0,
+    1280,
+    720
+   ],
+   "big_pixels": 829189,
+   "big_ratio": 0.899728,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1000985,
+    "steam_size": 894725
+   },
+   "frame": "bef_03_006",
+   "max_abs": 255,
+   "mean_diff": 64.45,
+   "name": "BEF_03_006S.png",
+   "nearest": {
+    "distance": 64.1,
+    "frame": "bef_03_006",
+    "name": "BEF_03_006S.png"
+   },
+   "orig_name": "BEF_03_006S.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=255, big_ratio=0.899728）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip7.arc/bef_03",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip9.arc",
+   "bbox": [
+    580,
+    0,
+    2560,
+    1440
+   ],
+   "big_pixels": 389382,
+   "big_ratio": 0.105627,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3780754,
+    "steam_size": 3714297
+   },
+   "frame": "kan_01_001",
+   "max_abs": 253,
+   "mean_diff": 5.46,
+   "name": "KAN_01_001b.png",
+   "nearest": {
+    "distance": 5.54,
+    "frame": "kan_01_001",
+    "name": "KAN_01_001b.png"
+   },
+   "orig_name": "KAN_01_001b.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=253, big_ratio=0.105627）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip9.arc/kan_01",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip9.arc",
+   "bbox": [
+    0,
+    0,
+    1280,
+    720
+   ],
+   "big_pixels": 108638,
+   "big_ratio": 0.11788,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1087828,
+    "steam_size": 1156896
+   },
+   "frame": "kan_01_001",
+   "max_abs": 252,
+   "mean_diff": 6.36,
+   "name": "KAN_01_001s.png",
+   "nearest": {
+    "distance": 6.48,
+    "frame": "kan_01_001",
+    "name": "KAN_01_001s.png"
+   },
+   "orig_name": "KAN_01_001s.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=252, big_ratio=0.117880）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip9.arc/kan_01",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip9.arc",
+   "bbox": [
+    580,
+    0,
+    2560,
+    1440
+   ],
+   "big_pixels": 389382,
+   "big_ratio": 0.105627,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3781704,
+    "steam_size": 3715293
+   },
+   "frame": "kan_01_002",
+   "max_abs": 253,
+   "mean_diff": 5.46,
+   "name": "KAN_01_002b.png",
+   "nearest": {
+    "distance": 5.54,
+    "frame": "kan_01_002",
+    "name": "KAN_01_002b.png"
+   },
+   "orig_name": "KAN_01_002b.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=253, big_ratio=0.105627）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip9.arc/kan_01",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip9.arc",
+   "bbox": [
+    0,
+    0,
+    1280,
+    720
+   ],
+   "big_pixels": 108637,
+   "big_ratio": 0.117879,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1088200,
+    "steam_size": 1157273
+   },
+   "frame": "kan_01_002",
+   "max_abs": 252,
+   "mean_diff": 6.36,
+   "name": "KAN_01_002s.png",
+   "nearest": {
+    "distance": 6.48,
+    "frame": "kan_01_002",
+    "name": "KAN_01_002s.png"
+   },
+   "orig_name": "KAN_01_002s.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=252, big_ratio=0.117879）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip9.arc/kan_01",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip9.arc",
+   "bbox": [
+    580,
+    0,
+    2560,
+    1440
+   ],
+   "big_pixels": 389382,
+   "big_ratio": 0.105627,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3782321,
+    "steam_size": 3715793
+   },
+   "frame": "kan_01_003",
+   "max_abs": 253,
+   "mean_diff": 5.46,
+   "name": "KAN_01_003b.png",
+   "nearest": {
+    "distance": 5.54,
+    "frame": "kan_01_003",
+    "name": "KAN_01_003b.png"
+   },
+   "orig_name": "KAN_01_003b.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=253, big_ratio=0.105627）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip9.arc/kan_01",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip9.arc",
+   "bbox": [
+    0,
+    0,
+    1280,
+    720
+   ],
+   "big_pixels": 108644,
+   "big_ratio": 0.117886,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1088475,
+    "steam_size": 1157482
+   },
+   "frame": "kan_01_003",
+   "max_abs": 252,
+   "mean_diff": 6.36,
+   "name": "KAN_01_003s.png",
+   "nearest": {
+    "distance": 6.49,
+    "frame": "kan_01_003",
+    "name": "KAN_01_003s.png"
+   },
+   "orig_name": "KAN_01_003s.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=252, big_ratio=0.117886）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip9.arc/kan_01",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip9.arc",
+   "bbox": [
+    0,
+    0,
+    1280,
+    720
+   ],
+   "big_pixels": 108577,
+   "big_ratio": 0.117814,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1086626,
+    "steam_size": 1155884
+   },
+   "frame": "kan_01_004",
+   "max_abs": 252,
+   "mean_diff": 6.35,
+   "name": "KAN_01_004s.png",
+   "nearest": {
+    "distance": 6.48,
+    "frame": "kan_01_004",
+    "name": "KAN_01_004s.png"
+   },
+   "orig_name": "KAN_01_004s.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=252, big_ratio=0.117814）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip9.arc/kan_01",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip9.arc",
+   "bbox": [
+    580,
+    0,
+    2560,
+    1440
+   ],
+   "big_pixels": 389388,
+   "big_ratio": 0.105628,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3775013,
+    "steam_size": 3708675
+   },
+   "frame": "kan_01_005",
+   "max_abs": 253,
+   "mean_diff": 5.46,
+   "name": "KAN_01_005b.png",
+   "nearest": {
+    "distance": 5.54,
+    "frame": "kan_01_005",
+    "name": "KAN_01_005b.png"
+   },
+   "orig_name": "KAN_01_005b.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=253, big_ratio=0.105628）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip9.arc/kan_01",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip9.arc",
+   "bbox": [
+    0,
+    0,
+    1280,
+    720
+   ],
+   "big_pixels": 108609,
+   "big_ratio": 0.117848,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1085862,
+    "steam_size": 1155251
+   },
+   "frame": "kan_01_005",
+   "max_abs": 252,
+   "mean_diff": 6.35,
+   "name": "KAN_01_005s.png",
+   "nearest": {
+    "distance": 6.48,
+    "frame": "kan_01_005",
+    "name": "KAN_01_005s.png"
+   },
+   "orig_name": "KAN_01_005s.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=252, big_ratio=0.117848）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip9.arc/kan_01",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip9.arc",
+   "bbox": [
+    580,
+    0,
+    2560,
+    1440
+   ],
+   "big_pixels": 389382,
+   "big_ratio": 0.105627,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3773038,
+    "steam_size": 3706530
+   },
+   "frame": "kan_01_006",
+   "max_abs": 253,
+   "mean_diff": 5.46,
+   "name": "KAN_01_006b.png",
+   "nearest": {
+    "distance": 5.54,
+    "frame": "kan_01_006",
+    "name": "KAN_01_006b.png"
+   },
+   "orig_name": "KAN_01_006b.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=253, big_ratio=0.105627）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip9.arc/kan_01",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Chip9.arc",
+   "bbox": [
+    0,
+    0,
+    1280,
+    720
+   ],
+   "big_pixels": 108548,
+   "big_ratio": 0.117782,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1085531,
+    "steam_size": 1154500
+   },
+   "frame": "kan_01_006",
+   "max_abs": 252,
+   "mean_diff": 6.35,
+   "name": "KAN_01_006s.png",
+   "nearest": {
+    "distance": 6.48,
+    "frame": "kan_01_006",
+    "name": "KAN_01_006s.png"
+   },
+   "orig_name": "KAN_01_006s.png",
+   "pna": null,
+   "reason": "改画：非噪声（max_abs=252, big_ratio=0.117782）⇒ 整名覆盖",
+   "review": "machine",
+   "series": "Chip9.arc/kan_01",
+   "size_diff": false,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 9679076,
+    "steam_size": 8044037
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_01L.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_01L.pna",
+   "pna": {
+    "detail": "canvas=908x920 layers=59 subimage_changed=5",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=908x920 layers=59 subimage_changed=5）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_01l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 4372914,
+    "steam_size": 3735454
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_01M.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_01M.pna",
+   "pna": {
+    "detail": "canvas=517x920 layers=59 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=517x920 layers=59 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_01m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3034970,
+    "steam_size": 2600502
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_01S.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_01S.pna",
+   "pna": {
+    "detail": "canvas=423x920 layers=59 subimage_changed=6",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=423x920 layers=59 subimage_changed=6）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_01s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2862231,
+    "steam_size": 2458401
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_01W.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_01W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=60 subimage_changed=3",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=60 subimage_changed=3）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_01w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 9075094,
+    "steam_size": 7650994
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_02L.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_02L.pna",
+   "pna": {
+    "detail": "canvas=715x920 layers=57 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=715x920 layers=57 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_02l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3864635,
+    "steam_size": 3321186
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_02M.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_02M.pna",
+   "pna": {
+    "detail": "canvas=579x920 layers=57 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=579x920 layers=57 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_02m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3030769,
+    "steam_size": 2615648
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_02S.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_02S.pna",
+   "pna": {
+    "detail": "canvas=524x920 layers=57 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=524x920 layers=57 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_02s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2395425,
+    "steam_size": 2105271
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_02W.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_02W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=58 subimage_changed=2",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=58 subimage_changed=2）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_02w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 6938103,
+    "steam_size": 5847538
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_03L.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_03L.pna",
+   "pna": {
+    "detail": "canvas=1016x920 layers=42 subimage_changed=9",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=1016x920 layers=42 subimage_changed=9）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_03l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2955401,
+    "steam_size": 2563079
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_03M.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_03M.pna",
+   "pna": {
+    "detail": "canvas=573x920 layers=42 subimage_changed=9",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=573x920 layers=42 subimage_changed=9）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_03m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1833609,
+    "steam_size": 1628603
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_03S.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_03S.pna",
+   "pna": {
+    "detail": "canvas=606x920 layers=42 subimage_changed=9",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=606x920 layers=42 subimage_changed=9）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_03s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1958178,
+    "steam_size": 1739553
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "A小鳥_03W.pna",
+   "nearest": null,
+   "orig_name": "A小鳥_03W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=43 subimage_changed=5",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=43 subimage_changed=5）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/a小鳥_03w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 7234322,
+    "steam_size": 6380742
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_01L.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_01L.pna",
+   "pna": {
+    "detail": "canvas=706x920 layers=52 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=706x920 layers=52 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_01l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3335629,
+    "steam_size": 3099002
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_01M.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_01M.pna",
+   "pna": {
+    "detail": "canvas=641x920 layers=52 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=641x920 layers=52 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_01m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2243716,
+    "steam_size": 2092472
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_01S.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_01S.pna",
+   "pna": {
+    "detail": "canvas=466x920 layers=52 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=466x920 layers=52 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_01s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1929236,
+    "steam_size": 1800977
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_01W.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_01W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=53 subimage_changed=2",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=53 subimage_changed=2）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_01w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 8187169,
+    "steam_size": 6974532
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_02L.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_02L.pna",
+   "pna": {
+    "detail": "canvas=881x920 layers=36 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=881x920 layers=36 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_02l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3633654,
+    "steam_size": 3278624
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_02M.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_02M.pna",
+   "pna": {
+    "detail": "canvas=438x920 layers=36 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=438x920 layers=36 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_02m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2396828,
+    "steam_size": 2169766
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_02S.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_02S.pna",
+   "pna": {
+    "detail": "canvas=347x920 layers=36 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=347x920 layers=36 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_02s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2118684,
+    "steam_size": 1911153
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_02W.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_02W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=37 subimage_changed=2",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=37 subimage_changed=2）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_02w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 6448149,
+    "steam_size": 5418402
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_03L.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_03L.pna",
+   "pna": {
+    "detail": "canvas=728x920 layers=40 subimage_changed=4",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=728x920 layers=40 subimage_changed=4）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_03l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2505250,
+    "steam_size": 2220031
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_03M.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_03M.pna",
+   "pna": {
+    "detail": "canvas=373x920 layers=40 subimage_changed=1",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=373x920 layers=40 subimage_changed=1）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_03m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1612339,
+    "steam_size": 1446034
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_03S.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_03S.pna",
+   "pna": {
+    "detail": "canvas=253x920 layers=40 subimage_changed=1",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=253x920 layers=40 subimage_changed=1）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_03s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1602032,
+    "steam_size": 1426546
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "Bあげは_03W.pna",
+   "nearest": null,
+   "orig_name": "Bあげは_03W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=41 subimage_changed=1",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=41 subimage_changed=1）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/bあげは_03w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 12735600,
+    "steam_size": 11096995
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_01L.pna",
+   "nearest": null,
+   "orig_name": "C天音_01L.pna",
+   "pna": {
+    "detail": "canvas=1091x920 layers=61 subimage_changed=5",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=1091x920 layers=61 subimage_changed=5）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_01l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 7377421,
+    "steam_size": 6513544
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_01M.pna",
+   "nearest": null,
+   "orig_name": "C天音_01M.pna",
+   "pna": {
+    "detail": "canvas=744x920 layers=61 subimage_changed=15",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=744x920 layers=61 subimage_changed=15）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_01m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 5306358,
+    "steam_size": 4685993
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_01S.pna",
+   "nearest": null,
+   "orig_name": "C天音_01S.pna",
+   "pna": {
+    "detail": "canvas=539x920 layers=61 subimage_changed=5",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=539x920 layers=61 subimage_changed=5）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_01s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3781126,
+    "steam_size": 3377740
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_01W.pna",
+   "nearest": null,
+   "orig_name": "C天音_01W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=62 subimage_changed=3",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=62 subimage_changed=3）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_01w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 13640699,
+    "steam_size": 12135810
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_02L.pna",
+   "nearest": null,
+   "orig_name": "C天音_02L.pna",
+   "pna": {
+    "detail": "canvas=902x920 layers=63 subimage_changed=51",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=902x920 layers=63 subimage_changed=51）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_02l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 7305257,
+    "steam_size": 6514238
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_02M.pna",
+   "nearest": null,
+   "orig_name": "C天音_02M.pna",
+   "pna": {
+    "detail": "canvas=488x920 layers=63 subimage_changed=51",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=488x920 layers=63 subimage_changed=51）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_02m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 5020343,
+    "steam_size": 4460257
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_02S.pna",
+   "nearest": null,
+   "orig_name": "C天音_02S.pna",
+   "pna": {
+    "detail": "canvas=356x920 layers=63 subimage_changed=51",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=356x920 layers=63 subimage_changed=51）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_02s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3865837,
+    "steam_size": 3556133
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_02W.pna",
+   "nearest": null,
+   "orig_name": "C天音_02W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=64 subimage_changed=3",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=64 subimage_changed=3）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_02w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 4805953,
+    "steam_size": 4220731
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_03L.pna",
+   "nearest": null,
+   "orig_name": "C天音_03L.pna",
+   "pna": {
+    "detail": "canvas=777x920 layers=50 subimage_changed=5",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=777x920 layers=50 subimage_changed=5）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_03l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2616545,
+    "steam_size": 2289131
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_03M.pna",
+   "nearest": null,
+   "orig_name": "C天音_03M.pna",
+   "pna": {
+    "detail": "canvas=458x920 layers=50 subimage_changed=3",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=458x920 layers=50 subimage_changed=3）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_03m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1828742,
+    "steam_size": 1606657
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_03S.pna",
+   "nearest": null,
+   "orig_name": "C天音_03S.pna",
+   "pna": {
+    "detail": "canvas=334x920 layers=50 subimage_changed=2",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=334x920 layers=50 subimage_changed=2）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_03s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1386652,
+    "steam_size": 1236621
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "C天音_03W.pna",
+   "nearest": null,
+   "orig_name": "C天音_03W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=51 subimage_changed=1",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=51 subimage_changed=1）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/c天音_03w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 14263005,
+    "steam_size": 11893220
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_01L.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_01L.pna",
+   "pna": {
+    "detail": "canvas=972x920 layers=71 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=972x920 layers=71 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_01l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 5499853,
+    "steam_size": 4902513
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_01M.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_01M.pna",
+   "pna": {
+    "detail": "canvas=536x920 layers=71 subimage_changed=9",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=536x920 layers=71 subimage_changed=9）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_01m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3564866,
+    "steam_size": 3254395
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_01S.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_01S.pna",
+   "pna": {
+    "detail": "canvas=391x920 layers=71 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=391x920 layers=71 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_01s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3387468,
+    "steam_size": 3069936
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_01W.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_01W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=72 subimage_changed=2",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=72 subimage_changed=2）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_01w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 8375742,
+    "steam_size": 7454089
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_02L.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_02L.pna",
+   "pna": {
+    "detail": "canvas=1005x920 layers=49 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=1005x920 layers=49 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_02l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3674546,
+    "steam_size": 3431492
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_02M.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_02M.pna",
+   "pna": {
+    "detail": "canvas=545x920 layers=49 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=545x920 layers=49 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_02m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2519624,
+    "steam_size": 2394434
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_02S.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_02S.pna",
+   "pna": {
+    "detail": "canvas=397x920 layers=49 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=397x920 layers=49 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_02s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2117668,
+    "steam_size": 2013009
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_02W.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_02W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=50 subimage_changed=2",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=50 subimage_changed=2）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_02w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 12886844,
+    "steam_size": 11488180
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_03L.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_03L.pna",
+   "pna": {
+    "detail": "canvas=1275x920 layers=66 subimage_changed=13",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=1275x920 layers=66 subimage_changed=13）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_03l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 5329023,
+    "steam_size": 5022710
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_03M.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_03M.pna",
+   "pna": {
+    "detail": "canvas=655x920 layers=66 subimage_changed=13",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=655x920 layers=66 subimage_changed=13）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_03m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 3964587,
+    "steam_size": 3524126
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_03S.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_03S.pna",
+   "pna": {
+    "detail": "layer_count 67 != 66",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 67 != 66）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_03s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2968024,
+    "steam_size": 2848314
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "D亜紗_03W.pna",
+   "nearest": null,
+   "orig_name": "D亜紗_03W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=67 subimage_changed=3",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=67 subimage_changed=3）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/d亜紗_03w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 14233655,
+    "steam_size": 11866494
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_01L.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_01L.pna",
+   "pna": {
+    "detail": "canvas=972x920 layers=71 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=972x920 layers=71 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_01l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 5488661,
+    "steam_size": 4910147
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_01M.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_01M.pna",
+   "pna": {
+    "detail": "canvas=536x920 layers=71 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=536x920 layers=71 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_01m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3540890,
+    "steam_size": 3228260
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_01S.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_01S.pna",
+   "pna": {
+    "detail": "canvas=391x920 layers=71 subimage_changed=8",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=391x920 layers=71 subimage_changed=8）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_01s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3382388,
+    "steam_size": 3067151
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_01W.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_01W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=72 subimage_changed=2",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=72 subimage_changed=2）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_01w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 4804035,
+    "steam_size": 4163802
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_02L.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_02L.pna",
+   "pna": {
+    "detail": "canvas=915x920 layers=36 subimage_changed=4",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=915x920 layers=36 subimage_changed=4）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_02l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2012872,
+    "steam_size": 1880137
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_02M.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_02M.pna",
+   "pna": {
+    "detail": "canvas=563x920 layers=36 subimage_changed=4",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=563x920 layers=36 subimage_changed=4）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_02m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1357025,
+    "steam_size": 1275771
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_02S.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_02S.pna",
+   "pna": {
+    "detail": "canvas=410x920 layers=36 subimage_changed=4",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=410x920 layers=36 subimage_changed=4）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_02s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 1208202,
+    "steam_size": 1135613
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_02W.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_02W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=37 subimage_changed=1",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=37 subimage_changed=1）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_02w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 12852126,
+    "steam_size": 11462288
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_03L.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_03L.pna",
+   "pna": {
+    "detail": "canvas=1275x920 layers=66 subimage_changed=12",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=1275x920 layers=66 subimage_changed=12）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_03l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 5318053,
+    "steam_size": 5040038
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_03M.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_03M.pna",
+   "pna": {
+    "detail": "canvas=655x920 layers=66 subimage_changed=12",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=655x920 layers=66 subimage_changed=12）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_03m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 3704406,
+    "steam_size": 3504783
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_03S.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_03S.pna",
+   "pna": {
+    "detail": "canvas=474x920 layers=66 subimage_changed=12",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=474x920 layers=66 subimage_changed=12）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_03s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "overwrite",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "censor",
+   "dims": {
+    "orig_size": 2954368,
+    "steam_size": 2839820
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "E夜瑠_03W.pna",
+   "nearest": null,
+   "orig_name": "E夜瑠_03W.pna",
+   "pna": {
+    "detail": "canvas=418x498 layers=67 subimage_changed=3",
+    "equivalent": true
+   },
+   "reason": "pna 层序等价、内容改画 ⇒ 整名覆盖（canvas=418x498 layers=67 subimage_changed=3）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/e夜瑠_03w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 4941243,
+    "steam_size": 6428981
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "H朱莉_01L.pna",
+   "nearest": null,
+   "orig_name": "H朱莉_01L.pna",
+   "pna": {
+    "detail": "layer_count 47 != 49",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 47 != 49）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/h朱莉_01l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 2074102,
+    "steam_size": 2562438
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "H朱莉_01M.pna",
+   "nearest": null,
+   "orig_name": "H朱莉_01M.pna",
+   "pna": {
+    "detail": "layer_count 47 != 49",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 47 != 49）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/h朱莉_01m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 1427745,
+    "steam_size": 1702015
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "H朱莉_01S.pna",
+   "nearest": null,
+   "orig_name": "H朱莉_01S.pna",
+   "pna": {
+    "detail": "layer_count 47 != 49",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 47 != 49）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/h朱莉_01s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 1262416,
+    "steam_size": 1461742
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "H朱莉_01W.pna",
+   "nearest": null,
+   "orig_name": "H朱莉_01W.pna",
+   "pna": {
+    "detail": "layer_count 48 != 50",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 48 != 50）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/h朱莉_01w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 4687097,
+    "steam_size": 3997773
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "ほたるST02_L.pna",
+   "nearest": null,
+   "orig_name": "ほたるST02_L.pna",
+   "pna": {
+    "detail": "layer_count 42 != 32",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 42 != 32）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/ほたるst02_l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 1930072,
+    "steam_size": 1783470
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "ほたるST02_M.pna",
+   "nearest": null,
+   "orig_name": "ほたるST02_M.pna",
+   "pna": {
+    "detail": "layer_count 42 != 32",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 42 != 32）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/ほたるst02_m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 1314782,
+    "steam_size": 1264263
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "ほたるST02_S.pna",
+   "nearest": null,
+   "orig_name": "ほたるST02_S.pna",
+   "pna": {
+    "detail": "layer_count 42 != 32",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 42 != 32）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/ほたるst02_s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 1118739,
+    "steam_size": 1035157
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "ほたるST02_W.pna",
+   "nearest": null,
+   "orig_name": "ほたるST02_W.pna",
+   "pna": {
+    "detail": "layer_count 43 != 33",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 43 != 33）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/ほたるst02_w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 5052872,
+    "steam_size": 4476955
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "佳奈子ST02_L.pna",
+   "nearest": null,
+   "orig_name": "佳奈子ST02_L.pna",
+   "pna": {
+    "detail": "layer_count 44 != 30",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 44 != 30）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/佳奈子st02_l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 2689381,
+    "steam_size": 2523274
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "佳奈子ST02_M.pna",
+   "nearest": null,
+   "orig_name": "佳奈子ST02_M.pna",
+   "pna": {
+    "detail": "layer_count 44 != 30",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 44 != 30）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/佳奈子st02_m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 1730234,
+    "steam_size": 1651432
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "佳奈子ST02_S.pna",
+   "nearest": null,
+   "orig_name": "佳奈子ST02_S.pna",
+   "pna": {
+    "detail": "layer_count 44 != 30",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 44 != 30）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/佳奈子st02_s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 1450260,
+    "steam_size": 1365811
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "佳奈子ST02_W.pna",
+   "nearest": null,
+   "orig_name": "佳奈子ST02_W.pna",
+   "pna": {
+    "detail": "layer_count 45 != 31",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 45 != 31）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/佳奈子st02_w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 6037611,
+    "steam_size": 5001533
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "小鳥FDST01_L.pna",
+   "nearest": null,
+   "orig_name": "小鳥FDST01_L.pna",
+   "pna": {
+    "detail": "layer_count 62 != 50",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 62 != 50）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/小鳥fdst01_l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 3196427,
+    "steam_size": 2729574
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "小鳥FDST01_M.pna",
+   "nearest": null,
+   "orig_name": "小鳥FDST01_M.pna",
+   "pna": {
+    "detail": "layer_count 62 != 50",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 62 != 50）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/小鳥fdst01_m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 2243019,
+    "steam_size": 1958735
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "小鳥FDST01_S.pna",
+   "nearest": null,
+   "orig_name": "小鳥FDST01_S.pna",
+   "pna": {
+    "detail": "layer_count 62 != 50",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 62 != 50）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/小鳥fdst01_s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 1643186,
+    "steam_size": 1448872
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "小鳥FDST01_W.pna",
+   "nearest": null,
+   "orig_name": "小鳥FDST01_W.pna",
+   "pna": {
+    "detail": "layer_count 63 != 51",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 63 != 51）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/小鳥fdst01_w.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 6486258,
+    "steam_size": 5370414
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "小鳥FDST02_L.pna",
+   "nearest": null,
+   "orig_name": "小鳥FDST02_L.pna",
+   "pna": {
+    "detail": "layer_count 45 != 33",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 45 != 33）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/小鳥fdst02_l.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 4025257,
+    "steam_size": 3365763
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "小鳥FDST02_M.pna",
+   "nearest": null,
+   "orig_name": "小鳥FDST02_M.pna",
+   "pna": {
+    "detail": "layer_count 45 != 33",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 45 != 33）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/小鳥fdst02_m.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 2896113,
+    "steam_size": 2489210
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "小鳥FDST02_S.pna",
+   "nearest": null,
+   "orig_name": "小鳥FDST02_S.pna",
+   "pna": {
+    "detail": "layer_count 45 != 33",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 45 != 33）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/小鳥fdst02_s.pna",
+   "size_diff": null,
+   "zoom": null
+  },
+  {
+   "action": "keep",
+   "alias": null,
+   "archive": "Graphic.arc",
+   "bbox": null,
+   "big_pixels": null,
+   "big_ratio": null,
+   "class": "keep",
+   "dims": {
+    "orig_size": 1936659,
+    "steam_size": 1667086
+   },
+   "frame": null,
+   "max_abs": null,
+   "mean_diff": null,
+   "name": "小鳥FDST02_W.pna",
+   "nearest": null,
+   "orig_name": "小鳥FDST02_W.pna",
+   "pna": {
+    "detail": "layer_count 46 != 34",
+    "equivalent": false
+   },
+   "reason": "pna 层数/层序不等价 ⇒ 不动（layer_count 46 != 34）",
+   "review": "machine",
+   "series": "GRAPHIC.arc/小鳥fdst02_w.pna",
+   "size_diff": null,
+   "zoom": null
+  }
+ ],
+ "meta": {
+  "archives": [
+   "Chip2.arc",
+   "Chip7.arc",
+   "Chip9.arc",
+   "Graphic.arc"
+  ]
+ },
+ "series": {
+  "CHIP2.arc/fdsdev14_02": {
+   "class": "censor"
+  },
+  "Chip7.arc/bef_03": {
+   "class": "censor"
+  },
+  "Chip9.arc/kan_01": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_01l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_01m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_01s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_01w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_02l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_02m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_02s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_02w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_03l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_03m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_03s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/a小鳥_03w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_01l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_01m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_01s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_01w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_02l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_02m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_02s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_02w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_03l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_03m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_03s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/bあげは_03w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_01l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_01m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_01s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_01w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_02l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_02m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_02s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_02w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_03l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_03m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_03s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/c天音_03w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/d亜紗_01l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/d亜紗_01m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/d亜紗_01s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/d亜紗_01w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/d亜紗_02l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/d亜紗_02m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/d亜紗_02s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/d亜紗_02w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/d亜紗_03l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/d亜紗_03m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/d亜紗_03s.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/d亜紗_03w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_01l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_01m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_01s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_01w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_02l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_02m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_02s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_02w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_03l.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_03m.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_03s.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/e夜瑠_03w.pna": {
+   "class": "censor"
+  },
+  "GRAPHIC.arc/h朱莉_01l.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/h朱莉_01m.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/h朱莉_01s.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/h朱莉_01w.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/ほたるst02_l.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/ほたるst02_m.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/ほたるst02_s.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/ほたるst02_w.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/佳奈子st02_l.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/佳奈子st02_m.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/佳奈子st02_s.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/佳奈子st02_w.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/小鳥fdst01_l.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/小鳥fdst01_m.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/小鳥fdst01_s.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/小鳥fdst01_w.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/小鳥fdst02_l.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/小鳥fdst02_m.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/小鳥fdst02_s.pna": {
+   "class": "keep"
+  },
+  "GRAPHIC.arc/小鳥fdst02_w.pna": {
+   "class": "keep"
+  }
+ }
+}

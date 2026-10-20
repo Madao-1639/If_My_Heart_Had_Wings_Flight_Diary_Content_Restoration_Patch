@@ -1,0 +1,107 @@
+{
+ "meta": {
+  "purpose": "已复核、明确不纠正的演出差异（槽/成员/全局）。评审闸按表豁免，避免同一结论在每轮评审里重复出现。",
+  "producer": "全量演出对齐评审（2026-10-20）人工定案",
+  "consumers": [
+   "script/checks/perf_consistency_check.py",
+   "script/checks/pna_id_check.py"
+  ],
+  "coordinate": "slot = 产物槽号（0x14 序，0 基）；member = 归档成员名"
+ },
+ "slots": [
+  {
+   "script": "KAN_1001",
+   "slot": 4,
+   "kind": "translation_artifact",
+   "reason": "继承 Steam 译文拆行：O#3-4 ↔ S#3-5，CG 显示点落在拆分后的第二格；restore_scope region 0 已登记 translation_artifact / no_action",
+   "source": "resource/restore_scope.json KAN_1001 region 0"
+  },
+  {
+   "script": "KAN_1001",
+   "slot": 5,
+   "kind": "translation_artifact",
+   "reason": "同 P#4：显示点比原版晚 1 格（Steam 拆行导致），不在还原范围",
+   "source": "resource/restore_scope.json KAN_1001 region 0"
+  },
+  {
+   "script": "KAN_2002",
+   "slot": 126,
+   "kind": "cg_watermark",
+   "reason": "FDSDEV14_02B_SC.PNG ≡ FDSDEV14_02B.PNG（水印级差异 mean_abs=2.58, big=1.8%）；两侧均无解锁对，白名单",
+   "source": "script/checks/perf_consistency_check.py 内容等价豁免"
+  },
+  {
+   "script": "KAN_3002_1",
+   "slot": 114,
+   "kind": "steam_added_row",
+   "reason": "Steam 新增行（带新录音 VKAN0180，orig_row=None）；restore_scope region 0 纯增保留（pure_add / keep / not_restored），无原版承载行，不参与对齐",
+   "source": "resource/restore_scope.json KAN_3002_1 region 0"
+  },
+  {
+   "script": "KAN_3002_1",
+   "slot": 116,
+   "kind": "baseline_order",
+   "reason": "O#114 被 Steam 后移到 O#115 之后（句序调整），继承 Steam 基线，不在还原范围",
+   "source": "全量演出评审 §11"
+  }
+ ],
+ "members": [
+  {
+   "archive": "Graphic.arc",
+   "name": "H朱莉_01L.pna",
+   "kind": "steam_route_art",
+   "reason": "朱莉线（Steam 新增 AKA_*）专用立绘：Steam 在记录 43/44 插入 2 层，原版 43..46 整体映射到 45..48；保留 Steam PNA 以保新路线完整，内容映射已修正原版来源槽",
+   "source": "全量演出评审 §5 B 类"
+  },
+  {
+   "archive": "Graphic.arc",
+   "name": "H朱莉_01M.pna",
+   "kind": "steam_route_art",
+   "reason": "同 H朱莉_01L：Steam 朱莉线新增/重排层，保留 Steam 版",
+   "source": "全量演出评审 §5 B 类"
+  },
+  {
+   "archive": "Graphic.arc",
+   "name": "H朱莉_01S.pna",
+   "kind": "steam_route_art",
+   "reason": "同 H朱莉_01L：Steam 朱莉线新增/重排层，保留 Steam 版",
+   "source": "全量演出评审 §5 B 类"
+  },
+  {
+   "archive": "Graphic.arc",
+   "name": "H朱莉_01W.pna",
+   "kind": "steam_route_art",
+   "reason": "同 H朱莉_01L：Steam 朱莉线新增/重排层，保留 Steam 版",
+   "source": "全量演出评审 §5 B 类"
+  },
+  {
+   "archive": "Graphic.arc",
+   "name": "ほたるST02_W.pna",
+   "kind": "canvas_crop_benign",
+   "reason": "两侧非空记录数相同，Steam 只把画布按重心裁掉 14×15px（box 偏移 −7,−8）；按该偏移对齐后 RGBA mean≈0.02 ⇒ 无可见差异。底图记录被未还原脚本复用，不做层内修复",
+   "source": "全量演出评审 §5 B 类复核"
+  },
+  {
+   "archive": "Graphic.arc",
+   "name": "小鳥FDST01_W.pna",
+   "kind": "canvas_crop_benign",
+   "reason": "同 ほたるST02_W：画布重心裁切、对齐后 mean≈0.02；底图被 AFT_001/004 等未还原脚本复用，不做层内修复",
+   "source": "全量演出评审 §5 B 类复核"
+  },
+  {
+   "archive": "Graphic.arc",
+   "name": "小鳥FDST02_W.pna",
+   "kind": "canvas_crop_benign",
+   "reason": "同 ほたるST02_W：画布重心裁切、对齐后 mean≈0.02；底图被未还原脚本复用，不做层内修复",
+   "source": "全量演出评审 §5 B 类复核"
+  }
+ ],
+ "globals": [
+  {
+   "kind": "text_evidence_block_only",
+   "count": 4701,
+   "reason": "无语音自证、仅按对齐块确认「同一句」的槽（当前项目无 JP↔EN/CN 逐句语料）；只确认中文非空、说话人一致、按对齐位置，未逐句语义重译核对",
+   "source": "全量演出评审 §11"
+  }
+ ]
+}

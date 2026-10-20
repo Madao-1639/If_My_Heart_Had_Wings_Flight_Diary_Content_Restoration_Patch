@@ -1,0 +1,3377 @@
+{
+ "meta": {
+  "project": "If My Heart Had Wings FLIGHT DIARY 内容恢复补丁",
+  "generated": "2026-10-13",
+  "purpose": "还原范围定案：逐剧本逐区间处置动作。写盘器与计划生成器的唯一输入。",
+  "method": "1) 机械标定：ORIG<->STEAM 用语音名 LCS 锚点、STEAM<->PATCH 用台词文本 LCS 锚点，圈出 134 个差分区间（tmp/scope/scope_mech.py）；2) 语义核验：4 个 subagent 对 134 区间逐处判定形态（报告 tmp/verify/scope_*.md）；3) 主控独立复核：原版格式表反汇编两侧、官中 lng 逐槽比对、关键行直接取证。",
+  "forms": {
+   "translation_artifact": "翻译拆行伪差异：Steam 英文格就是原版格的翻译，仅拆行/合行 => 无需还原",
+   "rewrite": "改写：一一对应、位置没错、内容换成别的段子 => 该格取原版那一行（位置对位）",
+   "mixed_censor": "混译+审查替换：区间内 Steam 格部分是原版格的翻译、部分是审查替换/删减（对应原版行无落点）=> 整区间取原版（翻译格随之回源，内容不丢失）",
+   "para_delete_new_write": "整段删+新写：原版一段被删，Steam 在同位置写了新内容 => 新写保留；被删的走还原插入",
+   "compress_summary": "压缩概述：原版一段被删，Steam 用几格概述压掉 => 几格改取原版首 N 行 + 其余行插入其后",
+   "pure_delete": "纯删：Steam 侧无格 => 还原插入全部原版格",
+   "pure_add": "纯增：原版侧无格（Steam 新增，非顶替）=> 保留"
+  },
+  "actions": {
+   "no_action": "保留 Steam 行（中文经官方 .lng 或本项目重译）",
+   "replace_with_orig": "该格（位）内容替换为原版对应行",
+   "keep_steam_insert_orig": "保留 Steam 新写行，并把被删的原版格还原插入到该位置之后",
+   "cells_take_orig_firstN_insert_rest": "该几格取原版首 N 行，其余原版格插入其后",
+   "insert_orig_all": "在该位置插入全部原版格",
+   "keep": "原样保留"
+  },
+  "sources": {
+   "orig": "If_My_Heart_Had_Wings_Flight_Diary_Original（2013 日文原版）",
+   "steam": "E:/SteamLibrary/steamapps/common/IF MY HEART HAD WINGS FLIGHT DIARY（Steam 英文版）",
+   "patch": "If_My_Heart_Had_Wings_Flight_Diary_Restoration Patch（国外还原补丁，参照物）",
+   "zh_cn": "Steam zh-CN/{Rio.arc, Script.arc, Fonts.arc, AdvHDLang.dll}（官中，中文正文来源）"
+  }
+ },
+ "summary": {
+  "matched_scripts": 107,
+  "deleted_whole_scripts": [
+   "AGS_001"
+  ],
+  "steam_new_scripts": [
+   "CG_Achievement",
+   "DDS_ANIME_ERASE",
+   "KAN_3002_3_E",
+   "LoadTipsCall"
+  ],
+  "regions_total": 134,
+  "regions_by_form": {
+   "translation_artifact": 71,
+   "para_delete_new_write": 26,
+   "rewrite": 11,
+   "pure_delete": 3,
+   "mixed_censor": 20,
+   "pure_add": 3
+  },
+  "regions_by_action": {
+   "no_action": 71,
+   "replace_with_orig": 57,
+   "insert_orig_all": 3,
+   "keep": 3
+  },
+  "regions_by_h_level": {
+   "普通": 94,
+   "H": 25,
+   "性暗示": 15
+  },
+  "restore_rows_total": 4232,
+  "h_or_ecchi_rows": 4112,
+  "patch_text_matching": "恰当——11 个 H 脚本补丁缝入的日文格与原版逐格一致（jp_cover 1.0），位置/顺序零错误",
+  "patch_disposition_divergence": "补丁删 Steam 新写行再原位填原版（共 681 行）——**本项目已决策照此办理**（直接替换），故不再视为与规则相悖。",
+  "residual_deletions_not_restored_by_patch": [
+   "H 脚本内 29 格未还原（KAN_3001_4 漏 9、BEF_004 漏 3、BEF_003 漏 3、AFT_007_3 漏 1、HUS_001 漏 7 格+5 语音）",
+   "AFT_007_3 / BEF_004 / KAN_3001_3 的 EVRET 出口跳转补丁漏还原",
+   "非 H 脚本：KAN_2001 处女话题段(49 格)+2 纯删、KAN_3001_5 澡堂戏(6 格)、BEF_005 胸部调侃(7 格)、KAN_2002 朱莉台词主语被改(1 格)、NOV_001 助词丢失",
+   "CG_PAGE01-04 画廊未按原版重建（相对原版缺 71/101/114/113 条、顺序不同）"
+  ],
+  "disposition_decision": "用户决策（2026-10-15）：Steam 审查新写与原版 H 段二选一时**一律直接替换为原版**（不保留全年龄替代场景，避免 tonal 重复）。⇒ 形态仍记为 para_delete_new_write（那是 Steam 的行为），但处置动作统一为 replace_with_orig。此与国外补丁做法一致（它也是删新写、原位填原版）。"
+ },
+ "scripts": {
+  "AFT_001": {
+   "orig_file": "AFT_001.ws2",
+   "steam_file": "AFT_001_E.ws2",
+   "patch_file": "AFT_001_E.ws2",
+   "orig_rows": 238,
+   "steam_rows": 239,
+   "patch_rows": 239,
+   "voice_anchor_pairs": 120,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      201,
+      202
+     ],
+     "steam_range": [
+      201,
+      203
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "AFT_002": {
+   "orig_file": "AFT_002.ws2",
+   "steam_file": "AFT_002_E.ws2",
+   "patch_file": "AFT_002_E.ws2",
+   "orig_rows": 532,
+   "steam_rows": 536,
+   "patch_rows": 536,
+   "voice_anchor_pairs": 243,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      144,
+      145
+     ],
+     "steam_range": [
+      144,
+      146
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      292,
+      303
+     ],
+     "steam_range": [
+      293,
+      305
+     ],
+     "orig_rows": 12,
+     "steam_rows": 13,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      404,
+      405
+     ],
+     "steam_range": [
+      406,
+      408
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 3,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      428,
+      430
+     ],
+     "steam_range": [
+      431,
+      433
+     ],
+     "orig_rows": 3,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 4,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      472,
+      476
+     ],
+     "steam_range": [
+      475,
+      480
+     ],
+     "orig_rows": 5,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "AFT_003": {
+   "orig_file": "AFT_003.ws2",
+   "steam_file": "AFT_003_E.ws2",
+   "patch_file": "AFT_003_E.ws2",
+   "orig_rows": 1016,
+   "steam_rows": 544,
+   "patch_rows": 1017,
+   "voice_anchor_pairs": 215,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      205,
+      204
+     ],
+     "steam_range": [
+      205,
+      205
+     ],
+     "orig_rows": 0,
+     "steam_rows": 1,
+     "patch_status": "n/a(纯增)",
+     "patch_jp_cover": null,
+     "patch_dropped_steam_rows": 0,
+     "note": "伪新增：S#205 是原版 O#204 长句的拆行尾部（O#204 含「手術をして、立って歩けるようになった」）⇒ EN 拆行 ⇒ 不动作"
+    },
+    {
+     "id": 1,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      332,
+      842
+     ],
+     "steam_range": [
+      333,
+      370
+     ],
+     "orig_rows": 511,
+     "steam_rows": 38,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 38,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 把原版 511 格 H 段同节拍审查改写成 38 格吻戏；补丁删光 38 格原位填原版(覆盖1.0)。形态规则：新写保留+被删还原插入"
+    },
+    {
+     "id": 2,
+     "form": "rewrite",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      854,
+      857
+     ],
+     "steam_range": [
+      382,
+      385
+     ],
+     "orig_rows": 4,
+     "steam_rows": 4,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 1,
+     "note": "CUTIN_02_06→CUTIN_02_04 特写改放（继承自 Steam），同位换装 VKOT0297 ⇒ 该格取原版那一行（补丁未还原）"
+    }
+   ]
+  },
+  "AFT_004": {
+   "orig_file": "AFT_004.ws2",
+   "steam_file": "AFT_004_E.ws2",
+   "patch_file": "AFT_004_E.ws2",
+   "orig_rows": 929,
+   "steam_rows": 927,
+   "patch_rows": 927,
+   "voice_anchor_pairs": 348,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      81,
+      121
+     ],
+     "steam_range": [
+      81,
+      119
+     ],
+     "orig_rows": 41,
+     "steam_rows": 39,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "AFT_005": {
+   "orig_file": "AFT_005.ws2",
+   "steam_file": "AFT_005_E.ws2",
+   "patch_file": "AFT_005_E.ws2",
+   "orig_rows": 747,
+   "steam_rows": 748,
+   "patch_rows": 748,
+   "voice_anchor_pairs": 389,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      323,
+      330
+     ],
+     "steam_range": [
+      323,
+      331
+     ],
+     "orig_rows": 8,
+     "steam_rows": 9,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 1,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      491,
+      493
+     ],
+     "steam_range": [
+      492,
+      493
+     ],
+     "orig_rows": 3,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#493「俺はその話を知らない事になっているので、なんとも答えようがない」整句无落点（S#492/493 对应 O#491/492），非敏感内容纯漏译 ⇒ 整区间取原版"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      705,
+      704
+     ],
+     "steam_range": [
+      705,
+      705
+     ],
+     "orig_rows": 0,
+     "steam_rows": 1,
+     "patch_status": "n/a(纯增)",
+     "patch_jp_cover": null,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "AFT_006_1": {
+   "orig_file": "AFT_006_1.ws2",
+   "steam_file": "AFT_006_1_E.ws2",
+   "patch_file": "AFT_006_1_E.ws2",
+   "orig_rows": 285,
+   "steam_rows": 285,
+   "patch_rows": 285,
+   "voice_anchor_pairs": 179,
+   "regions": []
+  },
+  "AFT_006_2": {
+   "orig_file": "AFT_006_2.ws2",
+   "steam_file": "AFT_006_2_E.ws2",
+   "patch_file": "AFT_006_2_E.ws2",
+   "orig_rows": 208,
+   "steam_rows": 208,
+   "patch_rows": 208,
+   "voice_anchor_pairs": 89,
+   "regions": []
+  },
+  "AFT_006_3": {
+   "orig_file": "AFT_006_3.ws2",
+   "steam_file": "AFT_006_3_E.ws2",
+   "patch_file": "AFT_006_3_E.ws2",
+   "orig_rows": 240,
+   "steam_rows": 240,
+   "patch_rows": 240,
+   "voice_anchor_pairs": 138,
+   "regions": []
+  },
+  "AFT_006_4": {
+   "orig_file": "AFT_006_4.ws2",
+   "steam_file": "AFT_006_4_E.ws2",
+   "patch_file": "AFT_006_4_E.ws2",
+   "orig_rows": 71,
+   "steam_rows": 71,
+   "patch_rows": 71,
+   "voice_anchor_pairs": 48,
+   "regions": []
+  },
+  "AFT_007_1": {
+   "orig_file": "AFT_007_1.ws2",
+   "steam_file": "AFT_007_1_E.ws2",
+   "patch_file": "AFT_007_1_E.ws2",
+   "orig_rows": 483,
+   "steam_rows": 483,
+   "patch_rows": 483,
+   "voice_anchor_pairs": 235,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      148,
+      152
+     ],
+     "steam_range": [
+      148,
+      152
+     ],
+     "orig_rows": 5,
+     "steam_rows": 5,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "AFT_007_2": {
+   "orig_file": "AFT_007_2.ws2",
+   "steam_file": "AFT_007_2_E.ws2",
+   "patch_file": "AFT_007_2_E.ws2",
+   "orig_rows": 200,
+   "steam_rows": 200,
+   "patch_rows": 200,
+   "voice_anchor_pairs": 97,
+   "regions": []
+  },
+  "AFT_007_3": {
+   "orig_file": "AFT_007_3.ws2",
+   "steam_file": "AFT_007_3_E.ws2",
+   "patch_file": "AFT_007_3_E.ws2",
+   "orig_rows": 431,
+   "steam_rows": 115,
+   "patch_rows": 431,
+   "voice_anchor_pairs": 30,
+   "regions": [
+    {
+     "id": 0,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      52,
+      417
+     ],
+     "steam_range": [
+      52,
+      101
+     ],
+     "orig_rows": 366,
+     "steam_rows": 50,
+     "patch_status": "restored",
+     "patch_jp_cover": 0.9973,
+     "patch_dropped_steam_rows": 49,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 50 格审查改写顶替原版 366 格星空 H；补丁删 49 存 1、插 365（漏 ORIG#75）；EVRET 出口跳转补丁漏还原，实现时须补"
+    }
+   ]
+  },
+  "AFT_008_1": {
+   "orig_file": "AFT_008_1.ws2",
+   "steam_file": "AFT_008_1_E.ws2",
+   "patch_file": "AFT_008_1_E.ws2",
+   "orig_rows": 121,
+   "steam_rows": 121,
+   "patch_rows": 121,
+   "voice_anchor_pairs": 65,
+   "regions": []
+  },
+  "AFT_008_2": {
+   "orig_file": "AFT_008_2.ws2",
+   "steam_file": "AFT_008_2_E.ws2",
+   "patch_file": "AFT_008_2_E.ws2",
+   "orig_rows": 238,
+   "steam_rows": 239,
+   "patch_rows": 239,
+   "voice_anchor_pairs": 137,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      219,
+      223
+     ],
+     "steam_range": [
+      219,
+      224
+     ],
+     "orig_rows": 5,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "AFT_008_3": {
+   "orig_file": "AFT_008_3.ws2",
+   "steam_file": "AFT_008_3_E.ws2",
+   "patch_file": "AFT_008_3_E.ws2",
+   "orig_rows": 235,
+   "steam_rows": 235,
+   "patch_rows": 235,
+   "voice_anchor_pairs": 104,
+   "regions": []
+  },
+  "AFT_008_4": {
+   "orig_file": "AFT_008_4.ws2",
+   "steam_file": "AFT_008_4_E.ws2",
+   "patch_file": "AFT_008_4_E.ws2",
+   "orig_rows": 289,
+   "steam_rows": 289,
+   "patch_rows": 289,
+   "voice_anchor_pairs": 155,
+   "regions": []
+  },
+  "AFT_009": {
+   "orig_file": "AFT_009.ws2",
+   "steam_file": "AFT_009_E.ws2",
+   "patch_file": "AFT_009_E.ws2",
+   "orig_rows": 442,
+   "steam_rows": 442,
+   "patch_rows": 442,
+   "voice_anchor_pairs": 204,
+   "regions": []
+  },
+  "BEF_001": {
+   "orig_file": "BEF_001.ws2",
+   "steam_file": "BEF_001_E.ws2",
+   "patch_file": "BEF_001_E.ws2",
+   "orig_rows": 106,
+   "steam_rows": 106,
+   "patch_rows": 106,
+   "voice_anchor_pairs": 73,
+   "regions": []
+  },
+  "BEF_002": {
+   "orig_file": "BEF_002.ws2",
+   "steam_file": "BEF_002_E.ws2",
+   "patch_file": "BEF_002_E.ws2",
+   "orig_rows": 799,
+   "steam_rows": 799,
+   "patch_rows": 799,
+   "voice_anchor_pairs": 458,
+   "regions": []
+  },
+  "BEF_003": {
+   "orig_file": "BEF_003.ws2",
+   "steam_file": "BEF_003_E.ws2",
+   "patch_file": "BEF_003_E.ws2",
+   "orig_rows": 1215,
+   "steam_rows": 942,
+   "patch_rows": 1215,
+   "voice_anchor_pairs": 391,
+   "regions": [
+    {
+     "id": 0,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      234,
+      540
+     ],
+     "steam_range": [
+      234,
+      267
+     ],
+     "orig_rows": 307,
+     "steam_rows": 34,
+     "patch_status": "restored",
+     "patch_jp_cover": 0.9935,
+     "patch_dropped_steam_rows": 32,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 34 格审查改写顶替原版 307 格教室 H；补丁删 32 存 2、插 305（漏 ORIG#234/#535/#538）"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      546,
+      550
+     ],
+     "steam_range": [
+      273,
+      278
+     ],
+     "orig_rows": 5,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 3,
+     "note": "O#546-550(5)↔S#273-278(6) 两侧无语音锚，EN 拆行覆盖全部日文 ⇒ 翻译伪差异"
+    },
+    {
+     "id": 2,
+     "form": "rewrite",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      552,
+      554
+     ],
+     "steam_range": [
+      280,
+      282
+     ],
+     "orig_rows": 3,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#552-554(3)↔S#280-282(3) 同位换装 VAMA0013：原版露骨性玩笑被改写成含蓄指代(Doing what, exactly?) ⇒ 该格取原版（补丁未还原）"
+    },
+    {
+     "id": 3,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      556,
+      559
+     ],
+     "steam_range": [
+      284,
+      286
+     ],
+     "orig_rows": 4,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "[用户决策：tonal 重复一律直接替换] O#556-559(4)↔S#284-286(3) 性暗示台词压缩改写、无语音锚 ⇒ 新写保留+被删还原插入（补丁未还原）"
+    }
+   ]
+  },
+  "BEF_004": {
+   "orig_file": "BEF_004.ws2",
+   "steam_file": "BEF_004_E.ws2",
+   "patch_file": "BEF_004_E.ws2",
+   "orig_rows": 945,
+   "steam_rows": 600,
+   "patch_rows": 946,
+   "voice_anchor_pairs": 285,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      215,
+      215
+     ],
+     "steam_range": [
+      215,
+      216
+     ],
+     "orig_rows": 1,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#215(1)↔S#215-216(2)：长句英译拆两行，EN=日文翻译 ⇒ 伪差异"
+    },
+    {
+     "id": 1,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      555,
+      944
+     ],
+     "steam_range": [
+      556,
+      599
+     ],
+     "orig_rows": 390,
+     "steam_rows": 44,
+     "patch_status": "restored",
+     "patch_jp_cover": 0.9923,
+     "patch_dropped_steam_rows": 43,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 44 格审查改写顶替原版 390 格 H；补丁删 43 存 1、插 387（漏 ORIG#564/#832/#839）；EVRET 补丁漏还原"
+    }
+   ]
+  },
+  "BEF_005": {
+   "orig_file": "BEF_005.ws2",
+   "steam_file": "BEF_005_E.ws2",
+   "patch_file": "BEF_005_E.ws2",
+   "orig_rows": 1154,
+   "steam_rows": 1159,
+   "patch_rows": 1159,
+   "voice_anchor_pairs": 641,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      120,
+      122
+     ],
+     "steam_range": [
+      120,
+      123
+     ],
+     "orig_rows": 3,
+     "steam_rows": 4,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#120-122(3)↔S#120-123(4) EN 拆行"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      261,
+      263
+     ],
+     "steam_range": [
+      262,
+      264
+     ],
+     "orig_rows": 3,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#261-263(3)↔S#262-264(3) 忠实翻译+换装 VTAT0001"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      689,
+      688
+     ],
+     "steam_range": [
+      690,
+      690
+     ],
+     "orig_rows": 0,
+     "steam_rows": 1,
+     "patch_status": "n/a(纯增)",
+     "patch_jp_cover": null,
+     "patch_dropped_steam_rows": 0,
+     "note": "伪新增：S#690 是原版 O#688 长句的拆行尾部（O#688 尾「恋人関係は成立しない」= won't be in a relationship）⇒ EN 拆行 ⇒ 不动作"
+    },
+    {
+     "id": 3,
+     "form": "rewrite",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      823,
+      825
+     ],
+     "steam_range": [
+      825,
+      831
+     ],
+     "orig_rows": 3,
+     "steam_rows": 7,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "胸部调侃段 O#823-825(3)↔S#825-831(7)：Steam 改写扩写(VAMA0028/29、VISU0000/0001 新录音)，把「碧も好きなんだ、おっぱいが」改成 \"Ageha and the others were saying…\"；官中跟着英译 ⇒ 该格取原版，中文按原版重译"
+    },
+    {
+     "id": 4,
+     "form": "rewrite",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      827,
+      830
+     ],
+     "steam_range": [
+      833,
+      835
+     ],
+     "orig_rows": 4,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#827-830(4)↔S#833-835(3)：○ッコロ玩笑被改写 + 天音吐槽行(O#830)被删 ⇒ 该块取原版（O#830 需插入）"
+    }
+   ]
+  },
+  "BEF_006": {
+   "orig_file": "BEF_006.ws2",
+   "steam_file": "BEF_006_E.ws2",
+   "patch_file": "BEF_006_E.ws2",
+   "orig_rows": 310,
+   "steam_rows": 309,
+   "patch_rows": 309,
+   "voice_anchor_pairs": 179,
+   "regions": [
+    {
+     "id": 0,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      138,
+      142
+     ],
+     "steam_range": [
+      138,
+      141
+     ],
+     "orig_rows": 5,
+     "steam_rows": 4,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：S#140 将 O#140「例えば、エロサイトで勉強するよう勧めてたりとか」+O#141 整段换成泛论 \"It was hard to think that Amane's views on love were anything that applied to other people.\"（エロサイト 在英文中无落点）；S#138/139/141 为忠实翻译但随区间一并回源 ⇒ 整区间取原版"
+    }
+   ]
+  },
+  "HOT_001": {
+   "orig_file": "HOT_001.ws2",
+   "steam_file": "HOT_001_E.ws2",
+   "patch_file": "HOT_001_E.ws2",
+   "orig_rows": 464,
+   "steam_rows": 468,
+   "patch_rows": 468,
+   "voice_anchor_pairs": 164,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      9,
+      16
+     ],
+     "steam_range": [
+      9,
+      17
+     ],
+     "orig_rows": 8,
+     "steam_rows": 9,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      59,
+      68
+     ],
+     "steam_range": [
+      60,
+      70
+     ],
+     "orig_rows": 10,
+     "steam_rows": 11,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      175,
+      176
+     ],
+     "steam_range": [
+      177,
+      178
+     ],
+     "orig_rows": 2,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 3,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      211,
+      214
+     ],
+     "steam_range": [
+      213,
+      217
+     ],
+     "orig_rows": 4,
+     "steam_rows": 5,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 4,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      370,
+      371
+     ],
+     "steam_range": [
+      373,
+      375
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "HOT_002": {
+   "orig_file": "HOT_002.ws2",
+   "steam_file": "HOT_002_E.ws2",
+   "patch_file": "HOT_002_E.ws2",
+   "orig_rows": 1507,
+   "steam_rows": 1167,
+   "patch_rows": 1513,
+   "voice_anchor_pairs": 423,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      43,
+      44
+     ],
+     "steam_range": [
+      43,
+      45
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 扩写/拆行覆盖对应日文"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      182,
+      182
+     ],
+     "steam_range": [
+      183,
+      184
+     ],
+     "orig_rows": 1,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行覆盖对应日文"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      290,
+      290
+     ],
+     "steam_range": [
+      292,
+      293
+     ],
+     "orig_rows": 1,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行覆盖对应日文"
+    },
+    {
+     "id": 3,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      392,
+      394
+     ],
+     "steam_range": [
+      395,
+      398
+     ],
+     "orig_rows": 3,
+     "steam_rows": 4,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 扩写覆盖对应日文"
+    },
+    {
+     "id": 4,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      670,
+      669
+     ],
+     "steam_range": [
+      674,
+      674
+     ],
+     "orig_rows": 0,
+     "steam_rows": 1,
+     "patch_status": "n/a(纯增)",
+     "patch_jp_cover": null,
+     "patch_dropped_steam_rows": 0,
+     "note": "伪新增：S#674 是原版 O#669 的拆行尾部（O#669「武器は、女の魅力♪」= feminine charms）⇒ EN 拆行 ⇒ 不动作"
+    },
+    {
+     "id": 5,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      756,
+      755
+     ],
+     "steam_range": [
+      761,
+      761
+     ],
+     "orig_rows": 0,
+     "steam_rows": 1,
+     "patch_status": "n/a(纯增)",
+     "patch_jp_cover": null,
+     "patch_dropped_steam_rows": 0,
+     "note": "伪新增：S#761 是原版 O#755 长句的拆行尾部（O#755 含「騒いで、盛り上がるのは全然好きじゃない」）⇒ EN 拆行 ⇒ 不动作"
+    },
+    {
+     "id": 6,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      1101,
+      1491
+     ],
+     "steam_range": [
+      1107,
+      1150
+     ],
+     "orig_rows": 391,
+     "steam_rows": 44,
+     "patch_status": "restored",
+     "patch_jp_cover": 0.9949,
+     "patch_dropped_steam_rows": 42,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 44 格(VHOT0001A/B、0002-0008 新录音)顶替原版 391 格 H；补丁删 42 存 2、插 404"
+    },
+    {
+     "id": 7,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      1493,
+      1506
+     ],
+     "steam_range": [
+      1152,
+      1166
+     ],
+     "orig_rows": 14,
+     "steam_rows": 15,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 15,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 15 格(VHOT0009/0010 新录音，扩写告白场景)顶替原版 14 格；补丁删 15、插 14(1.0)"
+    }
+   ]
+  },
+  "HOT_003": {
+   "orig_file": "HOT_003.ws2",
+   "steam_file": "HOT_003_E.ws2",
+   "patch_file": "HOT_003_E.ws2",
+   "orig_rows": 569,
+   "steam_rows": 567,
+   "patch_rows": 567,
+   "voice_anchor_pairs": 236,
+   "regions": [
+    {
+     "id": 0,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      216,
+      223
+     ],
+     "steam_range": [
+      216,
+      220
+     ],
+     "orig_rows": 8,
+     "steam_rows": 5,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：S#218 将 O#218「ほたるの、服の下の……体……素肌……」换成 \"nestling in my arms\"；O#219 后半「胸、大きかったよな」无落点；O#221 后半「触っても、入りこんでも」与 O#222「入っても……入る……」整句删除（S#219 只覆盖 やわらかかった+熱かった）⇒ 整区间取原版"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      293,
+      301
+     ],
+     "steam_range": [
+      290,
+      299
+     ],
+     "orig_rows": 9,
+     "steam_rows": 10,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "HOT_004": {
+   "orig_file": "HOT_004.ws2",
+   "steam_file": "HOT_004_E.ws2",
+   "patch_file": "HOT_004_E.ws2",
+   "orig_rows": 1315,
+   "steam_rows": 762,
+   "patch_rows": 1320,
+   "voice_anchor_pairs": 325,
+   "regions": [
+    {
+     "id": 0,
+     "form": "rewrite",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      323,
+      323
+     ],
+     "steam_range": [
+      323,
+      324
+     ],
+     "orig_rows": 1,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "★部训语义反转：原版「最終的には、一人でも飛べるようになること。それがうちの部の目標だ」→ Steam \"Nobody flies alone… one of our club's most sacred laws\"（独自飞翔被译成禁止独自飞行）。官中 slot323-324 已按原版译（最终要做到独立飞行）但 Steam 拆成 2 格 ⇒ 该格取原版那一行"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      329,
+      331
+     ],
+     "steam_range": [
+      330,
+      333
+     ],
+     "orig_rows": 3,
+     "steam_rows": 4,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#329-331(3)↔S#330-333(4) EN 拆行"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      375,
+      377
+     ],
+     "steam_range": [
+      377,
+      380
+     ],
+     "orig_rows": 3,
+     "steam_rows": 4,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#375-377(3)↔S#377-380(4) EN 拆行"
+    },
+    {
+     "id": 3,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      630,
+      630
+     ],
+     "steam_range": [
+      633,
+      634
+     ],
+     "orig_rows": 1,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#630(1)↔S#633-634(2) EN 拆行"
+    },
+    {
+     "id": 4,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      635,
+      640
+     ],
+     "steam_range": [
+      639,
+      645
+     ],
+     "orig_rows": 6,
+     "steam_rows": 7,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#635-640(6)↔S#639-645(7) EN 拆行"
+    },
+    {
+     "id": 5,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      677,
+      690
+     ],
+     "steam_range": [
+      682,
+      690
+     ],
+     "orig_rows": 14,
+     "steam_rows": 9,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 9,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 9 格审查改写顶替原版 14 格；补丁已还原(1.0)"
+    },
+    {
+     "id": 6,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      692,
+      712
+     ],
+     "steam_range": [
+      692,
+      699
+     ],
+     "orig_rows": 21,
+     "steam_rows": 8,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 8,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 8 格顶替原版 21 格；补丁已还原(1.0)"
+    },
+    {
+     "id": 7,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      714,
+      747
+     ],
+     "steam_range": [
+      701,
+      705
+     ],
+     "orig_rows": 34,
+     "steam_rows": 5,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 5,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 5 格顶替原版 34 格；补丁已还原(1.0)"
+    },
+    {
+     "id": 8,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      749,
+      991
+     ],
+     "steam_range": [
+      707,
+      726
+     ],
+     "orig_rows": 243,
+     "steam_rows": 20,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 20,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 20 格顶替原版 243 格主 H 段；补丁已还原(1.0)"
+    },
+    {
+     "id": 9,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      993,
+      1026
+     ],
+     "steam_range": [
+      728,
+      729
+     ],
+     "orig_rows": 34,
+     "steam_rows": 2,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 2,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 2 格顶替原版 34 格；补丁已还原(1.0)"
+    },
+    {
+     "id": 10,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      1030,
+      1291
+     ],
+     "steam_range": [
+      733,
+      739
+     ],
+     "orig_rows": 262,
+     "steam_rows": 7,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 7,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 7 格顶替原版 262 格；补丁已还原(1.0)"
+    },
+    {
+     "id": 11,
+     "form": "pure_delete",
+     "action": "insert_orig_all",
+     "h_level": "H",
+     "orig_range": [
+      1301,
+      1301
+     ],
+     "steam_range": [
+      749,
+      748
+     ],
+     "orig_rows": 1,
+     "steam_rows": 0,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#1301「柱、立った。大黒柱。わたしの中に、どーんと」Steam 侧无格；补丁已插入该行"
+    }
+   ]
+  },
+  "HOT_005": {
+   "orig_file": "HOT_005.ws2",
+   "steam_file": "HOT_005_E.ws2",
+   "patch_file": "HOT_005_E.ws2",
+   "orig_rows": 198,
+   "steam_rows": 196,
+   "patch_rows": 196,
+   "voice_anchor_pairs": 76,
+   "regions": [
+    {
+     "id": 0,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      108,
+      111
+     ],
+     "steam_range": [
+      108,
+      109
+     ],
+     "orig_rows": 4,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#109「あおにぃの時だけ、そうしてたみたい。他の人の時は普段通り」(HOTARU_0943 有配音) 与 O#110「あのやろ……」在 Steam 无落点（S#108/109 只对应 O#108/111）⇒ 整区间取原版"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      137,
+      138
+     ],
+     "steam_range": [
+      135,
+      136
+     ],
+     "orig_rows": 2,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      143,
+      146
+     ],
+     "steam_range": [
+      141,
+      144
+     ],
+     "orig_rows": 4,
+     "steam_rows": 4,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "HUS_001": {
+   "orig_file": "HUS_001.ws2",
+   "steam_file": "HUS_001_E.ws2",
+   "patch_file": "HUS_001_E.ws2",
+   "orig_rows": 824,
+   "steam_rows": 641,
+   "patch_rows": 816,
+   "voice_anchor_pairs": 188,
+   "regions": [
+    {
+     "id": 0,
+     "form": "rewrite",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      73,
+      75
+     ],
+     "steam_range": [
+      73,
+      75
+     ],
+     "orig_rows": 3,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#73-75(3)↔S#73-75(3) 位对齐但内容被改：原版「亜紗ちゃんのお尻の割れ目にそっと差し込む」→ \"And placed them softly on her butt\"，官中 slot73 也跟着译成「将书轻轻放在了亚纱的臀部」⇒ 该格取原版，中文按原版重译"
+    },
+    {
+     "id": 1,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      120,
+      122
+     ],
+     "steam_range": [
+      120,
+      121
+     ],
+     "orig_rows": 3,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#120 后半「こちらに非はないだろう、うん」无落点（S#120 只合行覆盖 O#120 前半+O#121 自爆）⇒ 整区间取原版"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      180,
+      181
+     ],
+     "steam_range": [
+      179,
+      180
+     ],
+     "orig_rows": 2,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#180-181(2)↔S#179-180(2) 忠实翻译+换装"
+    },
+    {
+     "id": 3,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      186,
+      187
+     ],
+     "steam_range": [
+      185,
+      185
+     ],
+     "orig_rows": 2,
+     "steam_rows": 1,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#186「まぁでも、これでご飯食べに降りた時には涼しくなる筈だから、一安心だね」(ASA_0425 有配音) 整句无落点，S#185 只对应 O#187 ⇒ 整区间取原版"
+    },
+    {
+     "id": 4,
+     "form": "rewrite",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      199,
+      208
+     ],
+     "steam_range": [
+      197,
+      207
+     ],
+     "orig_rows": 10,
+     "steam_rows": 11,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#199-208(10)↔S#197-207(11)：Steam 补入 VTAT0000 反应行「~Thanks~」原版无 ⇒ 该格取原版"
+    },
+    {
+     "id": 5,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      211,
+      239
+     ],
+     "steam_range": [
+      210,
+      228
+     ],
+     "orig_rows": 29,
+     "steam_rows": 19,
+     "patch_status": "partial",
+     "patch_jp_cover": 0.7586,
+     "patch_dropped_steam_rows": 19,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 19 格顶替原版 29 格（删 HP 内容，VTAT0003）；补丁 partial"
+    },
+    {
+     "id": 6,
+     "form": "rewrite",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      241,
+      243
+     ],
+     "steam_range": [
+      230,
+      232
+     ],
+     "orig_rows": 3,
+     "steam_rows": 3,
+     "patch_status": "partial",
+     "patch_jp_cover": 0.3333,
+     "patch_dropped_steam_rows": 3,
+     "note": "O#241-243(3)↔S#230-232(3)：原版裸女抱挱 → Steam \"The girls were in their swimsuits\"（泳装化审查）⇒ 该格取原版"
+    },
+    {
+     "id": 7,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      245,
+      262
+     ],
+     "steam_range": [
+      234,
+      250
+     ],
+     "orig_rows": 18,
+     "steam_rows": 17,
+     "patch_status": "partial",
+     "patch_jp_cover": 0.9444,
+     "patch_dropped_steam_rows": 17,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 17 格顶替原版 18 格（删 HP）；补丁 partial"
+    },
+    {
+     "id": 8,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      264,
+      325
+     ],
+     "steam_range": [
+      252,
+      307
+     ],
+     "orig_rows": 62,
+     "steam_rows": 56,
+     "patch_status": "partial",
+     "patch_jp_cover": 0.9032,
+     "patch_dropped_steam_rows": 56,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 56 格顶替原版 62 格（删 HP）；补丁 partial"
+    },
+    {
+     "id": 9,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      327,
+      596
+     ],
+     "steam_range": [
+      309,
+      421
+     ],
+     "orig_rows": 270,
+     "steam_rows": 113,
+     "patch_status": "partial",
+     "patch_jp_cover": 0.7444,
+     "patch_dropped_steam_rows": 113,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 113 格顶替原版 270 格 H 主段；补丁 partial（漏 7 格）"
+    },
+    {
+     "id": 10,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      598,
+      616
+     ],
+     "steam_range": [
+      423,
+      440
+     ],
+     "orig_rows": 19,
+     "steam_rows": 18,
+     "patch_status": "partial",
+     "patch_jp_cover": 0.4211,
+     "patch_dropped_steam_rows": 6,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 18 格顶替原版 19 格（删 HP）；补丁 partial"
+    },
+    {
+     "id": 11,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      749,
+      758
+     ],
+     "steam_range": [
+      573,
+      575
+     ],
+     "orig_rows": 10,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "[用户决策：tonal 重复一律直接替换] H 块尾段 O#749-758(10)↔S#573-575(3)：Steam 删到只剩一句，补丁未还原（缺 4 条 HP 语音 + 2 字幕音 + ASA_0425 + 11 处 V*** 未换回）"
+    }
+   ]
+  },
+  "KAN_1001": {
+   "orig_file": "KAN_1001.ws2",
+   "steam_file": "KAN_1001_E.ws2",
+   "patch_file": "KAN_1001_E.ws2",
+   "orig_rows": 45,
+   "steam_rows": 50,
+   "patch_rows": 50,
+   "voice_anchor_pairs": 17,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      3,
+      4
+     ],
+     "steam_range": [
+      3,
+      5
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 1,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      10,
+      13
+     ],
+     "steam_range": [
+      11,
+      16
+     ],
+     "orig_rows": 4,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：S#12/13 把 O#10「さすがに下着一枚では少し肌寒かった」火宰成 \"my usual pajamas\"/\"just one layer\"；S#15 把 O#12「ずり落ちたシーツを掴もうとして」换成 \"tuck my hands under my armpits\"（床单动作无落点）⇒ 整区间取原版"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      15,
+      16
+     ],
+     "steam_range": [
+      18,
+      20
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 3,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      30,
+      32
+     ],
+     "steam_range": [
+      34,
+      38
+     ],
+     "orig_rows": 3,
+     "steam_rows": 5,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 4,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      38,
+      40
+     ],
+     "steam_range": [
+      44,
+      45
+     ],
+     "orig_rows": 3,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#39「ショーツ以外何も身につけていなかった」+O#40「トランクス一丁」在 Steam 无落点——S#44 合并译 O#38+40 并删去内衣细节，S#45 为新增推测句 ⇒ 整区间取原版"
+    }
+   ]
+  },
+  "KAN_1002": {
+   "orig_file": "KAN_1002.ws2",
+   "steam_file": "KAN_1002_E.ws2",
+   "patch_file": "KAN_1002_E.ws2",
+   "orig_rows": 140,
+   "steam_rows": 140,
+   "patch_rows": 140,
+   "voice_anchor_pairs": 84,
+   "regions": []
+  },
+  "KAN_1003": {
+   "orig_file": "KAN_1003.ws2",
+   "steam_file": "KAN_1003_E.ws2",
+   "patch_file": "KAN_1003_E.ws2",
+   "orig_rows": 163,
+   "steam_rows": 167,
+   "patch_rows": 167,
+   "voice_anchor_pairs": 66,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      103,
+      104
+     ],
+     "steam_range": [
+      103,
+      105
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      109,
+      113
+     ],
+     "steam_range": [
+      110,
+      115
+     ],
+     "orig_rows": 5,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      128,
+      137
+     ],
+     "steam_range": [
+      130,
+      140
+     ],
+     "orig_rows": 10,
+     "steam_rows": 11,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 3,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      142,
+      146
+     ],
+     "steam_range": [
+      145,
+      150
+     ],
+     "orig_rows": 5,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "KAN_1004": {
+   "orig_file": "KAN_1004.ws2",
+   "steam_file": "KAN_1004_E.ws2",
+   "patch_file": "KAN_1004_E.ws2",
+   "orig_rows": 32,
+   "steam_rows": 34,
+   "patch_rows": 34,
+   "voice_anchor_pairs": 4,
+   "regions": [
+    {
+     "id": 0,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      0,
+      4
+     ],
+     "steam_range": [
+      0,
+      3
+     ],
+     "orig_rows": 5,
+     "steam_rows": 4,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#3「後ろを見れば窓があり、青々とした裏庭が見渡せる」整句无落点（EN 无 window/backyard/garden），S#3 实为 O#4 的翻译 ⇒ 整区间取原版"
+    },
+    {
+     "id": 1,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      7,
+      21
+     ],
+     "steam_range": [
+      6,
+      22
+     ],
+     "orig_rows": 15,
+     "steam_rows": 17,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判（系统性审查改写）：O#9「あたしが裸なのは…寝る時の癖で服を脱いじゃったからだろうけど」被换成 S#8/9 \"dragged me into bed\"；O#10「どうして碧くんまで裸になってるんだろ？」无落点；O#16「唯一身につけていたパンツの中もチェックする」→ S#13 \"a few wrinkles\"；O#20「彼の手は…あたしの下着を握って離さなかった」→ S#18 \"instinctively jerked back\"；O#21「現実味を帯びていく」被反转为 S#20 \"nothing 'untoward' had happened\" ⇒ 整区间取原版"
+    },
+    {
+     "id": 2,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      27,
+      31
+     ],
+     "steam_range": [
+      28,
+      33
+     ],
+     "orig_rows": 5,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#28「お互い一糸まとわぬ格好で一晩過ごして」的裸体细节在 S#29-31 中被删；O#31「もしかしてあたしたち、ヤっちゃった？」被软化为 S#32 \"I don't want to think about it... But I have to know...\" ⇒ 整区间取原版"
+    }
+   ]
+  },
+  "KAN_2001": {
+   "orig_file": "KAN_2001.ws2",
+   "steam_file": "KAN_2001_E.ws2",
+   "patch_file": "KAN_2001_E.ws2",
+   "orig_rows": 362,
+   "steam_rows": 399,
+   "patch_rows": 399,
+   "voice_anchor_pairs": 148,
+   "regions": [
+    {
+     "id": 0,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      0,
+      11
+     ],
+     "steam_range": [
+      0,
+      12
+     ],
+     "orig_rows": 12,
+     "steam_rows": 13,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#9「素裸で」在 S#10 中脱落；O#10「抱えた衣類で肌を隠そうとした…丸見え」被换成 S#11 猫爬意象 \"back arched like a cat\"（原版无此内容）⇒ 整区间取原版"
+    },
+    {
+     "id": 1,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      13,
+      17
+     ],
+     "steam_range": [
+      14,
+      25
+     ],
+     "orig_rows": 5,
+     "steam_rows": 12,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "[用户决策：tonal 重复一律直接替换] O#13-17(5)↔S#14-25(12)：原版「佳奈子感冒躺床」被 Steam 同位置换成「进房撞见+寒暄」12 格新写；段级对不上+原版录音 KANA_0203-0204 全表无锚点 ⇒ 新写保留+被删还原插入"
+    },
+    {
+     "id": 2,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      19,
+      36
+     ],
+     "steam_range": [
+      27,
+      41
+     ],
+     "orig_rows": 18,
+     "steam_rows": 15,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#21「俺も裸になっていることに気づいた」无落点；O#27-34（格好 Critique+性妄想段，含 O#32「たわわな胸が柔らかそうにひしゃげて」）整体被换成 S#35-39 感谢段（fixing a window 等原版无内容）⇒ 整区间取原版"
+    },
+    {
+     "id": 3,
+     "form": "rewrite",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      51,
+      56
+     ],
+     "steam_range": [
+      56,
+      61
+     ],
+     "orig_rows": 6,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#51-56(6)↔S#56-61(6)：内裤调侃被软化——原版「そんなにいつも下着だったっけ……？」→ \"Have my outfits really been that skimpy lately?\"；同位换装 VKAN0014 ⇒ 该格取原版"
+    },
+    {
+     "id": 4,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      68,
+      71
+     ],
+     "steam_range": [
+      73,
+      77
+     ],
+     "orig_rows": 4,
+     "steam_rows": 5,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#70「頬が熱く火照ってくる」无落点（S#75 泛化新增 \"But this wasn't the time for that\"）；O#71「あの日のこと」被改为 S#76/77 \"this morning\"（指涉改变）⇒ 整区间取原版"
+    },
+    {
+     "id": 5,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      85,
+      85
+     ],
+     "steam_range": [
+      91,
+      92
+     ],
+     "orig_rows": 1,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#85(1)↔S#91-92(2) EN 拆行"
+    },
+    {
+     "id": 6,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      115,
+      115
+     ],
+     "steam_range": [
+      122,
+      122
+     ],
+     "orig_rows": 1,
+     "steam_rows": 1,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#115(1)↔S#122(1) 换装 VAGE0004，忠实翻译"
+    },
+    {
+     "id": 7,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      222,
+      222
+     ],
+     "steam_range": [
+      229,
+      229
+     ],
+     "orig_rows": 1,
+     "steam_rows": 1,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#222(1)↔S#229(1) 换装 VKAN0015，忠实翻译"
+    },
+    {
+     "id": 8,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      224,
+      225
+     ],
+     "steam_range": [
+      231,
+      232
+     ],
+     "orig_rows": 2,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#224-225(2)↔S#231-232(2) 换装 VKAN0016/VYOR0000"
+    },
+    {
+     "id": 9,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      227,
+      237
+     ],
+     "steam_range": [
+      234,
+      259
+     ],
+     "orig_rows": 11,
+     "steam_rows": 26,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "[用户决策：tonal 重复一律直接替换] ★处女话题阉割：O#227-237(11)↔S#234-259(26)——原版「自分が処女なのかそうでないのかって、どうやって確かめればいいと思う？」被 Steam 换成 15 格新写回忆戏(VYOR0001-0006 新录音)；段级对不上+原版录音全表无锚点 ⇒ 新写保留+被删还原插入"
+    },
+    {
+     "id": 10,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      239,
+      243
+     ],
+     "steam_range": [
+      261,
+      266
+     ],
+     "orig_rows": 5,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "[用户决策：tonal 重复一律直接替换] O#239-243(5)↔S#261-266(6)：「碧先輩ですね？」被改成 VYOR0009 反应行；新写保留+被删还原插入"
+    },
+    {
+     "id": 11,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      255,
+      256
+     ],
+     "steam_range": [
+      278,
+      292
+     ],
+     "orig_rows": 2,
+     "steam_rows": 15,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "[用户决策：tonal 重复一律直接替换] O#255-256(2)↔S#278-292(15)：原版「私も考える時間が欲しいんです」被换成 13 格醒来回忆+「再问一个问题」；新写保留+被删还原插入"
+    },
+    {
+     "id": 12,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      293,
+      309
+     ],
+     "steam_range": [
+      329,
+      346
+     ],
+     "orig_rows": 17,
+     "steam_rows": 18,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#293-309(17)↔S#329-346(18) 逐行核对：晚饭后收拾/咖喡/佳奈子没吃完/她的异样/必须找她谈谈，EN 逐行为忠实翻译（仅 1 格拆行）⇒ 伪差异。注：subagent 曾报此处为纯删，经逐行取证不成立"
+    }
+   ]
+  },
+  "KAN_2002": {
+   "orig_file": "KAN_2002.ws2",
+   "steam_file": "KAN_2002_E.ws2",
+   "patch_file": "KAN_2002_E.ws2",
+   "orig_rows": 180,
+   "steam_rows": 183,
+   "patch_rows": 183,
+   "voice_anchor_pairs": 95,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      49,
+      53
+     ],
+     "steam_range": [
+      49,
+      54
+     ],
+     "orig_rows": 5,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#49-53(5)↔S#49-54(6) EN 扩写覆盖"
+    },
+    {
+     "id": 1,
+     "form": "rewrite",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      77,
+      77
+     ],
+     "steam_range": [
+      78,
+      78
+     ],
+     "orig_rows": 1,
+     "steam_rows": 1,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#77 朱莉「用があるのはソアリング部ではなく、水瀬碧くん個人に対してよ」→ Steam \"It's not a problem in the soaring club, it's something personal between Aoi and Kanako\"（商谈对象被改成碧×佳奈子）+ 换装 VAKA0018 ⇒ 该格取原版；三版对照：JP「用があるのはソアリング部ではなく、水瀬碧くん個人に対してよ」（商谈对象=碧本人）→ EN \"something personal between Aoi and Kanako\"（改写为碧×佳奈子之间）→ 官中「我要找的不是滑翔机社，而是水濑和佳奈子」（跟着英文）；该行被 Steam 换装重录（VAKA0018，邻行仍用 AKARI_0072/0074）"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      96,
+      95
+     ],
+     "steam_range": [
+      97,
+      97
+     ],
+     "orig_rows": 0,
+     "steam_rows": 1,
+     "patch_status": "n/a(纯增)",
+     "patch_jp_cover": null,
+     "patch_dropped_steam_rows": 0,
+     "note": "伪新增：S#97 是原版 O#95 长句的拆行尾部（O#95「口を出す筋合いなんて私にはない」= no right to tell anyone）⇒ EN 拆行 ⇒ 不动作"
+    },
+    {
+     "id": 3,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      102,
+      102
+     ],
+     "steam_range": [
+      104,
+      105
+     ],
+     "orig_rows": 1,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#102(1)↔S#104-105(2) EN 拆行"
+    }
+   ]
+  },
+  "KAN_2003": {
+   "orig_file": "KAN_2003.ws2",
+   "steam_file": "KAN_2003_E.ws2",
+   "patch_file": "KAN_2003_E.ws2",
+   "orig_rows": 236,
+   "steam_rows": 237,
+   "patch_rows": 237,
+   "voice_anchor_pairs": 80,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      59,
+      60
+     ],
+     "steam_range": [
+      59,
+      61
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "KAN_2004": {
+   "orig_file": "KAN_2004.ws2",
+   "steam_file": "KAN_2004_E.ws2",
+   "patch_file": "KAN_2004_E.ws2",
+   "orig_rows": 614,
+   "steam_rows": 617,
+   "patch_rows": 617,
+   "voice_anchor_pairs": 255,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      13,
+      18
+     ],
+     "steam_range": [
+      13,
+      18
+     ],
+     "orig_rows": 6,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      224,
+      224
+     ],
+     "steam_range": [
+      224,
+      224
+     ],
+     "orig_rows": 1,
+     "steam_rows": 1,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      379,
+      385
+     ],
+     "steam_range": [
+      379,
+      386
+     ],
+     "orig_rows": 7,
+     "steam_rows": 8,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 3,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      413,
+      428
+     ],
+     "steam_range": [
+      414,
+      430
+     ],
+     "orig_rows": 16,
+     "steam_rows": 17,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：S#416 与 S#384 逐字同文（英化脚本串行误插，其内容属 O#383）；O#414 后半「これは前回の噂とまったく同じパターンだ」无落点；其余 15 格为忠实翻译 ⇒ 整区间取原版（剔除串行行）"
+    },
+    {
+     "id": 4,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      565,
+      568
+     ],
+     "steam_range": [
+      567,
+      571
+     ],
+     "orig_rows": 4,
+     "steam_rows": 5,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "KAN_3001_1": {
+   "orig_file": "KAN_3001_1.ws2",
+   "steam_file": "KAN_3001_1_E.ws2",
+   "patch_file": "KAN_3001_1_E.ws2",
+   "orig_rows": 133,
+   "steam_rows": 133,
+   "patch_rows": 133,
+   "voice_anchor_pairs": 64,
+   "regions": []
+  },
+  "KAN_3001_2": {
+   "orig_file": "KAN_3001_2.ws2",
+   "steam_file": "KAN_3001_2_E.ws2",
+   "patch_file": "KAN_3001_2_E.ws2",
+   "orig_rows": 93,
+   "steam_rows": 100,
+   "patch_rows": 100,
+   "voice_anchor_pairs": 28,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      61,
+      62
+     ],
+     "steam_range": [
+      61,
+      63
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      72,
+      73
+     ],
+     "steam_range": [
+      73,
+      75
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    },
+    {
+     "id": 2,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      86,
+      92
+     ],
+     "steam_range": [
+      88,
+      99
+     ],
+     "orig_rows": 7,
+     "steam_rows": 12,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#87「わ、分かってるクセに」(KANA_0562)、O#90「さ、もう観音しなさい」(KANA_0563) 被换成 VKAN0032/0033 新录音挑逗段；O#92「俺は頷いてしまっていた」无落点；S#95-98 为原版没有的追加 ⇒ 整区间取原版"
+    }
+   ]
+  },
+  "KAN_3001_3": {
+   "orig_file": "KAN_3001_3.ws2",
+   "steam_file": "KAN_3001_3_E.ws2",
+   "patch_file": "KAN_3001_3_E.ws2",
+   "orig_rows": 483,
+   "steam_rows": 223,
+   "patch_rows": 483,
+   "voice_anchor_pairs": 0,
+   "regions": [
+    {
+     "id": 0,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      0,
+      482
+     ],
+     "steam_range": [
+      0,
+      222
+     ],
+     "orig_rows": 483,
+     "steam_rows": 223,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 223,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 223 格审查改写(膝枕)顶替原版 483 格初次 H；补丁整脚本换回原版(1.0)；EVRET 补丁漏还原"
+    }
+   ]
+  },
+  "KAN_3001_4": {
+   "orig_file": "KAN_3001_4.ws2",
+   "steam_file": "KAN_3001_4_E.ws2",
+   "patch_file": "KAN_3001_4_E.ws2",
+   "orig_rows": 104,
+   "steam_rows": 164,
+   "patch_rows": 104,
+   "voice_anchor_pairs": 0,
+   "regions": [
+    {
+     "id": 0,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      0,
+      103
+     ],
+     "steam_range": [
+      0,
+      163
+     ],
+     "orig_rows": 104,
+     "steam_rows": 164,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 164,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 把 104 格 H 段扩写成 164 格审查改写(枕臂+早安吻)；补丁整脚本换回原版(1.0)"
+    }
+   ]
+  },
+  "KAN_3001_5": {
+   "orig_file": "KAN_3001_5.ws2",
+   "steam_file": "KAN_3001_5_E.ws2",
+   "patch_file": "KAN_3001_5_E.ws2",
+   "orig_rows": 101,
+   "steam_rows": 106,
+   "patch_rows": 106,
+   "voice_anchor_pairs": 30,
+   "regions": [
+    {
+     "id": 0,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      14,
+      19
+     ],
+     "steam_range": [
+      14,
+      20
+     ],
+     "orig_rows": 6,
+     "steam_rows": 7,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#16 后半「それにもっとすごいもの、見せてあげたでしょ？」被换成 S#16/17 (VKAN0165/0166 新录音) \"laying in the same bed\"（性暗示换装替换，无逐词对应）⇒ 整区间取原版"
+    },
+    {
+     "id": 1,
+     "form": "rewrite",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      21,
+      29
+     ],
+     "steam_range": [
+      22,
+      31
+     ],
+     "orig_rows": 9,
+     "steam_rows": 10,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "澡堂戏逗弄段 O#51-52(2)↔S#53-54(2)：原版露骨(勃起だらけ)被改成 \"something else… standing at attention\"；同位换装 ⇒ 该格取原版"
+    },
+    {
+     "id": 2,
+     "form": "pure_delete",
+     "action": "insert_orig_all",
+     "h_level": "性暗示",
+     "orig_range": [
+      31,
+      39
+     ],
+     "steam_range": [
+      33,
+      42
+     ],
+     "orig_rows": 9,
+     "steam_rows": 10,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#67-68(2) Steam 侧无格 ⇒ 还原插入"
+    },
+    {
+     "id": 3,
+     "form": "pure_delete",
+     "action": "insert_orig_all",
+     "h_level": "性暗示",
+     "orig_range": [
+      41,
+      50
+     ],
+     "steam_range": [
+      44,
+      55
+     ],
+     "orig_rows": 10,
+     "steam_rows": 12,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "O#83-86(4) Steam 侧无格 ⇒ 还原插入"
+    }
+   ]
+  },
+  "KAN_3002_1": {
+   "orig_file": "KAN_3002_1.ws2",
+   "steam_file": "KAN_3002_1_E.ws2",
+   "patch_file": "KAN_3002_1_E.ws2",
+   "orig_rows": 137,
+   "steam_rows": 152,
+   "patch_rows": 152,
+   "voice_anchor_pairs": 34,
+   "regions": [
+    {
+     "id": 0,
+     "form": "pure_add",
+     "action": "keep",
+     "h_level": "普通",
+     "orig_range": [
+      113,
+      115
+     ],
+     "steam_range": [
+      113,
+      116
+     ],
+     "orig_rows": 3,
+     "steam_rows": 4,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：S#114 (VKAN0180 \"Flattered? What's there to be flattered about?\") 为带新录音的 Steam 插入行，原版 O#113 后直接接 O#114，无此行 ⇒ 纯增保留（产物不变）"
+    },
+    {
+     "id": 1,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "性暗示",
+     "orig_range": [
+      117,
+      136
+     ],
+     "steam_range": [
+      118,
+      151
+     ],
+     "orig_rows": 20,
+     "steam_rows": 34,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：KANA_0877-0884 共 8 条原版配音在 Steam 全表消失——O#123-136 接吻戏（耳元で喋らないで/桜色の唇へ吸い付いた/口の中へ舌を滑り込ませていく）被整体换成 VKAN0181-0190 的嗅闻/克制戏（\"dial it back\"/\"nuzzled into the nape\"/\"we can go crazy later\"）；O#117-120 为忠实翻译 ⇒ 整区间取原版"
+    }
+   ]
+  },
+  "KAN_3002_2": {
+   "orig_file": "KAN_3002_2.ws2",
+   "steam_file": "KAN_3002_2_E.ws2",
+   "patch_file": "KAN_3002_2.ws2",
+   "orig_rows": 397,
+   "steam_rows": 132,
+   "patch_rows": 397,
+   "voice_anchor_pairs": 0,
+   "regions": [
+    {
+     "id": 0,
+     "form": "para_delete_new_write",
+     "action": "replace_with_orig",
+     "h_level": "H",
+     "orig_range": [
+      0,
+      396
+     ],
+     "steam_range": [
+      0,
+      131
+     ],
+     "orig_rows": 397,
+     "steam_rows": 132,
+     "patch_status": "restored",
+     "patch_jp_cover": 1.0,
+     "patch_dropped_steam_rows": 132,
+     "note": "[用户决策：tonal 重复一律直接替换] Steam 用 KAN_3002_2_E+3002_3_E 新内容顶替；补丁整脚本搬入原版(1.0)。尾跳须改为 KAN_3003_E，否则接播全年龄场景"
+    }
+   ]
+  },
+  "KAN_3003": {
+   "orig_file": "KAN_3003.ws2",
+   "steam_file": "KAN_3003_E.ws2",
+   "patch_file": "KAN_3003_E.ws2",
+   "orig_rows": 245,
+   "steam_rows": 245,
+   "patch_rows": 245,
+   "voice_anchor_pairs": 123,
+   "regions": []
+  },
+  "KAN_3004_1": {
+   "orig_file": "KAN_3004_1.ws2",
+   "steam_file": "KAN_3004_1_E.ws2",
+   "patch_file": "KAN_3004_1_E.ws2",
+   "orig_rows": 76,
+   "steam_rows": 75,
+   "patch_rows": 75,
+   "voice_anchor_pairs": 26,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      54,
+      57
+     ],
+     "steam_range": [
+      54,
+      56
+     ],
+     "orig_rows": 4,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "KAN_3004_2": {
+   "orig_file": "KAN_3004_2.ws2",
+   "steam_file": "KAN_3004_2_E.ws2",
+   "patch_file": "KAN_3004_2_E.ws2",
+   "orig_rows": 197,
+   "steam_rows": 194,
+   "patch_rows": 194,
+   "voice_anchor_pairs": 68,
+   "regions": [
+    {
+     "id": 0,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      106,
+      108
+     ],
+     "steam_range": [
+      106,
+      111
+     ],
+     "orig_rows": 3,
+     "steam_rows": 6,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#106『碧』「そんなにですか？」整句删除（S#105 后直接进叙述行）；S#106-109 不是 O#106-108 的翻译，而是原版后半 O#120-124 蒙布朗品尝段的前移 ⇒ 与 idx1 联动，整区间取原版"
+    },
+    {
+     "id": 1,
+     "form": "mixed_censor",
+     "action": "replace_with_orig",
+     "h_level": "普通",
+     "orig_range": [
+      116,
+      126
+     ],
+     "steam_range": [
+      119,
+      123
+     ],
+     "orig_rows": 11,
+     "steam_rows": 5,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：O#119「そっちのモンブランは？」(KANA_1192 有配音) 在 Steam 无落点，该语音锚点整个缺失；O#120-124 的英译落在 idx0 的 S#106-109 ⇒ 两区间同改 replace_with_orig 后文本时序即原版"
+    }
+   ]
+  },
+  "KAN_4001": {
+   "orig_file": "KAN_4001.ws2",
+   "steam_file": "KAN_4001_E.ws2",
+   "patch_file": "KAN_4001_E.ws2",
+   "orig_rows": 69,
+   "steam_rows": 74,
+   "patch_rows": 74,
+   "voice_anchor_pairs": 40,
+   "regions": [
+    {
+     "id": 0,
+     "form": "pure_add",
+     "action": "keep",
+     "h_level": "普通",
+     "orig_range": [
+      57,
+      58
+     ],
+     "steam_range": [
+      57,
+      59
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：S#58 \"I reached out my hand, as if I could pluck the glider right out of the sky\" 为 Steam 独立新增叙述（ORIG 全文 69 行无对应），O#57→S#57、O#58→S#59 后半均已各自译出 ⇒ 纯增保留（产物不变）"
+    },
+    {
+     "id": 1,
+     "form": "pure_add",
+     "action": "keep",
+     "h_level": "普通",
+     "orig_range": [
+      66,
+      65
+     ],
+     "steam_range": [
+      67,
+      69
+     ],
+     "orig_rows": 0,
+     "steam_rows": 3,
+     "patch_status": "n/a(纯增)",
+     "patch_jp_cover": null,
+     "patch_dropped_steam_rows": 0,
+     "note": "复查改判：S#67-69（patted Hatty's head→whip up some food→picture their faces）为 Steam 纯增做饭段，原版侧无格，前后锚点 O#66「でも、今は」→S#70 正常 ⇒ 纯增保留（产物不变，idx2 维持 no_action 无联动问题）"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      67,
+      68
+     ],
+     "steam_range": [
+      71,
+      73
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文（逐处语义核验：英文格即原版格翻译）"
+    }
+   ]
+  },
+  "NOV_001": {
+   "orig_file": "NOV_001.ws2",
+   "steam_file": "NOV_001_E.ws2",
+   "patch_file": "NOV_001_E.ws2",
+   "orig_rows": 363,
+   "steam_rows": 377,
+   "patch_rows": 377,
+   "voice_anchor_pairs": 107,
+   "regions": [
+    {
+     "id": 0,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      18,
+      18
+     ],
+     "steam_range": [
+      18,
+      19
+     ],
+     "orig_rows": 1,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文"
+    },
+    {
+     "id": 1,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      29,
+      29
+     ],
+     "steam_range": [
+      30,
+      31
+     ],
+     "orig_rows": 1,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文"
+    },
+    {
+     "id": 2,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      74,
+      77
+     ],
+     "steam_range": [
+      76,
+      80
+     ],
+     "orig_rows": 4,
+     "steam_rows": 5,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文"
+    },
+    {
+     "id": 3,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      81,
+      86
+     ],
+     "steam_range": [
+      84,
+      90
+     ],
+     "orig_rows": 6,
+     "steam_rows": 7,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文"
+    },
+    {
+     "id": 4,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      124,
+      124
+     ],
+     "steam_range": [
+      128,
+      129
+     ],
+     "orig_rows": 1,
+     "steam_rows": 2,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文"
+    },
+    {
+     "id": 5,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      126,
+      132
+     ],
+     "steam_range": [
+      131,
+      140
+     ],
+     "orig_rows": 7,
+     "steam_rows": 10,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文"
+    },
+    {
+     "id": 6,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      138,
+      143
+     ],
+     "steam_range": [
+      146,
+      153
+     ],
+     "orig_rows": 6,
+     "steam_rows": 8,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文"
+    },
+    {
+     "id": 7,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      147,
+      150
+     ],
+     "steam_range": [
+      157,
+      161
+     ],
+     "orig_rows": 4,
+     "steam_rows": 5,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文"
+    },
+    {
+     "id": 8,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      230,
+      238
+     ],
+     "steam_range": [
+      241,
+      250
+     ],
+     "orig_rows": 9,
+     "steam_rows": 10,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文"
+    },
+    {
+     "id": 9,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      250,
+      256
+     ],
+     "steam_range": [
+      262,
+      269
+     ],
+     "orig_rows": 7,
+     "steam_rows": 8,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行覆盖；另注：此处英译漏掉原版一个助词「と」，属译文质量，不影响中文交付"
+    },
+    {
+     "id": 10,
+     "form": "translation_artifact",
+     "action": "no_action",
+     "h_level": "普通",
+     "orig_range": [
+      271,
+      272
+     ],
+     "steam_range": [
+      284,
+      286
+     ],
+     "orig_rows": 2,
+     "steam_rows": 3,
+     "patch_status": "not_restored",
+     "patch_jp_cover": 0.0,
+     "patch_dropped_steam_rows": 0,
+     "note": "EN 拆行/扩写覆盖对应日文"
+    }
+   ]
+  }
+ },
+ "whole_script_actions": {
+  "AGS_001.ws2": {
+   "action": "restore_whole_script",
+   "source": "ORIG AGS_001.ws2（姫城あげは线，Steam 整条删除）",
+   "orig_rows": 1121,
+   "route_entry": "mainmenu.ws2 分派表 var[98]==102 入口是活代码（无门控），只需 UI 按钮 7->8",
+   "patch_reference": "补丁已整脚本搬入原版并注入 147 处 CG_ACHIEVEMENT（147/147 无漏），可作蓝本",
+   "avoid_patch_deviations": [
+    "A-1 每条对白多插空 0x15（1121->2242）",
+    "A-2 0x46 图层参数 128->240（168 处）",
+    "A-3 0x47 特效整型 128->192（34 处）",
+    "A-4 0x39 参数 39->31（7 处）",
+    "A-5 人名日->罗（635 处，NameTable 需要）",
+    "A-6 正文内 碧->Aoi（57 处，不应改）",
+    "A-7 0x14 的 u32 序号 0-based->1-based（须保持 0-based）"
+   ],
+   "priority": "P1"
+  },
+  "CG_PAGE01_E.ws2": {
+   "action": "rebuild_gallery_from_orig",
+   "note": "以原版条目集合与顺序重建画廊；**用户决策：当前专注于内容还原，画廊机制优先级放最末**",
+   "priority": "P3-lowest"
+  },
+  "CG_PAGE02_E.ws2": {
+   "action": "rebuild_gallery_from_orig",
+   "priority": "P3-lowest",
+   "note": "以原版条目集合与顺序重建画廊；**用户决策：当前专注于内容还原，画廊机制优先级放最末**"
+  },
+  "CG_PAGE03_E.ws2": {
+   "action": "rebuild_gallery_from_orig",
+   "priority": "P3-lowest",
+   "note": "以原版条目集合与顺序重建画廊；**用户决策：当前专注于内容还原，画廊机制优先级放最末**"
+  },
+  "CG_PAGE04_E.ws2": {
+   "action": "rebuild_gallery_from_orig",
+   "priority": "P3-lowest",
+   "note": "以原版条目集合与顺序重建画廊；**用户决策：当前专注于内容还原，画廊机制优先级放最末**"
+  },
+  "KAN_3002_3_E.ws2": {
+   "action": "keep",
+   "note": "Steam 全年龄替代场景；KAN_3002_2 还原后尾跳须指向 KAN_3003_E 而非本脚本"
+  },
+  "CG_Achievement.ws2": {
+   "action": "keep",
+   "note": "Steam 系统脚本，0 台词格"
+  },
+  "DDS_ANIME_ERASE.ws2": {
+   "action": "keep",
+   "note": "Steam 系统脚本，0 台词格"
+  },
+  "LoadTipsCall.ws2": {
+   "action": "keep",
+   "note": "Steam 系统脚本，0 台词格"
+  }
+ },
+ "route_ui": {
+  "AGS_001 entry": "mainmenu.ws2 分派表 var[98]==102 -> AGS_001 已是活代码，脚本层无需改",
+  "story_menu_buttons": "LegacyGame.lua -> openStory -> StoryMenuInit 按钮表 {108,101,103,104,105,106,107}（7 个，102 被移除、槽位复用给朱莉）→ 已改为 8 个并插回 102（142/8），MenuEffectStart 的逐按钮滑入动画上界同步 7→8（142/4）；按钮图形见 resource/route_entry/（定版）",
+  "cast_highlight": "StorySelCursor（142/9）原公式只覆盖 101..107 且 102 与 103 撞格 24 → 已补 id==102 分支显示新增 Cast 图层（记录 29）；initSubLayer（142/8）与两处 hide 循环（142/4、142/9）上界 22..28→22..29",
+  "recall_entries": "回想条目 AGS_01/02/03 需补回（原版在 LegacyGame.lua，Steam 移除）——尚未补"
+ },
+ "julie_guard": "AKA_*（Rio1.arc / Chip10.arc）内容全部来自 Steam 且自带官中——不动、不校对。",
+ "implementation_redlines": [
+  "还原区间逐条对齐语音指令，不删任何原版语音条目；同场景统一用原版语音名（ASA_xxxx 而非 Steam VASAxxxx）",
+  "还原区间每个 0x33（PNG）事件 CG 显示点（带固有 id 对）后补 04 \"CG_ACHIEVEMENT\" 00，按站点验收覆盖率",
+  "逐脚本核对 0x07 目标：EVRET 出口跳转一个不能漏（AFT_007_3 / BEF_004 / KAN_3001_3）",
+  "%LC 说话人名逐条转成 Steam NameTable.txt 的罗马字键（KAN_3002_2 的 307 处是补丁漏转的教训）",
+  "0x14 的 u32 序号保持 0-based（补丁 AGS_001 改成 1-based 是偏差）",
+  "中文一律走 zh-CN/Rio.arc 的 .lng（key 0x3E）+ NameTable.txt；每改一个脚本必须整体重建该脚本 .lng，不沿用官方条目",
+  "还原中文以原版日文为唯一依据，不经英文中转（已发现 2 处英文语义反转/错译：HOT_004 部训、BEF_004 第 251 行）",
+  "原版日文 OGG 语音必须随包发布（原版语音 100% 不在 Steam 语音包，缺包会静音）"
+ ],
+ "gemini_patch_coverage": {
+  "source": "国外补丁目录 Chinese_Localization_Patch/（Rio.arc 根档 + zh-CN/Rio.arc 40 lng + 字体替换三件套）",
+  "what_it_is": "在**国外补丁的 12 个 ws2** 上做了整脚本 Gemini 中文化（其余脚本 = 国外补丁原样 = Steam 英文）。这 12 个正是国外补丁改过的脚本：10 个 H 脚本 + KAN_3002_1_E + KAN_3002_2。中文写在 ws2 窄字节（CP932），自带的 zh-CN/Rio.arc 是官方 50 lng 中**剔除这 10 个脚本后**的 40 个。",
+  "translation_source_verified": "**以原版日文为译源**（两处判别测试：① HOT_004 部训，Steam 英文 \"Nobody flies alone\" 语义反转，汉化补丁作「最終目標，是讓凜能独自飛行」= 原版语义；② BEF_004 #251 感受主体翻转，汉化补丁作「在他們身上，我感受到了……厚着臉皮留在他們身邊」= 原版语义）。Steam 新增行（原版没有的）才回退用英文译（如 HOT_002#674 \"We'll compete with our feminine charms!\" →「武器，就是女人的魅力♪」）。⇒ 它天然绕开了 Steam 的审查改写与英译错误，与本项目「以原版日文为唯一依据」一致。",
+  "coverage_vs_scope": {
+   "H 场景还原范围": "**全覆盖**。我们 scope 的 H 还原格在汉化补丁对应位置几乎都是中文（AFT_003 503/511、AFT_007_3 363/366、BEF_003 306/307、BEF_004 377/390、HOT_002 404+402、HOT_004 635（覆盖全部 7 区间）、HUS_001 391+402、KAN_3001_3 474/483、KAN_3001_4 104/104、KAN_3002_2 392/397、AGS_001 1110/1121）。连 replace_with_orig 小区间也覆盖（它是整脚本翻译）。",
+   "非 H 改写还原范围": "**不覆盖**。KAN_2001（5 区间）/ KAN_3001_5（3 区间）/ BEF_005（2 区间）/ KAN_2002（1 区间）不在 12 个脚本内；这些脚本靠官方 zh-CN lng，但 lng 译的是**改写后的英文**（如 KAN_2002#78 官中「我要找的不是滑翔机社，而是水濑和佳奈子」跟着英文，原版是「水瀬碧くん個人に対して」）⇒ 仍需按原版日文重译。",
+   "总量": "12 脚本 9512 格中：中文 9325、英文未译 187、日文残留 2（其中落在我们还原区间内的未译约 54 格）。"
+  },
+  "defects": [
+   "窄字节 CP932 ⇒ 文本实为**繁体 + 日文字形混排**（覚/辺/髪/変/醤/軽/裃/両/処/満/咲…），简体专用字写不进去；取用需 OpenCC 链式归一（jp2t→tw2s 或自建映射表），姊妹作无现成表可抄。",
+   "约 54 格（还原区间内）未译英文 + 2 格日文乱码残留（BEF_003#906「凜・想・進・去・対・槇・？」、KAN_3001_3#132）⇒ 需补译。",
+   "人名/称呼不统一：同脚本内名签用蛍、正文用凜；HUS_001 出现「碧前輩」等与官方 NameTable 不一致的称呼 ⇒ 需按 NameTable 统一。",
+   "个别乱码字（鶺/瑶/鞁/鼕 等高频出现，疑窄字节写入损坏）⇒ 需清洗。"
+  ],
+  "verdict": "**可作还原中文的初译底稿（H 部分），不可直接采用**：覆盖 H 还原范围、译源正确（原版日文）、质量尚可；但需①字形/繁简归一 ②补齐 54 格未译 ③清洗乱码 ④人名统一 ⑤全量审校。非 H 改写部分它不覆盖，仍需自行翻译。",
+  "adoption_decision": "用户决策（2026-10-15）：**以 Gemini 译文为中文底稿**，只取其文本；**禁止沿用其生效机制**（窄字节 CP932 直写 ws2 是妥协），中文一律走 zh-CN/Rio.arc 的 .lng（key 0x3E）+ NameTable.txt。必经流程：归一（繁/日字形→规范简体）+ 补译（约 54 格未译 + 2 格日文乱码）+ 清洗（乱码字）+ 统一（人名按 NameTable）+ 全量审校。",
+  "output_target": "resource/corpus/cn/<script>.jsonl（逐格中文，lng 生成器的输入）"
+ },
+ "priorities": {
+  "P1": "内容还原（H 场景 + 非 H 改写 + 姬城线入口）",
+  "P2": "中文落地（lng 重建、字形归一、审校）",
+  "P3-lowest": "画廊（CG_PAGE01-04）重建——不阻塞内容还原"
+ }
+}

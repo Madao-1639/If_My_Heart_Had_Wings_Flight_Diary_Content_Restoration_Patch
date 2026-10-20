@@ -1,0 +1,102 @@
+{
+ "meta": {
+  "purpose": "内容对齐：把保留槽（Steam 槽号）的图像演出整段换成原版对齐行；BEF_005 的 drop@1121/replace@1122 已于 2026-10-20 撤销（原版 O#1116 被 Steam 删去导致闸内插错 1 行，Steam 自己 1121 的显示点是对的）。",
+  "producer": "script/checks/perf_consistency_check.py 根因行",
+  "consumer": "script/build/build_restore_plan.py",
+  "coordinate": "slot = Steam 槽位（0x14 序），不是产物槽位"
+ },
+ "drops": [
+  {
+   "script": "KAN_1004",
+   "slot": 23,
+   "chan": "ev",
+   "reason": "显示点比原版早一行（原版在 23 行设 006S）：删本行显示，由下一行 replace 补回"
+  }
+ ],
+ "replaces": [
+  {
+   "script": "HOT_002",
+   "slot": 1151,
+   "orig_row": 1492,
+   "product_slot": 1498,
+   "note": "content-align"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 700,
+   "orig_row": 713,
+   "product_slot": 717,
+   "note": "content-align"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 706,
+   "orig_row": 748,
+   "product_slot": 752,
+   "note": "content-align"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 727,
+   "orig_row": 992,
+   "product_slot": 996,
+   "note": "content-align"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 730,
+   "orig_row": 1027,
+   "product_slot": 1031,
+   "note": "content-align"
+  },
+  {
+   "script": "HUS_001",
+   "slot": 233,
+   "orig_row": 244,
+   "product_slot": 244,
+   "note": "content-align"
+  },
+  {
+   "script": "KAN_2004",
+   "slot": 226,
+   "orig_row": 226,
+   "product_slot": 226,
+   "note": "content-align"
+  },
+  {
+   "script": "KAN_2004",
+   "slot": 597,
+   "orig_row": 594,
+   "product_slot": 596,
+   "note": "content-align"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 115,
+   "orig_row": 112,
+   "product_slot": 112,
+   "note": "content-align"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 131,
+   "orig_row": 134,
+   "product_slot": 134,
+   "note": "content-align"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 161,
+   "orig_row": 164,
+   "product_slot": 164,
+   "note": "content-align"
+  },
+  {
+   "script": "KAN_1004",
+   "slot": 24,
+   "orig_row": 23,
+   "note": "补回原版 006S 显示点（第 23 行）"
+  }
+ ],
+ "keeps": []
+}

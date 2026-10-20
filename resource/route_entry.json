@@ -1,0 +1,166 @@
+{
+  "note": "路线入口（L6）还原定案：姬城あげは线（AGS_001）的**入口 UI**。Steam 把该按钮从 Lua 按钮表移除并复用其槽位给朱莉线；本项目补回第 8 个按钮（图形 + Lua 表项 + PNA 图层），使 mainmenu.ws2 里本就保留的 var[98]==102 -> AGS_001 分支变成可点。定案说明见 doc/route-mechanics.md §3。",
+  "story_menu": {
+    "archive": "Script.arc",
+    "lua_member": "LegacyGame.lua",
+    "proto_path": [
+      142,
+      8
+    ],
+    "proto_name": "StoryMenuInit",
+    "table_append": 102,
+    "for_bound": 8,
+    "additional_for_loop_protos": [
+      [
+        142,
+        4
+      ]
+    ],
+    "additional_for_loop_protos_note": "142/4 = MenuEffectStart：开剧情选择界面时逐个按钮的滑入动画（从 (target−100,−100) 缓动到目标位）。它也是 `FOR i = 1, 7` 逐个遍历 `MenuButtonData['SC'..i]`，上界同样是 7 ⇒ 不一起改成 8，新按钮就不会有滑入动画（实机表现为“直接出现”）。取消动画的 CancelMenuEffect（142/5）走 `pairs(EffectButtonKeyList)`，无需改。",
+    "button_pna_member": "SYS_C_Story.pna",
+    "button_pna_archive": "zh-CN/SysGraphic.arc",
+    "button_record_indices": {
+      "on": 19,
+      "def": 20
+    },
+    "button_boxes": {
+      "on": [
+        -2,
+        -61
+      ],
+      "def": [
+        -15,
+        -74
+      ]
+    },
+    "button_box_derivation": "第 7 个按钮 on/def = (85,-61)/(72,-74)；沿斜排自右向左的 def x 序列为 593,506,419,332,245,158,72（步进≈-86.83/级），on = def + (13,13)。第 8 个 = 72-86.83≈-15（def）、-15+13≈-2（on）。",
+    "hit_sublayer": "def（与 def 同层，见 Lua ButtonCreate 的 hit/def/on 映射）"
+  },
+  "button_graphic": {
+    "reference_archive": "zh-CN/SysGraphic.arc",
+    "reference_pna": "SYS_C_Story.pna",
+    "label": "姬城姐妹的日常",
+    "label_rationale": "日文原版为「アフターストーリー：姫城姉妹編」；官中把平行的「風戸姉妹編」译作「风户姐妹的日常」⇒ 同构译名。官中已用「姬城萤的场合」称呼ほたる。",
+    "target_button_records": {
+      "on": 9,
+      "def": 10
+    },
+    "source_button_records": {
+      "on": 13,
+      "def": 14
+    },
+    "replace_slots_from_left": [
+      0,
+      1
+    ],
+    "method": "逐字拼字：所需 7 字全在官中既有按钮里（姬/城 取「姬城萤的场合」，姐妹的日常 取「风户姐妹的日常」），只替换左侧 2 字位；几何量（字距/字格原点差）从像素实测，不硬编码。**产物已定版入库** `resource/route_entry/ags_button_cn_{on,def}.png`（UI 已达预期，生成脚本已移除）；build 只读入库件，并用 `tool.agsbutton.verify` 对 `backup/` 官方按钮复核五道闸。",
+    "resource_files": {
+      "on": "route_entry/ags_button_cn_on.png",
+      "def": "route_entry/ags_button_cn_def.png"
+    },
+    "resource_note": "按钮 PNG 已定版入库（当初由「从 backup 官方中文按钮逐字拼字」得到，生成脚本已随定版移除）；build 只读 resource/ 里的这两个文件，并用 tool.agsbutton.verify 对官方按钮复核五道闸（字位 / 同位 / 平移后位置 / 掩膜内外逐字节 / PNG 辅助块）。"
+  },
+  "base_ui_entry": {
+    "note": "英/默认 UI（getUItype() != 1）走 base `SysGraphic.arc` 的 `SYS_Story.pna`。Lua 按钮表是两语言共用的，所以这里也要给 base PNA 补上记录 19/20，否则英文模式下第 8 个按钮会落在哨兵上（不可见）。本项目**不做英文化**，故直接取**原版日文**按钮图形（原版 `SYS_Story.pna` 记录 7/8 = 「アフターストーリー：姫城姉妹編」）：英文模式下入口文字与线路内容均为日文，后继者只需补英文化。",
+    "archive": "SysGraphic.arc",
+    "pna_member": "SYS_Story.pna",
+    "button_record_indices": {
+      "on": 19,
+      "def": 20
+    },
+    "button_boxes": {
+      "on": [
+        -2,
+        -60
+      ],
+      "def": [
+        -15,
+        -73
+      ]
+    },
+    "button_boxes_derivation": "base/英文 PNA 的按钮与中文 PNA 在屏位置一致（例如 idx17 on box (111,0,230,191) 恰是中文 (85,-61,256,252) 裁掉 (26,61) 的空白外框）。原版图形沿用其自身约定：on y=-60 / def y=-73（canvas 251 高），与中文的 -61/-74 在屏等价（实测原版与中文第 7 按钮底板对齐偏移 (0,-1)，失配率 0.24%）。第 8 个 on x = 85-87 = -2、def x = 72-87 = -15（沿用斜排步进）。",
+    "source": {
+      "dir": "orig",
+      "archive": "SysGraphic.arc",
+      "pna_member": "SYS_Story.pna",
+      "records": {
+        "on": 7,
+        "def": 8
+      },
+      "label": "アフターストーリー：姫城姉妹編"
+    },
+    "resource_files": {
+      "on": "route_entry/base_entry_ags_on.png",
+      "def": "route_entry/base_entry_ags_def.png"
+    },
+    "resource_note": "入口图形在 build 时**只从 resource/** 读取（本仓库自带）；原版目录仅用于由 script/build/import_route_assets.py 重建这些文件。"
+  },
+  "cast_highlight": {
+    "note": "路线选择界面里选/悬停某个入口时，会高亮该线对应的角色——那是 SYS_Story/SYS_C_Story 里的一整幅 Cast 图（一张对应一条线，共 7 张，记录 22..28）。Steam 删掉原版第 2 条线（AGS/姫城姉妹）的 Cast 图，把 7 张的位置让给了朱莉线的大立绘（记录 22）+ 6 张 Cast（23..28），所以姬城姐妹那张没了。本表把原版那张补回，并给 StorySelCursor 加 id==102 的分支。",
+    "record": 29,
+    "box": [
+      -14,
+      9
+    ],
+    "source": {
+      "dir": "orig",
+      "archive": "SysGraphic.arc",
+      "pna_member": "SYS_Story.pna",
+      "record": 23,
+      "label": "原版第 2 条线（AGS）的 Cast 高亮图层"
+    },
+    "source_rationale": "原版路线顺序 NOV/AGS/HUS/KAN/HOT/BEF/AFT ⇒ Cast 记录 22..28 依次对应。逐层互相比对（在屏合成后按平均绝对差取最小）确认：orig22↔base23(NOV)、orig24↔base24(HUS)、orig25↔base25(KAN)、orig26↔base26(HOT)、orig27↔base27(BEF)、orig28↔base28(AFT)，**只有 orig23 无对应** ⇒ orig23 就是 AGS 那张。用户导出的 tmp/SYS_Story#023.png 与原版记录 23 的 alpha 直方图逐值相同（同层）。",
+    "targets": [
+      {
+        "archive": "SysGraphic.arc",
+        "pna_member": "SYS_Story.pna"
+      },
+      {
+        "archive": "zh-CN/SysGraphic.arc",
+        "pna_member": "SYS_C_Story.pna"
+      }
+    ],
+    "lua": {
+      "proto_path": [
+        142,
+        9
+      ],
+      "proto_name": "StorySelCursor",
+      "hide_loop_protos": [
+        [
+          142,
+          4
+        ],
+        [
+          142,
+          9
+        ]
+      ],
+      "hide_loop_old_upper": 28,
+      "hide_loop_new_upper": 29,
+      "special_id": 102,
+      "hide_sprites_range": [
+        31,
+        39
+      ],
+      "init_loop_protos": [
+        [
+          142,
+          8
+        ]
+      ],
+      "init_loop_note": "StoryMenuInit 里 initSubLayer(22..28) 的上界同样要 28→29：**普通子层必须先 initSubLayer 才能被 setSubLayerVisible 控制**（按钮层 19/20 不需要，button 系统自己 bt_addLayer）。漏了这一步的实机表现是：悬停新入口时 22/31..39 都被隐藏、而 29 显示不出来 ⇒ 只剩背景。"
+    },
+    "resource_file": "route_entry/cast_highlight_ags.png",
+    "resource_note": "高亮图层在 build 时**只从 resource/** 读取（本仓库自带）；原版目录仅用于由 script/build/import_route_assets.py 重建。用户导出的 tmp/SYS_Story#023.png 与该文件像素同源（alpha 直方图逐值相同），实现一律用本文件（原版字节，含 sRGB/gAMA/pHYs 块）。"
+  },
+  "route": {
+    "id": 102,
+    "script": "AGS_001",
+    "dispatch": "mainmenu.ws2 的 var[98]==102 分支 Steam 侧原本就保留，无需改分派表"
+  },
+  "out_of_scope": {
+    "english_ui": "英/默认 UI（getUItype()!=1）走 SYS_Story.pna（base SysGraphic.arc）。Lua 按钮表是**两语言共用**的，因此英文模式下第 8 个按钮的 sublayer(19/20) 在未改的 base PNA 里是哨兵 ⇒ 该按钮不可见（不崩、背景层索引不受影响，因为本方案不改层序）。本项目是中文补丁，英文按钮图形不在范围内。",
+    "ags001_script": "AGS_001.ws2 整脚本还原属 L1（独立工作流）；本表只开入口。"
+  }
+}

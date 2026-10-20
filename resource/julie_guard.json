@@ -1,0 +1,18 @@
+{
+  "note": "朱莉线（Steam DLC 新增，原生全年龄）保护名单。写盘器在生成 asset/ 前必须对每个待写成员/脚本做硬拒绝检查；命中即报错终止，不得静默跳过。",
+  "archives": [
+    "chip10.arc",
+    "rio1.arc"
+  ],
+  "archive_prefixes": [
+    "zh-CN/rio1.arc"
+  ],
+  "script_prefixes": [
+    "AKA_"
+  ],
+  "voice_prefixes": [
+    "AKA_"
+  ],
+  "rationale": "AKA = 朱莉（Akari）。Rio1.arc 承载 AKA_010_E..AKA_080_E 共 8 个剧本，Chip10.arc 承载 116 个朱莉线 CG，Voice.arc 内 AKA_* 为朱莉线语音，zh-CN/Rio1.arc 为其官方中文 lng。以上一律保持 Steam 原样。",
+  "source": "doc/third-party-patch-analysis.md §1.1/§2.1；doc/route-mechanics.md §0"
+}

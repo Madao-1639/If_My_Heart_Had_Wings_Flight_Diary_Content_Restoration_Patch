@@ -1,0 +1,15 @@
+{
+ "meta": {
+  "purpose": "原版有、Steam 整行删去的 0x14 行号（逐脚本）。演出对齐闸/内插必须先剔除这些行，否则缺口两侧等长时会把后续 Steam 槽整体映射错位。",
+  "producer": "人工复核（全量演出对齐评审）",
+  "consumers": [
+   "script/checks/perf_consistency_check.py"
+  ],
+  "coordinate": "原版行号（0x14 序，0 基）"
+ },
+ "scripts": {
+  "BEF_005": [
+   1116
+  ]
+ }
+}

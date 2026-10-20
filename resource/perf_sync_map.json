@@ -1,0 +1,1002 @@
+{
+ "meta": {
+  "purpose": "演出同步判定表：对齐的 (Steam 保留槽 ↔ 原版行) 对里，Steam 保留槽自带、原版对齐行在屏没有的立绘/背景显示 ⇒ 写盘器删除该槽演出前缀区内这一显示块。",
+  "producer": "script/build/build_perf_sync_map.py",
+  "consumer": "script/build/build_restore_plan.py",
+  "policy": "与原版相比，每类演出（语音 / CG / 立绘 / 背景）要么两侧同时存在且相等，要么都不存在。",
+  "alignment": "Steam 槽 → 原版行：resource/carrier_map.json 的 anchor/match 等长 1:1 块线性内插；只作用于保留槽（未被 restore_plan drop 的槽）。",
+  "trust": "该对两侧本槽自带语音号必须相等（含两侧皆无）；不等即判承载图 1:1 假配对，只登记 review、不自动处置。",
+  "judgement": "判据实现见 tool/perfsync.py：按「在屏图名集合」判多不多，容忍两版背景通道号错位（原版 bg01 ↔ Steam bg02）；立绘先按两套命名归一。",
+  "sprite_normalization": {
+   "ST_KOTORI": "A小鳥",
+   "ST_AGEHA": "Bあげは",
+   "ST_AMANE": "C天音",
+   "ST_ASA": "D亜紗",
+   "ST_YORU": "E夜瑠",
+   "ST_HIBARI": "Fひばり",
+   "ST_HOTARU": "Gほたる",
+   "ST_AKARI": "H朱莉",
+   "ST_KANAKO": "I佳奈子",
+   "ST_TATUYA": "J達也",
+   "ST_MASATUGU": "K柾次",
+   "ST_KUJIRA": "L鯨",
+   "ST_AOI": "M碧",
+   "ST_ISUKA": "Nイスカ",
+   "ST_SANAE": "O早苗",
+   "ST_RYOKO": "P亮子",
+   "ST_YUKA": "Q由佳",
+   "ST_HAT": "Rハット",
+   "ST_TAKAO": "S隆夫"
+  },
+  "kinds": {
+   "extra": "Steam 保留槽自带、原版对齐行在屏没有（该图名原版本脚本有）⇒ 删该通道",
+   "extra_absent": "Steam 保留槽自带、原版**全脚本**都不出现的图名（Steam 新增素材）⇒ 删该通道（**与对齐无关**，不需 1:1 对齐即可判定）",
+   "replace": "该槽自带的立绘／背景演出与原版对齐行的**不等** ⇒ 整段换成原版行的（删该槽全部立绘／背景显示块与清屏指令，再补原版行的图像演出块；资源名照抄原版，靠 resources.copy 补入原版素材）",
+   "missing": "原版在屏有、产物没有 ⇒ review（对齐不可信时不自动补）",
+   "different": "两侧同通道取值不同（且原版那张图产物没有）⇒ review",
+   "ev_extra": "ev 通道的差异 ⇒ review（CG 序列另有 cg_seq_check.py + cg_site_rewrites 专管）"
+  },
+  "actions": {
+   "drop": "删该槽演出前缀区内、这些通道的显示块（显示指令与其图层伴生：39／04 LAYER_ORDER／09／46／3e／65，前置 64）；0b 状态写入与流程控制保留。",
+   "replace": "先按 drop 删该槽**全部立绘／背景**显示块与清屏指令，再把原版对齐行的图像演出块（按原顺序、照抄原版资源名）在**该槽前缀区开头**补回（排在语音／名字框之前）。"
+  },
+  "note": "本表按「逐槽演出状态对账」补 censor_map（同名）与 cg_site_rewrites（CG 显示点）两条通道都管不到的『异名演出改动』。"
+ },
+ "sites": [
+  {
+   "script": "AFT_003",
+   "slot": 499,
+   "orig_row": 971,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "bg02",
+    "st01"
+   ],
+   "prod": {
+    "st01": "CUTIN_02_04.PNG",
+    "bg01": "SKY03_01B.PNG",
+    "bg02": "SKY03_01B.PNG"
+   },
+   "orig": {
+    "bg01": "SKY03_01B.PNG",
+    "bg02": "SKY03_01B.PNG",
+    "st01": "CUTIN_02_06.PNG"
+   },
+   "voice": null,
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "AFT_003",
+   "slot": 371,
+   "orig_row": 843,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "bg02"
+   ],
+   "prod": {
+    "bg01": "BG09_03S.PNG",
+    "bg02": "小鳥FDST01_M.PNA"
+   },
+   "orig": {
+    "bg01": "BG09_03S.PNG",
+    "bg02": "小鳥FDST01_M.PNA"
+   },
+   "voice": "KOTORI_0365.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "AFT_007_3",
+   "slot": 102,
+   "orig_row": 418,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st02"
+   ],
+   "prod": {
+    "bg01": "BG21_01B.PNG",
+    "st02": "C天音_01L.PNA"
+   },
+   "orig": {
+    "bg01": "BG21_01B.PNG",
+    "st02": "C天音_01L.PNA"
+   },
+   "voice": "AMANE_0057.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "BEF_003",
+   "slot": 268,
+   "orig_row": 541,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "bg01": "BG15_02S.PNG",
+    "st01": "C天音_01M.PNA"
+   },
+   "orig": {
+    "bg01": "BG15_02S.PNG",
+    "st01": "C天音_01M.PNA"
+   },
+   "voice": "AMANE_0318.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "BEF_005",
+   "slot": 1,
+   "orig_row": 1,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "bg02"
+   ],
+   "prod": {
+    "bg01": "BG29_05B.PNG"
+   },
+   "orig": {
+    "bg01": "BG29_05B.PNG",
+    "bg02": "BG00_01S.PNG"
+   },
+   "voice": null,
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HOT_003",
+   "slot": 221,
+   "orig_row": 224,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01",
+    "st06"
+   ],
+   "prod": {
+    "st06": "BG00_02S.PNG",
+    "bg01": "BG15_01B.PNG",
+    "st01": "Gほたる_01M.PNA"
+   },
+   "orig": {
+    "st06": null,
+    "bg01": "BG15_01B.PNG",
+    "st01": "Gほたる_01M.PNA"
+   },
+   "voice": "HOTARU_0472.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 681,
+   "orig_row": 676,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "st01",
+    "st04"
+   ],
+   "prod": {
+    "st01": "Gほたる_01L.PNA"
+   },
+   "orig": {
+    "st01": "Gほたる_01L.PNA",
+    "st04": "EST_1000.PNG"
+   },
+   "voice": "HOTARU_0748.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 691,
+   "orig_row": 691,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "st01": "Gほたる_01L.PNA"
+   },
+   "orig": {
+    "bg01": "BG20B_01B.PNG",
+    "st01": "Gほたる_01L.PNA"
+   },
+   "voice": "HOTARU_0750.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 740,
+   "orig_row": 1292,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "st01": "Gほたる_01M.PNA"
+   },
+   "orig": {
+    "bg01": "BG20B_01S.PNG",
+    "st01": "Gほたる_01M.PNA"
+   },
+   "voice": "HOTARU_0915.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 742,
+   "orig_row": 1294,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "st01": "Gほたる_01M.PNA"
+   },
+   "orig": {
+    "bg01": "BG20B_01S.PNG",
+    "st01": "Gほたる_01M.PNA"
+   },
+   "voice": "HOTARU_0916.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 746,
+   "orig_row": 1298,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "st01": "Gほたる_01M.PNA"
+   },
+   "orig": {
+    "bg01": "BG20B_01S.PNG",
+    "st01": "Gほたる_01M.PNA"
+   },
+   "voice": "HOTARU_0917.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 748,
+   "orig_row": 1300,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "st01": "Gほたる_01M.PNA"
+   },
+   "orig": {
+    "bg01": "BG20B_01S.PNG",
+    "st01": "Gほたる_01M.PNA"
+   },
+   "voice": "HOTARU_0918.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 749,
+   "orig_row": 1302,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "st01": "Gほたる_01M.PNA"
+   },
+   "orig": {
+    "bg01": "BG20B_01S.PNG",
+    "st01": "Gほたる_01M.PNA"
+   },
+   "voice": "HOTARU_0920.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 751,
+   "orig_row": 1304,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "st01": "Gほたる_01L.PNA"
+   },
+   "orig": {
+    "bg01": "BG20B_01S.PNG",
+    "st01": "Gほたる_01L.PNA"
+   },
+   "voice": null,
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 755,
+   "orig_row": 1308,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "st01": "Gほたる_01L.PNA"
+   },
+   "orig": {
+    "bg01": "BG20B_01S.PNG",
+    "st01": "Gほたる_01L.PNA"
+   },
+   "voice": "HOTARU_0922.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HOT_004",
+   "slot": 758,
+   "orig_row": 1311,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "st01": "Gほたる_01L.PNA"
+   },
+   "orig": {
+    "bg01": "BG20B_01S.PNG",
+    "st01": "Gほたる_01L.PNA"
+   },
+   "voice": "HOTARU_0924.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HUS_001",
+   "slot": 0,
+   "orig_row": 0,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "bg02"
+   ],
+   "prod": {
+    "bg02": "BG00_02S.PNG",
+    "bg01": "BG13_01S.PNG"
+   },
+   "orig": {
+    "bg02": null,
+    "bg01": "BG13_01S.PNG"
+   },
+   "voice": null,
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HUS_001",
+   "slot": 3,
+   "orig_row": 3,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "bg01": "BG08_01S.PNG",
+    "st01": "D亜紗_02M.PNA"
+   },
+   "orig": {
+    "bg01": "BG08_01S.PNG",
+    "st01": "D亜紗_02M.PNA"
+   },
+   "voice": "ASA_0383.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HUS_001",
+   "slot": 76,
+   "orig_row": 76,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "st02",
+    "st04"
+   ],
+   "prod": {
+    "st02": "E夜瑠_02W.PNA"
+   },
+   "orig": {
+    "st02": "E夜瑠_02W.PNA",
+    "st04": "D亜紗_03W.PNA"
+   },
+   "voice": "YORU_0312.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HUS_001",
+   "slot": 77,
+   "orig_row": 77,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "st04"
+   ],
+   "prod": {
+    "st04": "D亜紗_02L.PNA"
+   },
+   "orig": {
+    "st04": "D亜紗_02L.PNA"
+   },
+   "voice": "ASA_0407.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HUS_001",
+   "slot": 209,
+   "orig_row": 210,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st03"
+   ],
+   "prod": {
+    "bg01": "BG08_01S.PNG",
+    "st03": "D亜紗_01M.PNA"
+   },
+   "orig": {
+    "bg01": "BG08_01S.PNG",
+    "st03": "D亜紗_01M.PNA"
+   },
+   "voice": "ASA_0435.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "HUS_001",
+   "slot": 229,
+   "orig_row": 240,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01"
+   ],
+   "prod": {
+    "bg01": "BG00_02S.PNG"
+   },
+   "orig": {},
+   "voice": "YORU_0358.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_1001",
+   "slot": 46,
+   "orig_row": 41,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [],
+   "prod": {},
+   "orig": {},
+   "voice": "KANA_0119.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_2001",
+   "slot": 138,
+   "orig_row": 131,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "st01",
+    "st02"
+   ],
+   "prod": {
+    "st01": "E夜瑠_01M.PNA",
+    "st02": "I佳奈子_01M.PNA"
+   },
+   "orig": {
+    "st01": "E夜瑠_01M.PNA",
+    "st02": "I佳奈子_01M.PNA"
+   },
+   "voice": "KANA_0228.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_2002",
+   "slot": 127,
+   "orig_row": 124,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "st01": "FDSDEV14_02S_SC.PNG",
+    "bg01": "BG12_01S.PNG"
+   },
+   "orig": {
+    "bg01": "BG12_01S.PNG"
+   },
+   "voice": null,
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_2004",
+   "slot": 163,
+   "orig_row": 163,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st03"
+   ],
+   "prod": {
+    "bg01": "BG13_02S.PNG",
+    "st03": "I佳奈子_01M.PNA"
+   },
+   "orig": {
+    "bg01": "BG13_02S.PNG",
+    "st03": "I佳奈子_01M.PNA"
+   },
+   "voice": "KANA_0388.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_2004",
+   "slot": 361,
+   "orig_row": 361,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "st03",
+    "st04",
+    "st05",
+    "st06"
+   ],
+   "prod": {
+    "st04": "D亜紗_02M.PNA",
+    "st05": "E夜瑠_01M.PNA",
+    "st06": "A小鳥_01W.PNA"
+   },
+   "orig": {
+    "st03": "A小鳥_01W.PNA",
+    "st04": "D亜紗_02M.PNA",
+    "st05": "E夜瑠_01M.PNA"
+   },
+   "voice": "KOTORI_1698.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_2004",
+   "slot": 362,
+   "orig_row": 362,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "st05"
+   ],
+   "prod": {
+    "st05": "E夜瑠_01M.PNA"
+   },
+   "orig": {
+    "st05": "E夜瑠_01M.PNA"
+   },
+   "voice": "YORU_0262.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_2004",
+   "slot": 511,
+   "orig_row": 509,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "st01"
+   ],
+   "prod": {},
+   "orig": {
+    "st01": "I佳奈子_01M.PNA"
+   },
+   "voice": null,
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_2004",
+   "slot": 519,
+   "orig_row": 517,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "bg01": "BG16_02S.PNG",
+    "st01": "佳奈子ST02_M.PNA"
+   },
+   "orig": {
+    "st01": "佳奈子ST02_M.PNA"
+   },
+   "voice": null,
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_3001_5",
+   "slot": 95,
+   "orig_row": 90,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st02"
+   ],
+   "prod": {
+    "bg01": "BG12_01S.PNG",
+    "st02": "D亜紗_01M.PNA"
+   },
+   "orig": {
+    "bg01": "BG12_01S.PNG",
+    "st02": "D亜紗_01M.PNA"
+   },
+   "voice": "ASA_0363.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_3002_1",
+   "slot": 29,
+   "orig_row": 29,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01"
+   ],
+   "prod": {
+    "bg01": "BG04_02S.PNG"
+   },
+   "orig": {
+    "bg01": "BG04_02S.PNG"
+   },
+   "voice": null,
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 89,
+   "orig_row": 89,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01"
+   ],
+   "prod": {
+    "bg01": "SKY01_01S.PNG"
+   },
+   "orig": {
+    "bg01": null
+   },
+   "voice": "MOB09_0001.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 0,
+   "orig_row": 0,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01",
+    "st05"
+   ],
+   "prod": {
+    "st05": "BG14_01B.PNG",
+    "bg01": "BG14_01S.PNG",
+    "st01": "佳奈子ST02_M.PNA"
+   },
+   "orig": {
+    "st05": null,
+    "bg01": "BG14_01S.PNG",
+    "st01": "佳奈子ST02_M.PNA"
+   },
+   "voice": "KANA_1155.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 4,
+   "orig_row": 4,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "bg01": "BG14_01B.PNG",
+    "st01": "EST_1022.PNG"
+   },
+   "orig": {
+    "bg01": "BG14_01B.PNG",
+    "st01": "EST_1022.PNG"
+   },
+   "voice": null,
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 46,
+   "orig_row": 46,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01",
+    "st01"
+   ],
+   "prod": {
+    "bg01": "BG14_01B.PNG",
+    "st01": "I佳奈子_01L.PNA"
+   },
+   "orig": {
+    "bg01": "BG14_01B.PNG",
+    "st01": "I佳奈子_01L.PNA"
+   },
+   "voice": null,
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 138,
+   "orig_row": 141,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [],
+   "prod": {},
+   "orig": {},
+   "voice": "KANA_1199.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 170,
+   "orig_row": 173,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [],
+   "prod": {},
+   "orig": {},
+   "voice": null,
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 181,
+   "orig_row": 184,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [
+    "bg01"
+   ],
+   "prod": {
+    "bg01": "BG00_01S.PNG"
+   },
+   "orig": {
+    "bg01": null
+   },
+   "voice": "KANA_1218.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 189,
+   "orig_row": 192,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [],
+   "prod": {},
+   "orig": {},
+   "voice": "KANA_1221.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  },
+  {
+   "script": "KAN_3004_2",
+   "slot": 192,
+   "orig_row": 195,
+   "action": "replace",
+   "kind": "replace",
+   "channels": [],
+   "prod": {},
+   "orig": {},
+   "voice": "KANA_1222.OGG",
+   "evidence": "doc/lessons-learned.md §17／§27"
+  }
+ ],
+ "review": [
+  {
+   "script": "HOT_002",
+   "slot": 1151,
+   "orig_row": 1492,
+   "trusted": true,
+   "extra": [],
+   "ev_extra": [
+    "ev"
+   ],
+   "items": [],
+   "prod_voice": [
+    "HOTARU_0424.OGG"
+   ],
+   "orig_voice": [
+    "HOTARU_0424.OGG"
+   ]
+  },
+  {
+   "script": "HOT_004",
+   "slot": 700,
+   "orig_row": 713,
+   "trusted": true,
+   "extra": [],
+   "ev_extra": [
+    "ev"
+   ],
+   "items": [],
+   "prod_voice": [
+    "HOTARU_0756.OGG"
+   ],
+   "orig_voice": [
+    "HOTARU_0756.OGG"
+   ]
+  },
+  {
+   "script": "HOT_004",
+   "slot": 706,
+   "orig_row": 748,
+   "trusted": true,
+   "extra": [],
+   "ev_extra": [
+    "ev"
+   ],
+   "items": [],
+   "prod_voice": [
+    "HOTARU_0765.OGG"
+   ],
+   "orig_voice": [
+    "HOTARU_0765.OGG"
+   ]
+  },
+  {
+   "script": "HOT_004",
+   "slot": 727,
+   "orig_row": 992,
+   "trusted": true,
+   "extra": [],
+   "ev_extra": [
+    "ev"
+   ],
+   "items": [],
+   "prod_voice": [
+    "HOTARU_0826.OGG"
+   ],
+   "orig_voice": [
+    "HOTARU_0826.OGG"
+   ]
+  },
+  {
+   "script": "HOT_004",
+   "slot": 730,
+   "orig_row": 1027,
+   "trusted": true,
+   "extra": [],
+   "ev_extra": [
+    "ev"
+   ],
+   "items": [],
+   "prod_voice": [
+    "HOTARU_0836.OGG"
+   ],
+   "orig_voice": [
+    "HOTARU_0836.OGG"
+   ]
+  },
+  {
+   "script": "HUS_001",
+   "slot": 229,
+   "orig_row": 240,
+   "trusted": true,
+   "extra": [],
+   "ev_extra": [
+    "ev"
+   ],
+   "items": [],
+   "prod_voice": [
+    "YORU_0358.OGG"
+   ],
+   "orig_voice": [
+    "YORU_0358.OGG"
+   ]
+  },
+  {
+   "script": "HUS_001",
+   "slot": 233,
+   "orig_row": 244,
+   "trusted": true,
+   "extra": [],
+   "ev_extra": [
+    "ev"
+   ],
+   "items": [],
+   "prod_voice": [
+    "YORU_0359.OGG"
+   ],
+   "orig_voice": [
+    "YORU_0359.OGG"
+   ]
+  },
+  {
+   "script": "KAN_1004",
+   "slot": 23,
+   "orig_row": 22,
+   "trusted": true,
+   "extra": [],
+   "ev_extra": [
+    "ev"
+   ],
+   "items": [],
+   "prod_voice": [
+    "KANA_0197.OGG"
+   ],
+   "orig_voice": [
+    "KANA_0197.OGG"
+   ]
+  },
+  {
+   "script": "KAN_2002",
+   "slot": 126,
+   "orig_row": 123,
+   "trusted": true,
+   "extra": [],
+   "ev_extra": [
+    "ev"
+   ],
+   "items": [],
+   "prod_voice": [
+    "YORU_0240.OGG"
+   ],
+   "orig_voice": [
+    "YORU_0240.OGG"
+   ]
+  }
+ ],
+ "summary": {
+  "absent_slots": 3,
+  "absent_chans": 3,
+  "pairs": 8674,
+  "replace_slots": 41,
+  "untrusted": 11,
+  "review_slots": 9,
+  "extra_slots": 5,
+  "extra_chans": 5
+ }
+}
