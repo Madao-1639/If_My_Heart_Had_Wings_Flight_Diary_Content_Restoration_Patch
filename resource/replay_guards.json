@@ -1,0 +1,50 @@
+{
+  "note": "「回想守卫/出口三连」的搬运纪律（写盘决策表，唯一输入）。原版每个可回想脚本在场景末尾都有三连：`01 flag[127]==1` + `01 var[110]==k` + `07 NextFile EVRET`，并在脚本**头部**配有成对的「回想入口分派」（同两条 `01` + `06 Jump <场景起点>`）：正常播放时条件不成立 ⇒ 跳过出口继续正片；回想重播时条件成立 ⇒ 从头部直跳 H 场景、播到末尾经 EVRET 回主菜单。Steam 把头部那一簇整簇删掉了（14 个宿主脚本里 `01(127)` 全为 0 处），所以只搬出口、不搬入口时这三条就是**孤儿**：只要 `flag[127]=1`（回想标记，本构建唯一的置 0 点在 mainmenu 的死代码里）且 `var[110]==k`（上次回想重播的正是一个吃 k 的脚本），**正常播放**也会在场景末尾 `NextFile EVRET` → 主菜单，把它后面的场景整段吃掉（实机表现为「某场景播完直接回主菜单 + 后面剧情丢失」）。故 action=drop 的脚本在写盘时剥离这三条并按序重定基；`KAN_3002_2` 是唯一例外——Steam 侧自带入口/出口成对（`i=0..2` 的 `01/01/06 Jump 37`），保持 keep。消费端：script/build/build_patch.py（识别 + 断言）→ tool/writer.py（skip_orig 剥离 + 重定基）；验收：script/checks/replay_guard_check.py。",
+  "rule": {
+    "triad": ["01 flag[127]==1.0", "01 var[110]==k", "07 NextFile \"EVRET\""],
+    "pair_head": ["01 flag[127]==1.0", "01 var[110]==k", "06 Jump <scene>"],
+    "steam_gate_absent": "host 脚本 Steam 侧 `01(127)` 处数为 0 ⇒ 该脚本的出口三连一律不搬入",
+    "product_invariant": "宿主产物里的 `07 NextFile EVRET` 处数 == Steam 原有处数"
+  },
+  "scripts": {
+    "HUS_001": {
+      "action": "drop",
+      "var110": [9.0],
+      "orig_triad": "HUS_001 i=4570/4571/4572（flag127 / var110==9 / EVRET）；紧接 `0b flag[1068]=1` → timer01 → 屋顶场景",
+      "symptom_if_kept": "第二段 H 场景（依瑠）播完 → EVRET → 主菜单，跳过屋顶花火 + 尾声共 219 格",
+      "evidence": "2026-10-21：存档 Save001（HUS_03 第 807 格、只剩 17 格）复盘确认末场景为真结局；同时发现孤儿出口，按本条剥离"
+    },
+    "AFT_003": {
+      "action": "drop",
+      "var110": [1.0],
+      "orig_triad": "AFT_003 i≈末尾；紧接 `0b flag[1060]=1`"
+    },
+    "AFT_007_3": {
+      "action": "drop",
+      "var110": [2.0],
+      "orig_triad": "AFT_007_3 i≈末尾；紧接 `0b flag[1061]=1`"
+    },
+    "BEF_004": {
+      "action": "drop",
+      "var110": [4.0],
+      "orig_triad": "BEF_004 i≈末尾；紧接 `0b flag[1063]=1`"
+    },
+    "HOT_004": {
+      "action": "drop",
+      "var110": [6.0],
+      "orig_triad": "HOT_004 i≈末尾；紧接 `0b flag[1065]=1`"
+    },
+    "KAN_3002_2": {
+      "action": "keep",
+      "var110": [8.0],
+      "orig_triad": "KAN_3002_2 与 Steam 同构：头部 i=0..2 入口分派 + 末尾出口三连，成对保留",
+      "evidence": "Steam `KAN_3002_2_E` 自身就带 `01(127)`（唯一一个），故不剥离"
+    },
+    "BEF_003": {
+      "action": "keep",
+      "var110": [3.0],
+      "orig_triad": "原版末尾也有同一三连，但它不落在任何插入区间内（inserts 只到行 559，三连位于行 ~2128 之前的块外）⇒ 产物里本就没有 EVRET",
+      "evidence": "Steam `BEF_003_E` 头部 i=0/1/2 自带入/出口分派（`01 127==1` / `01 110==3` / `06 Jump 0xa820` 存档续玩检查点，不属回想），故不剥离"
+    }
+  }
+}

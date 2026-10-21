@@ -55,6 +55,9 @@ def load_corpus(script):
 
 def main():
     slots_all = json.load(open(os.path.join(ROOT, 'resource', 'slot_sources.json'), encoding='utf-8'))
+    _choice_path = os.path.join(ROOT, 'resource', 'corpus', 'choice_cn.json')
+    choice_cn = (json.load(open(_choice_path, encoding='utf-8')).get('scripts') or {}
+                 if os.path.exists(_choice_path) else {})
     zh_members = arcbuild.read_raw(os.path.join(paths.STEAM, 'zh-CN', 'Rio.arc'))
     by_name = {nb.decode('utf-16le'): i for i, (nb, _) in enumerate(zh_members)}
     # NameTable.txt 存放位置随发行包而异：官方范式在 `zh-CN/Rio.arc`，本作 Flight
@@ -85,9 +88,16 @@ def main():
             raise SystemExit('官方 zh-CN 缺 %s' % lng_name)
 
         corpus = load_corpus(sc)
-        texts, n_official, n_corpus = [], 0, 0
+        texts, n_official, n_corpus, n_choice = [], 0, 0, 0
         for src, idx in info['slots']:
-            if src == 'steam':
+            if src == 'choice':
+                row = (choice_cn.get(sc) or {}).get(str(idx))
+                if not row or not (row.get('cn') or '').strip():
+                    raise SystemExit('%s 选项槽 strid %s 缺中文（resource/corpus/choice_cn.json）'
+                                     % (sc, idx))
+                texts.append(row['cn'])
+                n_choice += 1
+            elif src == 'steam':
                 if official is None:
                     raise SystemExit('%s 槽 %r 需官方 lng，但缺失' % (sc, (src, idx)))
                 texts.append(official[idx])
@@ -101,6 +111,18 @@ def main():
         back = lng.parse_lng(blob, lng.KEY_FD)
         assert back == texts, '%s lng 往返不一致' % sc
         assert len(texts) == len(info['slots']), '%s lng 条数 %d != 槽数 %d' % (sc, len(texts), len(info['slots']))
+        # 严格等式（GalRev/CC 口径）：lng 条数 == 0x14 条数 + Σ(0f count)
+        if info['kind'] == 'host':
+            _pins, _ = ws2dis.disassemble(ws2.decode(
+                {nb.decode('utf-16le'): d for nb, d in arcbuild.read_raw(
+                    os.path.join(ROOT, 'asset', 'Rio.arc'))}[info['steam_file']]))
+            _p14 = sum(1 for _a, _op, _s, _x in _pins if _op == 0x14)
+            _pch = sum(len(ws2.choice_entries(ws2.decode(
+                {nb.decode('utf-16le'): d for nb, d in arcbuild.read_raw(
+                    os.path.join(ROOT, 'asset', 'Rio.arc'))}[info['steam_file']]), _off))
+                for _off, _op, _s, _x in _pins if _op == 0x0F)
+            assert len(texts) == _p14 + _pch,                 '%s lng %d 条 != 产物文本槽位 %d（0x14 %d + 选项 %d）' % (
+                    sc, len(texts), _p14 + _pch, _p14, _pch)
         empty = [i for i, t in enumerate(texts) if not t.strip()]
         kana = [i for i, t in enumerate(texts) if KANA.search(t)]
         assert not empty, '%s lng 有 %d 条空条目（首 %s）' % (sc, len(empty), empty[:5])
@@ -112,8 +134,8 @@ def main():
         else:
             zh_members.append((lng_name.encode('utf-16le'), blob))
             by_name[lng_name] = len(zh_members) - 1
-        report.append('| %s | %s | %d 条（官方 %d + 语料 %d） | %d B |'
-                      % (sc, lng_name, len(texts), n_official, n_corpus, len(blob)))
+        report.append('| %s | %s | %d 条（官方 %d + 语料 %d + 选项 %d） | %d B |'
+                      % (sc, lng_name, len(texts), n_official, n_corpus, n_choice, len(blob)))
 
     out = os.path.join(ROOT, 'asset', 'zh-CN', 'Rio.arc')
     os.makedirs(os.path.dirname(out), exist_ok=True)

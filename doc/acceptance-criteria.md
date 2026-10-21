@@ -7,14 +7,22 @@
 
 | 闸 | 命令 | 本作基线 |
 |---|---|---|
-| 全量验收 | `python script/final_verification.py` | 构建阶段 31 PASS / 0 FAIL / 2 SKIP；发布阶段（`--stage release`，payload 已重建）32 PASS / 0 FAIL / 1 SKIP（仅无语音重指表）；含 5c 层内修复回读（repair 3） |
-| 演出同步 | `python script/checks/perf_sync_check.py` | 14,129 槽对账，HARD 0 / REVIEW 0；判定表 41 条逐条落地 |
+| 全量验收 | `python script/final_verification.py` | 构建阶段 33 PASS / 0 FAIL / 2 SKIP；发布阶段（`--stage release`，payload 已重建）**41 PASS / 0 FAIL / 1 SKIP**（仅无语音重指表）；含 5c 层内修复回读（repair 3）、**2b 回想出口不得多于 Steam 基线**（`replay_guards.json` 7 条声明）、**9b 尾表**（112 个 `.ws2`）、**9c 选项头**、**9d 选项文本/人名规范**、**9e 人名帧一致性**、**9f 跳转自洽**、**9f2 `.lng` 槽位等式**、**9g 选项帧内无 `0x16`**、**9h 新增选项规则可复用（演练）** |
+| 演出同步 | `python script/checks/perf_sync_check.py` | 14,129 槽对账，HARD 0 / REVIEW 0；判定表 41 条逐条落地；**顺序闸**：53 条 `replace` 槽的产物演出序列 = 原版行序列（逐条逐序，`perf_sync_checked 53`）；**前置检验**：命中「文本无需还原 + 演出序列已相同 + 素材原生」的站点不改字节、不跑顺序闸（当前 `perf_sync_noop 0`，纯回归保护） |
 | CG 序列 | `python script/checks/cg_seq_check.py` | 25 脚本，同序 25；HARD 0；REVIEW 0；继承审查差异 0 |
 | CG 解锁 | `python script/checks/cg_unlock_check.py` | 1,617 个 CG 显示点，1,616 带解锁对（白名单水印 CG）；成就钩子 723 = Steam 723，逐脚本一致；CG 名零缺失 |
-| CG/立绘 内容一致性 | `python script/checks/perf_consistency_check.py` | 14,001 槽全部内容一致；CG 差异 0 行、立绘差异 0 行；槽级豁免 5（`perf_waivers.json`：翻译拆行 2 / 水印 CG 1 / Steam 新增行 1 / 句序 1） |
+| CG/立绘 内容一致性 | `python script/checks/perf_consistency_check.py` | 14,001 槽全部内容一致；CG 差异 0 行、立绘差异 0 行；槽级豁免 5（`perf_waivers.json`：翻译拆行 2 / 水印 CG 1 / Steam 新增行 1 / 句序 1）。**在屏状态模型必须展开 `0x37` 的族级（`bg`/`st`）与通配（`*`）清屏**（`tool/perfsync.py`，见 [engine-mechanics.md](engine-mechanics.md)「图层清屏 `0x37`」）；不展开时「显示被 `37 *` 抹掉」这类黑背景缺陷是静默假绿 |
 | 立绘记录号 / 层内修复 | `python script/checks/pna_id_check.py` | keep 成员 21 / 映射 839 / 层内修复 3；记录号越界 0；未修复改画引用 0；成员豁免 7 |
+| 回想守卫 / 出口 | `python script/checks/replay_guard_check.py` | 7 条声明（drop 5 / keep 2）；`action=drop` 脚本产物 EVRET = 0；任何宿主 EVRET 不得多于 Steam 基线（无孤立回想出口） |
+| WS2 尾表 | `python script/checks/ws2_tail_check.py` | 112 个 `.ws2`：末尾 8 字节明文 `[消息数][选项数]` == 实算值（基线已有偏差 0） |
+| 选项头 | `python script/checks/choice_header_check.py [--pay]` | 每张 `0f` 前必须是 `0e 0b 00 <count> 00 01`，且 count 与表内一致（`final_verification` 9c） |
+| 选项文本/人名规范 | `python script/checks/choice_spec_check.py [--pay]` | 选项帧内无 `0x28` / 无名字非空 `0x15`；提示句以 `%K` 收尾；条目落点 = `0b…` + 纯标记 `%P`（`final_verification` 9d） |
+| 人名帧一致性 | `python script/checks/name_frame_check.py` | 每个 `_E.ws2` 与同名原版按正文对齐：原版旁白（空名字框）的行产物必须为空；原版有名的行产物也必须有名（`final_verification` 9e） |
+| 跳转自洽 / 槽位等式 | `python script/checks/choice_jump_check.py [--pay]` | 所有绝对偏移（`01` 字段 7/11、`02`/`06` 字段 0、`0f` 条目 `06`）必须落在指令起点；每个脚本 `lng 条数 == 0x14 条数 + Σ(0f count)`（`final_verification` 9f/9f2） |
+| 选项帧内无 `0x16` | `python script/checks/choice_frame_check.py [--pay]` | 每张 `0f` 的「提示句 → 选项头」区间不得含 `0x16`（Steam 侧它会关闭输入门 ⇒ 选项点不动）；写盘期由 `tool/ws2.drop_choice_frame_op16()` 剔除（`final_verification` 9g） |
 | 构建前语料 | `python script/checks/preflight_corpus.py` | 5,348 条语料格式一致；4,227 个插入格全覆盖 |
 | 构建后内容 | `python script/checks/verify_restore_content.py` | 20 个 `mixed_censor` 区间 / 154 个插入槽落位；lng 逐槽=语料 |
+| 文本槽位等式 | `python script/build/build_lng.py`（内建断言） | 逐脚本 `lng 条数 == 0x14 条数 + Σ(0f count)`；`BEF_004` = 556 官方 + 390 语料 + **2 选项** = 948 |
 | 资源覆盖 | `python script/checks/restore_asset_coverage.py` | 0 缺口 |
 | 转换纯度 | `python script/checks/convert_purity.py` | 199,983 条指令 0 异常 |
 
@@ -35,6 +43,11 @@
 ## 调用链完整性
 
 - [ ] 所有新插入的跳转/调用目标脚本在归档中确实存在
+- [ ] **文本槽位等式**：每个宿主脚本 `lng 条数 == 0x14 条数 + Σ(0f count)`（选项条目**各占一槽**，`strid` 与 `0x14` 的 `id` 共用按文件顺序的计数器）；选项中文来自 `resource/corpus/choice_cn.json`，缺译即构建失败（见 [file-formats.md](file-formats.md)「`0x0f` 选项表」与「选项编写规范」）
+- [ ] **选项处实机验收**：两项均可悬停、均可点中、两条分支各进入对应剧情、动画正常、**上一句提示文本与选项同框**（`%K` 留框）；被验配置须与 `asset/`、`payload/`、游戏目录三者同一份字节
+- [ ] **新增选项（非还原）实机验收**：手写两选项插入真实脚本后必须可显示、可点击、进入对应分支；文本必须经构建链（槽位重排 + `.lng` 补齐 + 尾表重写）后正确——绕过构建链会因槽位错位显示成别的台词
+- [ ] **WS2 尾表正确**：每个被改写的 `.ws2` 末尾 8 字节明文 `[u32 消息数][u32 选项条目数]` == 实算的 `0x14`/`0x0f` 条数（`script/checks/ws2_tail_check.py`、`final_verification` 9b）。偏小 ⇒ 引擎「已读位图」容量不足 ⇒ 写位越界写坏堆 ⇒ 概率性闪退（`doc/file-formats.md`『尾部 8 字节』）
+- [ ] **宿主脚本不得出现孤立的回想出口**：产物 `07 NextFile EVRET` 处数不得超过 Steam 基线（`script/checks/replay_guard_check.py` + `resource/replay_guards.json`，见 [route-mechanics.md](route-mechanics.md) §1.5）
 - [ ] 原地插入的还原内容片段之后，脚本原有的其余部分（包括 Steam 版新增的成就调用指令）未被破坏或误删。删格**只移除被删文本行的正文指令 `14` 与其名字框指令 `15`**（守卫＝不改变任何存活格的生效名字框），**格内其余指令（演出、变量与布尔写入、图层调用、跳转、成就调用）逐字节原位**（见 [restoration-route.md](restoration-route.md) §7 V-9）
 - [ ] **删格演出摘净**：被删行的演出前缀区（语音 `2e`+`28`、显示 `33`/`34`、BGM `1e`、图层定位 `46`、特效）随该行一并摘除（`tool/writer.drop_units()` 的 `KEEP_OPS` 之外全删）；状态写入／跳转／成就调用逐字节原位
 - [ ] **无对白语音连播 = 0**：产物里不得出现「同一格携带多条**残留**语音触发」（名字属被删格）的段——`script/verify_sync.py` 的 `R.residue_voice_burst` ＝ 0 且 `R.residue_voice` ＝ 0。合唱行（原版自身一格多触发）不算
@@ -102,7 +115,7 @@
 - [ ] 涉及 PNA 图层替换的操作，已确认记录号对应关系没有因为记录表变化而错位；**同名 `.pna` 整名覆盖前已确认两侧记录数与层序等价**，不等价者**不得覆盖**，改走 `resource/pna_id_map.json` 的记录号映射 + 层内修复（没有改名隔离这条退路，见 [resource-naming.md](resource-naming.md) §3、[pna-resources.md](pna-resources.md)「同名 PNA 的跨版本记录表差异与处置」）
 - [ ] **PNA 记录号/层内修复（`script/checks/pna_id_check.py`）**：产物所有 `0x39` 记录号 < 产物 PNA 记录数；原版来源块的号已按 `pna_id_map.map` 换算；`repair` 记录子图/box == 原版、非 repair 记录 == Steam 基线；产物引用到「改画记录」时必须已修复或成员已登记 `perf_waivers`；`repair` 不得与 `waive` 重叠。**层内修复的硬约束**：被换图不得出现在 Steam 新增段/未还原段复用的记录上（生产者按 `0x39` 引用分类核对）
 - [ ] **已复核不纠正的差异逐条登记**：槽级/成员级/全局豁免落在 `resource/perf_waivers.json`，每条带类别与依据；评审闸按表跳过，不得靠"口头已知"消化
-- [ ] **演出同步（保留槽演出：删多余 / 换回原版行）逐条落地**：判定表 `resource/perf_sync_map.json` 的 `action=drop`／`replace` 子集逐条进入 `plan.perf_sync` 并由写盘器处理（**名单条数＝落地条数**，`script/final_verification.py` 第 4b 项；**补块数＝期望补块数**由计划器断言）；`replace` 补块照抄**原版资源名** ⇒ 对应原版素材必须已补入产物归档（第 4 项「资源引用全部可解析」覆盖）。闸 `script/checks/perf_sync_check.py` 在**内容层被还原动过的宿主**上逐槽对账**「通道→图名」**（判据见 [restoration-route.md](restoration-route.md) §6 V-10）——产物显示了原版**全脚本都不出现**的图（Steam 新增素材）或名单未落地 ⇒ HARD 必须为 0（`ev`/CG 不计 HARD，交 `cg_seq_check.py`）；「原版在屏有、产物没有」／残留（`missing`／stale）⇒ REVIEW（逐条带根槽）。**残余必须逐条归因**：`ev`（CG）／已定案的声明内偏差（`no_counterpart`／`false_anchor`，记在 `resource/align_fixes.json`／`carrier_quirks.json`）／仍未定案（须列出）
+- [ ] **演出同步（保留槽演出：删多余 / 换回原版行）逐条落地**：判定表 `resource/perf_sync_map.json` 的 `action=drop`／`replace` 子集逐条进入 `plan.perf_sync` 并由写盘器处理（**名单条数＝落地条数**，`script/final_verification.py` 第 4b 项；**补块数＝期望补块数**由计划器断言）；`replace` 补块照抄**原版资源名** ⇒ 对应原版素材必须已补入产物归档（第 4 项「资源引用全部可解析」覆盖）。`replace` 的写入契约＝**整段演出替换**（宿主侧该槽前缀区的演出指令全删、只留状态写入/流程/成就与引擎调用/名字框；原版行区间**按原顺序**整段搬入并占被删指令原位）——顺序本身是演出的一部分，只换显示块会把宿主残留的拖拽/特效作用在空通道上（见 [restoration-route.md](restoration-route.md) §5.1、[lessons-learned.md](lessons-learned.md) §44）；`replace` 原版区间引用的素材同样必须落在交付面（`script/checks/restore_asset_coverage.py` 已覆盖该扫描面）。闸 `script/checks/perf_sync_check.py` 在**内容层被还原动过的宿主**上逐槽对账**「通道→图名」**（判据见 [restoration-route.md](restoration-route.md) §6 V-10）——产物显示了原版**全脚本都不出现**的图（Steam 新增素材）或名单未落地 ⇒ HARD 必须为 0（`ev`/CG 不计 HARD，交 `cg_seq_check.py`）；「原版在屏有、产物没有」／残留（`missing`／stale）⇒ REVIEW（逐条带根槽）。**残余必须逐条归因**：`ev`（CG）／已定案的声明内偏差（`no_counterpart`／`false_anchor`，记在 `resource/align_fixes.json`／`carrier_quirks.json`）／仍未定案（须列出）
 
 ## 改动面收敛
 
@@ -120,7 +133,7 @@
 
 ## 待完善
 
-- **BEF_005 O#1116 纯删行尚未还原**：Steam 把「またエロサイトを見ていないかどうか。」整行删去，而缺口两侧行数恰好相等（Steam 又把 O#1119 拆成两格）⇒ 现 scope 未登记该 region。2026-10-20 按评审建议只撤销了错误的人工演出处置（`drop@1121`/`replace@1122`），**没有补回该行**。若要补：新增 `restore_scope` region（orig 1116 / steam 0 行）+ 中文译文 + 重建 lng，属单独范围裁定。
+- **BEF_005 O#1116 纯删行尚未还原**：Steam 把「またエロサイトを見ていないかどうか。」整行删去，而缺口两侧行数恰好相等（Steam 又把 O#1119 拆成两格）⇒ 现 scope 未登记该 region。按评审建议只撤销了错误的人工演出处置（`drop@1121`/`replace@1122`），**没有补回该行**。若要补：新增 `restore_scope` region（orig 1116 / steam 0 行）+ 中文译文 + 重建 lng，属单独范围裁定。
 - **实机场景清单**：见 [restoration-route.md](restoration-route.md) §5 第 7 项（A-1 的 5 个整脚本入口、A-2 插入点前后、后日谈入口链路 `mainmenu` → `start.ws2` → `flag 126` 路由）。
 - **文本还原的机检进度**：姊妹作 `verify_sync.py` 路 A 有**1:1 块的内容面核对**（两侧语音号归属 ＋ 文本形状，命中 `carried-1to1` 即 HARD）；**本作尚未移植**，当前按判据人工核对；仍**没有机检**的是「逐场未承载行 = 0」与「零双写」两条，接入前只能按判据人工逐场核对。注意现有表自洽闸（格数自洽／覆盖无空档／行序单调）**查不出「两侧行数相同的改写」**——Steam 的替代段与原版行可以格数＝行数完全守恒，此类站点只能靠「读原文判形态」发现。**「零双写」的机检候选枚举应加一条**：`steam_only`／`ambiguous` 的 keep 块**若前指已被删／已改绑的槽**（文本面点名引用，或把被删格建立的状态当既成事实）即报警，交人工读（成因见 [restoration-targets.md](restoration-targets.md)）；`anchor` 的文本面抽查见上条。
 - **删格残留的摘除出口尚未进写盘器**：产物上的**无对白语音连播**、以及残留指令引用 Steam 自有号段（`*_6xxx` 语音／`ST_*` 立绘／自有 BGM 选择）造成的**画面／音乐回退**，姊妹作 `verify_sync.py` 能逐条定位并归因（本作尚未移植）；写盘侧仍缺对应的**按名定点摘除／调用点改写**动作，属待授权工序（扩删除集与改写点都不在写盘器现有出口里）。

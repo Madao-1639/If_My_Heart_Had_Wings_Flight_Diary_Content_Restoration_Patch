@@ -123,7 +123,8 @@ def main(argv=None):
         sr = rows_of(steam[sf], ws2dis.FORMATS) if sf in steam else []
 
         # 1) 逐槽自证：产物槽的 CG 集合 == 来源行的 CG 集合
-        slots = slots_all.get(sc, {}).get('slots') or []
+        # 选项条目（'choice'）占 .lng 槽位但不是台词行：行口径只看 0x14 来源槽
+        slots = [s for s in (slots_all.get(sc, {}).get('slots') or []) if s[0] != 'choice']
         sync = {int(k) for k in (p.get('perf_sync') or {})}
         stat['slots'] += len(slots)
         if len(pr) != len(slots):

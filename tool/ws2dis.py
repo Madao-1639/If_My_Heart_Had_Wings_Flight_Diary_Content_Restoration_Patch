@@ -14,8 +14,11 @@
 `tool/ws2fmt.py`。
 
 **特例**（不在格式表内，引擎另行处理）：
-  * `0xff` FileEnd —— 定长 9 字节（`ff <u32> <u32>`），**即脚本最后一个字节**（本作无尾部
-    追加字节；姊妹作那 8 字节尾在本作不存在，实测 119+107 脚本全为 0 字节尾）。
+  * `0xff` FileEnd —— 解码流里定长 9 字节（`ff` + 8 字节）。⚠️ 这 8 字节**不是** FileEnd 的
+    操作数，而是成员末尾的**明文尾表** `[u32 消息数][u32 选项条目数]`（**不参与** rotate-6）：
+    解码后读到的是「明文的 rotate-6」（垃圾值），写盘时必须按新指令流重算并以明文附回。
+    格式与崩溃机制见 `doc/file-formats.md`「尾部 8 字节」、`tool/ws2.py` 尾表段、
+    `doc/lessons-learned.md` §47。
   * `0x01` Condition —— 首字节 `mode == 0` 时 5 字节，否则 16 字节（本作语料中 mode 恒非 0）。
 
 **实测不变式**（119 Steam + 107 ORIG 脚本全量核验）：
@@ -25,6 +28,7 @@
 """
 import json
 import os
+import struct
 import sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -36,7 +40,9 @@ STR_TYPES = (6, 9, 10)
 
 OP_END = 0xFF
 OP_COND = 0x01
-TAIL_LEN = 0               # 本作脚本以 0xff（9 字节）收尾，其后无追加字节
+OP_CHOICE = 0x0F           # ShowChoice：操作数为 count(u8) + count 个条目（条目见 choice_entries）
+TAIL_LEN = 0               # 解析约定：0xff 已按 9 字节消费（含 8 字节明文尾表），其后无字节。
+                           # ⚠️ 这不代表成员没有尾表——写入端必须用 ws2.tail_counts() 重算并明文附回。
 COND_LEN = {0: 5}          # mode -> 总长度；未列出的 mode 一律 16 字节
 
 
@@ -66,6 +72,54 @@ def _strlen(data, pos):
     return end - pos + 1
 
 
+def choice_block_end(data, off):
+    """`0x0f` 整块（含所有条目）的结束偏移。"""
+    _ents, end = _choice_parse(data, off)
+    return end
+
+
+def choice_entries(data, off):
+    """条目列表（见下）。"""
+    return _choice_parse(data, off)[0]
+
+
+def _choice_parse(data, off):
+    """解析 `off` 处 `0x0f` 的条目 → [(strid_off, text_off, label_off, jump_off, kind, val)]。
+
+    本作（FD）的条目是紧跟 `0x0f` 的**内联字节**（引擎在 `0x0f` 处理器里按此布局读，
+    格式表的 `0x0f = [0]` 只声明 count）：
+        <strid:u16> <text:cp932>\0 <u16 标签> <u8 0> <jump>
+        jump = 06 <u32 文件内绝对偏移> | 07 <脚本名>\0
+    ⚠️ 必须**整体当作 0x0f 的操作数**来切分：条目首字节恰好是 `0x5e`/`0x5f` 等合法
+    opcode，若按普通指令解析就会把条目当成独立指令，且重编 strid 后会立刻失步
+    （见 doc/lessons-learned.md §48）。
+    """
+    if data[off] != OP_CHOICE:
+        raise ValueError('not a 0x0f @0x%x' % off)
+    count = data[off + 1]
+    p = off + 2
+    out = []
+    for _ in range(count):
+        strid_off = p
+        p += 2
+        text_off = p
+        p += _strlen(data, p)
+        label_off = p
+        p += 2
+        p += 1                          # u8 0
+        kind = data[p]
+        if kind == 0x06:
+            out.append((strid_off, text_off, label_off, p + 1, 'abs',
+                        struct.unpack_from('<I', data, p + 1)[0]))
+            p += 5
+        elif kind == 0x07:
+            out.append((strid_off, text_off, label_off, p, 'name', None))
+            p += _strlen(data, p + 1)
+        else:
+            raise ValueError('unknown choice jump 0x%02x @0x%x' % (kind, p))
+    return out, p
+
+
 def instruction_size(data, pos, formats=None):
     """返回 (size, opcode)；size 含操作码本身。"""
     fmts = FORMATS if formats is None else formats
@@ -75,6 +129,8 @@ def instruction_size(data, pos, formats=None):
     if op == OP_COND:
         mode = data[pos + 1]
         return COND_LEN.get(mode, 16), op
+    if op == OP_CHOICE:
+        return choice_block_end(data, pos) - pos, op
     fmt = fmts.get(op)
     if fmt is None:
         raise ValueError('opcode 0x%02x undefined in format table @0x%x' % (op, pos))

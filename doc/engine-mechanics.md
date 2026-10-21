@@ -36,6 +36,43 @@
 2. **原版脚本段必须与原版立绘/CG 资源成对回填**：原版段里的 `\x34/\x33/\x39` 及其 `layer_id` 只对**原版 PNA 的图层数**成立——若改用 Steam 同名资源（PNA 记录数不同），会因 `layer_id` 越界而崩溃。
 3. 早期记录的"`LAYER_ORDER` 系统性重排（如 407→353）"实为**立绘块 `\x09`/`\x46` 指令的增删**（部分源于内容被删、部分为 Steam 侧改动），**与 `LAYER_ORDER` 表无关**，归入演出指令层差异（❓ 逐位点定性）。
 
+## 图层清屏 `0x37` 的三种目标形态 ✅ 已定案（在屏状态模型的前提）
+
+`0x37 <目标>\0`（ClearLayer）的目标串有**三种**形态，清屏范围完全不同：
+
+| 形态 | 取值 | 语义 | 本作语料（Steam / 原版） |
+|---|---|---|---|
+| 精确通道 | `ev`、`st01..st12`、`bg01..bg02`、`movie` | 只清该通道 | 3,915 / 4,120 |
+| 族级 | `bg`、`st` | 一次清该族**全部**通道 | 1（`st`） / 0 |
+| 通配 | `*` | 一次清**全部**通道（场景开头的复位用法） | **340 / 146** |
+
+**为什么必须写进文档**：凡「按位置追踪在屏图」的模型（写盘器的演出同步、`tool/perfsync.py`、内容一致性闸）都要把族级与通配**展开**再落状态，否则「`37 *` 之后画面已空」在模型里根本不存在 ⇒ 模型会把已清的图继续算作在屏。实测代价：本作 `37 *` 平均每个脚本 3 处、最密的 `HUS_001_E` 有 11 处，漏展开会让闸门对「刚补回的显示被随后的 `37 *` 抹掉」这类**黑背景**缺陷结构性沉默（见 [lessons-learned.md](lessons-learned.md) §43）。
+
+另一条推论：`37 *` 是**复位**语义（先清后画），它与显示指令的**先后顺序有意义**。还原/改写演出时必须保住宿主原有的「复位 → 显示」次序，不能为了插入补块把显示提前到复位之前。
+
+**更一般的推论（演出是成套的、有序的）**：拖拽 `45`／特效 `47`/`48`/`57`/`66`／渐变 `65`／计时 `11`/`12`／图层权重 `09` 是**同一套动画的组成部分**——`09` 写参数变量、`45` 按参数拖、`47`/`48` 挂特效、`65` 收尾。改写演出时只能**整段按原顺序**换，不能把不同版本的指令拼在一起：参数/拖拽还在、被拖的那张图已经被删，就是「动画作用在空通道上」（实机表现为动画错乱）。见 [lessons-learned.md](lessons-learned.md) §44。
+
+## 已读消息位图（`MessageFlag.dat`）与脚本尾表的耦合 ✅ 已定案（实机指纹）
+
+引擎在**加载剧本脚本时**读成员**末尾 8 字节明文尾表** `[u32 消息数][u32 选项条目数]`，据此给
+「已读消息位图」分配 `(消息数 + 选项条目数 + 7) / 8` 字节；写位 `bitmap[idx>>3] |= 1 << (idx&7)`
+**不做边界检查**。
+
+存档目录的 `MessageFlag.dat` 是逐脚本记录的串接：
+
+```
+记录 = 脚本名 UTF-16LE + NUL + u32 A(=8+位图字节) + u32 B(已标记次数) + u32 Y + 位图[A-8 字节]
+```
+
+- 记录**按首次写入时的尾表定长**，引擎不会随脚本变大而重算 ⇒ 装了补丁后旧记录可能偏小（引擎按新尾表分配、按旧记录存位）。
+  ⚠️ **存档与已读表属引擎存档系统，不在本项目工作范围**：本项目只保证**脚本尾表正确**（见下），
+  不去读写/转换 `MessageFlag.dat`；下文只作为诊断依据。
+- 尾表偏小（小于真实 `0x14` 条数）⇒ 高位下标写到相邻堆块 ⇒ 延迟到某次 `free` 才崩
+  （事件 `0xc0000374` / `0x0000d06d@lua5.3.dll`），在此之前常表现为**随机的 Lua nil 错误或闪退**。
+- 上游通识：GalRev `docs/engines/advhd/file-formats.md`「末尾 8 字节」、`save-system.md`「MessageFlag.dat」。
+- 读/写纪律与闸：见 [file-formats.md](file-formats.md)「尾部 8 字节」、`tool/ws2.py` 尾表段、
+  `script/checks/ws2_tail_check.py`、[lessons-learned.md](lessons-learned.md) §47。
+
 ## 资源缺失时的运行时行为 ❓ 待验证
 
 尚未故意构造缺失资源的测试用例来观察引擎实际反应（卡死/报错/静默容忍）。这是排查"游戏卡死无响应"或"画面显示异常但无报错"类问题时需要提前摸清的行为基线，建议在开始改写脚本前先做一次故意的资源缺失测试。
@@ -191,6 +228,163 @@
 
 **残留风险（建议实机 A/B 补测）**：覆盖**粒度**——整档覆盖 vs 单体 `.ws2` 覆盖。该粒度决定 L4 的**交付形态**（走 `Rio.arc` 重建，还是走裸 `RIO/` 覆盖）。
 
+## 选项（`0x0f`）在引擎侧的链路 ✅ 已确认（证据类型逐条标注；`closeMessageWindow` 的**触发命令**尚未定位，但不影响根因与修法结论）
+
+> 反汇编对象：`AdvHD.exe.unpacked.exe`（游戏实际跑的是加壳的 `AdvHD.exe`，代码不可直接读）。
+> 反汇编工具：capstone（一次性脚本，不入库）。
+
+### 命令执行器与分派 `[反汇编]`
+
+* 执行器 `0x475940`（虚调用，经 vtable 进来），入参在 `[ebp+8]`：
+
+```
+mov  eax, [ebp+8] ; add eax,-0x0D ; cmp eax,0x6E ; ja 0x4766F3
+movzx eax, byte[eax+0x4767E8]     ; 字节映射表（按 cmd-0x0D 索引）
+jmp  [eax*4 + 0x47679C]           ; 19 项跳转表
+```
+
+* `0x4766F3` = **「等待/不推进」**：各 case 检查到"在飞行中"的状态全局非零就跳它，脚本指针不前进，下一帧重试。
+
+### 选项命令 case `0x475E21`（cmd 0x20）`[反汇编]`
+
+```
+cmp [0x5B95F0],0 ; jne 0x4766F3      ; 演出/子命令槽 0 在飞行中 ⇒ 等
+cmp [0x5B95F4],0 ; jne 0x4766F3      ; 槽 1 同理
+call 0x47FA40                         ; 建 UI：→ Lua 全局 initSelect(count)
+test eax,eax ; jne 0x4766F3
+call 0x47ED30( [0x5B95FC]==0 )        ; 选项态切换
+```
+
+* `0x47FC73` 起用除法魔数 `0x2AAAAAAB` 算 `(end - start) / 12` 作为 `initSelect(count)` 的实参 ⇒
+  **选项条目在载入期已被解析成 12 字节/条的内部数组**（`[edi+0x214]` 起）。`count` 不对 ⇒ 选项数不对。
+* `0x47ED30` 内 `push 0x58D234 ("hideMessageWindow")` + `call 0x4A68A0`（按名调 Lua 全局）
+⇒ 引擎在进入选项态时调它（隐藏消息窗的图层），但**它不改变"提示句留框"表现**：选项帧内不含 `0x16` 时，提示句始终与选项同屏（见下文「`0x16` 的副作用」）。
+
+### 引擎每帧调用的 Lua 全局（`[反汇编]` 串表 `0x58D17C..0x58D480`）
+
+```
+getDefaultFont getNameWindowKey getMessageWindowKey initFontInformation
+finalizeLegacyGame initSystemScreen getPKeyInfo getSystemSet
+openMessageWindow closeMessageWindow hideMessageWindow getLongPressTime
+nameWindowVisible stopClickWaitAnimation startClickWaitAnimation resetMessageWindow
+onMouseMove onLButtonDown onRButtonUp onLButtonUp onMouseWheel onKeyDown
+onMButtonDown onMButtonUp onX1ButtonDown onX1ButtonUp onX2ButtonDown onX2ButtonUp
+isMessageWindowEffect isSelectEffect isGesture onGesture onIMEnd faceRead
+willChangeVariable didChangeVariable setButtonState getMessageWindowEffect
+refreshCursorPos openConfirm isSystemEffect openMessageLog getMessageLogKey
+initSelect disableSelectItem
+```
+
+* 其中 `isSelectEffect` = `LegacyGame.lua/96`：`if g_MenuMsgWin==nil then return false end; return g_MenuMsgWin:SelectEffect()`；
+  引擎在 `0x47F294` 处按名调用它（同型调用还有 `isMessageWindowEffect`）⇒ **选项态机由引擎逐帧驱动**。
+* `onLButtonUp` / `onKeyDown` / `onMouseMove` 也在表内 ⇒ 鼠标/键盘事件是**引擎直接调 Lua 全局**，
+  再由 `LegacyGame.lua/62`（`onLButtonUp`）按 `MenuInf.SetName` 分派到 `g_MenuMsgWin:MenuLButtonUp`。
+
+### 输入门 `[Lua 反汇编]`
+
+`GetMenuMouseEnable`（`LegacyGame.lua/15/5`）返回真的条件全部满足才行：
+
+```
+MenuInf.enabled == true 且 MenuInf.effect == false 且 MenuInf.select_effect == false
+且 MenuInf.tips_effect == false 且 MenuInf.tips_wineffect == false
+且 buttonEffect.effect_auto == false 且 buttonEffect.effect_skip == false
+且 MenuButton ~= nil
+```
+
+`select_effect` 只由 `SelectEffect`（`/15/27`）清：
+
+```lua
+if not layers:isEffect('system','SelDisp') then self:SelectEffectEndJob(); MenuInf.select_effect = false end
+return MenuInf.select_effect
+```
+
+而 `startSelectMenu`（`/15/35`）结尾无条件置 `select_enabled = true; select_effect = true`。
+
+⇒ `select_effect` 由 `SelectEffect`（`/15/27`）在 `isEffect('system','SelDisp')` 结束时清回 false；它不是本作选项失效的原因（强制归零不改变现象），真正的门见下文「`0x16` 的副作用」。
+
+### `0x16` / `0x64` / `0x65` 的用途判定 `[语料]`
+
+Steam 版 119 个 ws2（未改动基线）逐条统计：
+
+| opcode | 出现次数 | **后一条** top | **前一条** top |
+|---|---|---|---|
+| `0x16`（`16 00 00`） | 3492 | `0x64` **2714（78%）** | `0x15` 1761 / `0x65` 681 |
+| `0x64`（`64 00`） | 9238 | `0x34` 4493 / `0x33` 3527 / `0x37` 1172（**全是显示类**） | `0x15` 5546 / `0x16` 2714 / `0x65` 458 |
+| `0x65`（14 字节时序块） | 9233 | `0x2e` 5440 / `0x15` 947 / `0x16` 681 | `0x3e` 6210 / `0x46` 1993 / `0x66` 698 |
+
+handler 侧补充（`[反汇编]`）：执行器分派是 `cmd = opcode + 0x0D`（在 `0x63..0x6E` 段成立），
+于是 `0x64` → cmd `0x71` → case `0x476131`（`push 4` → `call 0x4805C0`，且先检查
+`0x5B95F0/0x5B95F4/0x5B9620/0x5B9604/0x5B9608` 一组"在飞行中"状态），`0x65` → cmd `0x72` → case `0x4761BE`（`push 5`，前置还要求 `0x5B9608 != 0`）。
+`0x16` → cmd `0x23` 落进通用分支 `0x4766F3` → `0x47F340`，该函数会构造参数表并
+**向 Lua 合成一次 `onKeyDown` 调用**（串 `0x58D310`，调用点 `0x47F472`）——与"文本收尾/推进"语义一致。
+
+判读（`[语料]` + 上述 handler 证据）：
+
+* `0x64` = **显示块起点**：其后 100% 是 `0x33` 背景 / `0x34` 立绘 / `0x37` 清屏；
+* `0x16` = **文本收尾/换段**：78% 紧接 `0x64`，即"把这一句落定 → 开始下一段演出"；
+* `0x65` = **时序块**：67% 紧跟在 `0x3e`（特效结束）之后。
+
+⇒ 选项帧 `14 <提示句 %K>` → `16 00 00` → `64 00` → `33 …` 的顺序，**原版与产物完全一致**：
+玩家看到的"对话框消失"由**选项帧内的 `0x16`** 造成（`[实机]` 剔除后提示句即留框同屏）⇒ 这是**需要修正的还原偏差**，不是原生可接受行为；
+不是我们引入的，也不是"人名被提前"。
+
+### 输入事件派发器 `0x47F4F0` `[反汇编]`
+
+引擎把**鼠标/按键事件**统一喂给一个派发器，它按事件序号查一张 11 项的"Lua 全局名"表并调用：
+
+| 序号 | Lua 全局 |
+|---|---|
+| 0 | `onMouseMove` |
+| 1 | `onLButtonDown` |
+| 2 | `onRButtonUp` |
+| **3** | **`onLButtonUp`** |
+| 4 | `onMButtonDown` |
+| 5 | `onMButtonUp` |
+| 6 | `onGesture` |
+| 7 | `onX1ButtonDown` |
+| 8 | `onX1ButtonUp` |
+| 9 | `onX2ButtonDown` |
+| 10 | `onX2ButtonUp` |
+
+要点：
+
+* 表地址在 `0x47F533..0x47F579`（11 个 `.rdata` 指针），边界判据 `cmp eax, 0xa`（`0x47F586`）；
+* 入口守卫 `cmp dword ptr [ebx+0x6c], 0`（`0x47F520`，为 0 直接返回）；
+* 调 Lua 走通用入口 `0x4A68A0`（按名取全局后 `call`），随后 `test al,al` 决定是否继续（`0x47F67F`）；
+* 该派发器有 **14 个调用点**（`0x47AB88` / `0x47ABFA` / `0x47BABE` / `0x47BB41` / `0x47BD49` / `0x47C320+ …`），
+  每个负责一种事件；参数形如 `(0, …, 事件序号-1, …, 0)`。
+
+⇒ 之后如果要判"选项期鼠标事件到底有没有派到 Lua"，观测点就是这张表 + `0x47F67F` 的返回值：
+`onLButtonUp` 返回假会让引擎认为事件未被消费（`je 0x47F696` 分支）。
+
+## `0x16` 的副作用：Steam 侧会关闭输入门（选项不可交互的根因）✅ 已定案
+
+### 机制
+
+选项期实测状态为 `MenuInf.enabled == false` 且 `MenuInf.effect == true`。该值组合在整份 Lua 里只有一个写者：`closeMessageWindow`（`LegacyGame.lua/15/50`）——它把 `enabled` 置 false、`effect` 置 true，并在 `Txt01` 上启动 `WndDisp` 关窗特效；`effect` 由 `MenuEffect`（`/15/0`）在该特效结束时清回 false，而选项场景里这一收尾不会发生，`enabled` 更只有 `openMessageWindow`（`/15/49`）才会重新置 true。
+
+输入门 `GetMenuMouseEnable`（`/15/5`）要求 `enabled == true` 且 `effect == false`，于是恒不通过：`MenuMouseMove` / `MenuLButtonDown` / `MenuLButtonUp` / `MenuKeyDown` 全部直接返回 ⇒ 无悬停、点不动、`selCursor` 不变（第 2 项恒高亮）、消息窗被关掉。
+
+### 代际差异
+
+* 原版（更早一代 Lua，`g_selectInfo`）**没有** `enabled/effect` 这套状态机 ⇒ 同一条 `0x16` 不改输入状态，无害。
+* Steam 版（本作 5.3、本篇 5.1 同构）把窗口状态做成显式菜单状态机：**关窗即关输入门**。
+* 本篇的选项帧里没有 `0x16`，本作原版有 ⇒ **按原版还原等于把这条指令搬进 Steam 引擎**，本 bug 由此产生。
+
+选项帧（提示句 → 选项头）的 op 序列（`[语料]`）：
+
+| 语料 | 序列 | 含 `0x16` |
+|---|---|---|
+| 本作 Steam | `14 16 64 33 04 09×4 46 46 34 39 04 46 46 3e 65 0e` | 有 |
+| 本篇 `HUT_005`（选项可交互） | `14 64 33 04 09×4 46 37 37 3e 65 0e …` | 无 |
+| 本篇 `CO1_020`（同上） | `14 04 0e …` | 无 |
+| 本作原版 `BEF_004` | `… 16 00 64 00 …` | 有（老引擎无害） |
+
+### 规则
+
+* **选项帧（提示句 → 选项头）内不得出现 `0x16`**；帧外的 `0x16` 保持原样。
+* 写盘期由 `tool/ws2.drop_choice_frame_op16()` 剔除（幂等、全量绝对偏移重定基），闸 9g 守。
+* 剔除后提示句留在框内与选项同屏（`%K` 留框语义成立）。
 ## 待办
 
 - [ ] 枚举完整的资源槏位白名单

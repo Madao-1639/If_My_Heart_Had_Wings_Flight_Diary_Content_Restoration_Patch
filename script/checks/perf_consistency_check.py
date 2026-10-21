@@ -193,7 +193,7 @@ def main():
                 s2o.pop(int(k), None)
             else:
                 s2o[int(k)] = int(v)
-        for i, (src, val) in enumerate(slots_all[sc]['slots']):
+        for i, (src, val) in enumerate([s for s in slots_all[sc]['slots'] if s[0] != 'choice']):
             if i >= len(pr):
                 break
             if (sc, i) in slot_waivers:

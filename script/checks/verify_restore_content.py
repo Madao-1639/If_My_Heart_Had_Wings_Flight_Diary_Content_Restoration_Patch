@@ -8,6 +8,11 @@ import os
 import re
 import sys
 
+try:
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
+
 sys.path.insert(0, os.path.abspath('.'))
 from tool import arcbuild, ws2, lng, ws2fmt  # noqa: E402
 

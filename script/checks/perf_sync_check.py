@@ -7,6 +7,10 @@
 
 * **HARD**：产物槽自带的演出（语音 / 显示 / 清屏 / SE / BGM）≠ 其来源行的同一组演出
   ——构建把内容搬错/搬丢；
+* **HARD（顺序闸）**：`perf_sync` 的 `replace` 槽，产物该槽的**演出指令序列**（逐条逐序，
+  含拖拽 `45`／特效 `47`/`48`/`57`／渐变 `65`／计时 `11`/`12`／图层权重 `09`／音频）
+  必须与原版行 r 的演出序列**逐条相同**——顺序本身是演出的一部分，只对齐「在屏图集合」
+  会让宿主残留的拖拽/特效作用在已删通道上（动画错乱，见 doc/lessons-learned.md §44）；
 * **HARD**：`orig` 来源槽在屏出现**原版与 Steam 两侧都没有的图名**（产物自造）；
 * **REVIEW**：`orig` 来源槽与原版行在屏图名集合的其余差异（缺失 / 通道错位）；
 * **表闸**：`resource/perf_sync_map.json` 存在时，`drop`/`replace` 条目数须等于
@@ -25,7 +29,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tool import arcbuild, ws2, ws2dis, perfsync, paths  # noqa: E402
+from tool import arcbuild, ws2, ws2dis, perfsync, paths, writer  # noqa: E402
+from tool.ws2conv import load_orig_formats, parse as conv_parse  # noqa: E402
 
 
 def members(path):
@@ -51,6 +56,84 @@ def _imgs(eff):
     return {v for k, v in eff.items() if perfsync._is_img_chan(k) and v}
 
 
+SKELETON = writer._PERF_TAKE_STEAM_ONLY | {0x0B, 0x01, 0x02, 0x06, 0x14}
+
+
+def _is_skeleton(op, ops):
+    """骨架/非演出指令（比较时跳过）：状态写入、流程、成就与引擎调用、名字框、别的行正文。"""
+    if op in SKELETON:
+        return True
+    return op == 0x04 and ops.split(b'\x00')[0] != b'LAYER_ORDER'
+
+
+def _match_from(ins, start, exp):
+    """从 `ins[start]` 起按序匹配 `exp`（允许中间跳过骨架指令），返回结束下标或 None。"""
+    k, m = start, 0
+    n = len(ins)
+    while k < n and m < len(exp):
+        op, ops = ins[k][1], ins[k][3]
+        if _sig(op, ops) == exp[m]:
+            k += 1
+            m += 1
+            continue
+        if _is_skeleton(op, ops):
+            k += 1
+            continue
+        return None
+    return k if m == len(exp) else None
+
+
+def replace_order_diff(ins, oins, o14, r, prod_slot):
+    """`replace` 槽的顺序闸：产物**该槽前**的演出序列 vs 原版行 r 的演出序列。
+
+    做法：把「原版行 r 的演出序列」按序在产物里匹配（允许跳过骨架指令与别的行正文），
+    取**结束位置最靠该槽 `14`** 的那一处，再断言它之后到 `14` 之间只剩骨架指令。
+    于是「一条不差、一条不多、顺序不变」三件事一起被断言，同时允许插入的原版行正文与
+    骨架指令夹在中间（`perf_sync` 补块排在插入块之后）。
+
+    两侧用产出端同一套判据（`writer.perf_is_presentation` / `writer._perf_replace_zone`）；
+    `0x39` 帧号跨版本由 `pna_id_map` 换算，只比通道串。
+    """
+    idx14 = [k for k, x in enumerate(ins) if x[1] == 0x14]
+    if prod_slot >= len(idx14):
+        return {'issue': 'product-slot-missing', 'slot': prod_slot}
+    target = idx14[prod_slot]
+    if r >= len(o14):
+        return {'issue': 'orig-row-missing', 'row': r}
+    exp = writer.perf_expected_sig(oins, o14, r)
+    if not exp:
+        return None
+    best = None
+    first = exp[0]
+    for start in range(target):
+        if _sig(ins[start][1], ins[start][3]) != first:
+            continue
+        end = _match_from(ins, start, exp)
+        if end is None or end > target:
+            continue
+        if all(_is_skeleton(ins[k][1], ins[k][3]) for k in range(end, target)):
+            best = end
+    if best is None:
+        return {'issue': 'sequence-not-found', 'expect_len': len(exp),
+                'expect': ['%02x %r' % (op, ops[:30]) for op, ops in exp[:4]]}
+    extra = ['%02x %r' % (ins[k][1], ins[k][3][:30]) for k in range(best, target)
+             if not _is_skeleton(ins[k][1], ins[k][3])]
+    if extra:
+        return {'issue': 'extra-presentation-after-block', 'extra': extra[:4]}
+    return None
+
+
+def _sig(op, ops):
+    """可比值：`0x39` 的帧号列表跨版本会被 `pna_id_map` 换算，只比通道串。"""
+    if op == 0x39:
+        return (op, ops.split(b'\x00')[0])
+    return (op, ops)
+
+
+def _conv_of(op, ops):
+    return writer._conv(op, ops, None)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description='演出同步闸（产物 vs 来源行）')
     ap.add_argument('--product', default=os.path.join(ROOT, 'asset'))
@@ -64,12 +147,17 @@ def main(argv=None):
     orig_dir = args.orig_dir or paths.orig_dir()
     plan = json.load(open(os.path.join(ROOT, 'resource', 'restore_plan.json'), encoding='utf-8'))
     slots_all = json.load(open(os.path.join(ROOT, 'resource', 'slot_sources.json'), encoding='utf-8'))
+    scope = json.load(open(os.path.join(ROOT, 'resource', 'restore_scope.json'), encoding='utf-8'))
+    deliver = perfsync.delivery_names(os.path.join(ROOT, 'backup'))
+    kept_censored = perfsync.censored_kept_names()
     prod = members(os.path.join(args.product, 'Rio.arc'))
     steam = members(os.path.join(args.backup, 'Rio.arc'))
     orig = members(os.path.join(orig_dir, 'Rio.arc'))
 
     hard, review = [], []
+    prep = {}
     stat = collections.Counter()
+    stat['perf_sync_noop'] = 0
     for sc, p in sorted(plan['scripts'].items()):
         if p.get('kind') not in ('host', 'whole'):
             continue
@@ -82,7 +170,8 @@ def main(argv=None):
         pr = rows_of(prod[sf], ws2dis.FORMATS)
         sr = rows_of(steam[sf], ws2dis.FORMATS) if sf in steam else []
         orr = rows_of(orig[of], ws2dis.FORMATS_ORIG) if of in orig else []
-        slots = slots_all.get(sc, {}).get('slots') or []
+        # 选项条目（'choice'）占 .lng 槽位但不是台词行：行口径只看 0x14 来源槽
+        slots = [s for s in (slots_all.get(sc, {}).get('slots') or []) if s[0] != 'choice']
         stat['slots'] += len(slots)
         if len(pr) != len(slots):
             hard.append({'script': sc, 'issue': 'row-count', 'product': len(pr), 'slots': len(slots)})
@@ -104,7 +193,40 @@ def main(argv=None):
                 continue
             stat['pairs'] += 1
             if src == 'steam' and val in sync:
-                stat['perf_sync_skip'] += 1
+                spec = (p.get('perf_sync') or {}).get(str(val)) or {}
+                if spec.get('mode') == 'replace':
+                    # 前置检验（与产出端同一批函数）：判为「本来就对」的站点不改字节、
+                    # 因而不跑顺序闸（否则会拿「期望整段替换后的序列」去要求它）。
+                    ctx = prep.get(sc)
+                    if ctx is None:
+                        sinstrs2 = ws2dis.disassemble(ws2.decode(steam[sf]), formats=ws2dis.FORMATS)[0]
+                        oins2, _t2 = conv_parse(ws2.decode(orig[of]), load_orig_formats(orig_dir))
+                        ctx = {'ins': sinstrs2,
+                               's14': [o2 for o2, op2, _s2, _x2 in sinstrs2 if op2 == 0x14],
+                               'idx': {x[0]: k2 for k2, x in enumerate(sinstrs2)},
+                               'oins': oins2,
+                               'o14': [j2 for j2, (op2, _x2) in enumerate(oins2) if op2 == 0x14],
+                               'prod': ws2dis.disassemble(ws2.decode(prod[sf]),
+                                                          formats=ws2dis.FORMATS)[0]}
+                        prep[sc] = ctx
+                    s_sig = writer.perf_zone_sig(
+                        ctx['ins'], writer._perf_zone(ctx['ins'], ctx['idx'], ctx['s14'], int(val)))
+                    o_sig = writer.perf_expected_sig(ctx['oins'], ctx['o14'], spec['orig_row'])
+                    noop, why = perfsync.site_noop(s_sig, o_sig, deliver, kept_censored)
+                    if noop and not perfsync.scope_text_clean(scope['scripts'].get(sc), int(val)):
+                        noop, why = False, 'text-restored'
+                    if noop:
+                        stat['perf_sync_noop'] += 1
+                        continue
+                    stat['perf_sync_checked'] += 1
+                    diff = replace_order_diff(ctx['prod'], ctx['oins'], ctx['o14'],
+                                              spec['orig_row'], i)
+                    if diff:
+                        stat['hard_order'] += 1
+                        hard.append({'script': sc, 'slot': i, 'src': 'steam:%s' % val,
+                                     'issue': 'replace-order', 'diff': diff})
+                else:
+                    stat['perf_sync_skip'] += 1
                 continue
             ps, rs = _own_sig(pr[i]['own']), _own_sig(ref['own'])
             if ps != rs:

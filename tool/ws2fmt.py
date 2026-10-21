@@ -76,6 +76,38 @@ def read_operands(data, pos, tab=None):
         val = struct.unpack_from('<f', data, pos + 4)[0]
         a, b = struct.unpack_from('<II', data, pos + 8)
         return 16, {'mode': mode, 'id': vid, 'value': round(val, 4), 'a': a, 'b': b}
+    if op == 0x0F:
+        # 选项表：count + count × (<strid:u16><text>\0<u16 标签><u8 0><jump>)；jump = 06 u32 | 07 name
+        # 条目内联在 0x0f 操作数里（见 ws2dis._choice_parse），不能按普通指令切分。
+        count = data[pos + 1]
+        p = pos + 2
+        entries = []
+        for _ in range(count):
+            strid = struct.unpack_from('<H', data, p)[0]
+            p += 2
+            q = _str_end(data, p)
+            text = data[p:q - 1]
+            p = q
+            label = struct.unpack_from('<H', data, p)[0]
+            p += 2
+            p += 1
+            kind = data[p]
+            if kind == 0x06:
+                val = struct.unpack_from('<I', data, p + 1)[0]
+                p += 5
+                jmp = ('abs', val)
+            elif kind == 0x07:
+                q = _str_end(data, p + 1)
+                jmp = ('name', data[p + 1:q - 1].decode('cp932', 'replace'))
+                p = q
+            else:
+                raise Bad('unknown choice jump 0x%02x @0x%x' % (kind, p))
+            try:
+                t = text.decode('ascii')
+            except UnicodeDecodeError:
+                t = text.decode('cp932', 'replace')
+            entries.append({'strid': strid, 'text': t, 'label': label, 'jump': jmp})
+        return p - pos, {'count': count, 'entries': entries}
     toks = tab.fmt.get(op)
     if toks is None:
         raise Bad('opcode 0x%02x undefined in FD format table' % op)

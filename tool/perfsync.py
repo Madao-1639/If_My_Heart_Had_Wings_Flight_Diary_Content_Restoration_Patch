@@ -55,6 +55,15 @@ ROW = 0x14
 # 实测会把残留窗口高估 3.5 倍、并造出整组幽灵残留（占当次读数 18%）。
 FAMILY = ('bg', 'st')
 
+# **通配清屏**：`37 *` 一次清掉**全部**通道（脚本开头/场景切换的复位用法；实测本作
+# Steam 侧 340 处 / 原版 146 处）。
+# 旧模型把它当成「没见过的通道名」⇒ `pop_clear` 弹不动任何东西，于是「`37 *` 之后
+# 画面其实已经清空」这件事在状态模型里**不存在**。实机症状：还原块的显示被排在
+# `37 *` 之前执行 ⇒ 刚画上去就被清掉 = **黑背景**（见 doc/lessons-learned.md §43）。
+WILDCARD = '*'
+
+CLEAR_ALL = (WILDCARD,) + FAMILY
+
 
 def _pair(x):
     """兼容 `(off, op, size, ops)` 与 `(op, ops)` 两种指令表示。"""
@@ -62,12 +71,23 @@ def _pair(x):
 
 
 def pop_clear(state, chan):
-    """清屏（族级展开）：`bg`／`st` 清同一族全部通道，其余按名清。"""
-    if chan in FAMILY:
+    """清屏（族级/通配展开）：`*` 清全部通道，`bg`／`st` 清同一族全部通道，其余按名清。"""
+    if chan == WILDCARD:
+        state.clear()
+    elif chan in FAMILY:
         for k in [k for k in state if k.startswith(chan)]:
             state.pop(k)
     else:
         state.pop(chan, None)
+
+
+def clear_hits(chan, state):
+    """这次清屏会不会动到 `state` 里的在屏通道（通配/族级按展开口径判）。"""
+    if chan == WILDCARD:
+        return bool(state)
+    if chan in FAMILY:
+        return any(k.startswith(chan) for k in state)
+    return chan in state
 
 
 def row_setters(instrs):
@@ -107,7 +127,9 @@ def row_setters(instrs):
             s = _strs(ops)
             if s:
                 c = s[0]
-                for k in ([k for k in setter if k.startswith(c)] if c in FAMILY else [c]):
+                keys = (list(setter) if c == WILDCARD
+                        else ([k for k in setter if k.startswith(c)] if c in FAMILY else [c]))
+                for k in keys:
                     setter.pop(k, None)
                 pop_clear(state, c)
         i += 1
@@ -133,13 +155,19 @@ def pairing_set(instrs):
 
 
 def _strs(ops):
+    """NUL 定界串列表；**纯符号的通道名（`*` = 全部通道）必须保留**。
+
+    过滤只丢「解出来是垃圾」的项（既无字母数字、也非宽字符），但 `37 *` 的通配清屏
+    正是纯符号名——早期版本把它一并丢掉，于是「`37 *` 已清空画面」在状态模型里消失，
+    演出同步闸对「显示被排到 `37 *` 之后清掉」这类缺陷结构性沉默（见 doc/lessons-learned.md §43）。
+    """
     out = []
     for m in _STR_RX.finditer(ops):
         try:
             t = m.group(0)[:-1].decode('cp932')
         except UnicodeDecodeError:
             continue
-        if any(c.isalnum() or ord(c) > 0x2000 for c in t):
+        if t == WILDCARD or any(c.isalnum() or ord(c) > 0x2000 for c in t):
             out.append(t)
     return out
 
@@ -232,8 +260,9 @@ def perf_rows(instrs):
         elif op == CLEAR and s:
             own.setdefault('clear', set()).add(s[0])
             # 同前缀内「设后即清」⇒ 净效果为无；族级清屏（`bg`／`st`）展开到各通道
-            for c in ([k for k in (own.get('display') or {}) if k.startswith(s[0])]
-                      if s[0] in FAMILY else [s[0]]):
+            for c in ((list(own.get('display') or {}) if s[0] == WILDCARD
+                       else [k for k in (own.get('display') or {}) if k.startswith(s[0])])
+                      if s[0] in CLEAR_ALL else [s[0]]):
                 (own.get('display') or {}).pop(c, None)
             pop_clear(state, s[0])
         elif op == BGM and s:
@@ -293,6 +322,69 @@ def sb_chan(chan, name):
     return is_sb_channel(chan) and not is_cg_name(name)
 
 
+# ── 站点「无需还原」判定（`replace` 的前置检验，产出端与闸共用）───────────────
+# 判据三合一（用户 2026-10-21 定案）：
+#   ① 文本侧无需还原（`restore_scope` 该槽不落在任何非 `no_action` 区间里）；
+#   ② 该槽的**演出序列**已与来源原版行逐条相同（顺序也相同）；
+#   ③ 演出引用的素材在交付面且是**原生**的（在 `backup/` 里存在、且 CG/立绘没被
+#      Steam 改画而我们又没覆盖回原版）。
+# 三条全中 ⇒ 该站点属于「本来就对」，改写是纯噪声：跳过替换、字节保持 Steam 原样。
+# 只记构建报告，不落表（`perf_sync_map` / `restore_plan` / `restore_scope` 已经三表同源，
+# 再派生一张必然漂移）。
+NAME_RX = re.compile(rb'[A-Za-z0-9_\-\.]{3,}\.(?:PNG|PNA|OGG|BMP|JPG|WAV|FX)\Z', re.I)
+IMG_EXT = ('.png', '.pna', '.mos')
+
+
+def delivery_names(backup_dir):
+    """交付面（`backup/`，表扫读）里的成员名集合（小写）。"""
+    from tool import arcbuild
+    out = set()
+    for fn in sorted(os.listdir(backup_dir)):
+        if fn.lower().endswith('.arc'):
+            out |= {n.lower() for n in arcbuild.names(os.path.join(backup_dir, fn))}
+    return out
+
+
+def censored_kept_names():
+    """`censor_map.json` 里判 `keep` 的成员名（小写）：Steam 改画版被保留 ⇒ 非原生。"""
+    p = os.path.join(ROOT, 'resource', 'censor_map.json')
+    if not os.path.exists(p):
+        return set()
+    with open(p, encoding='utf-8') as fh:
+        data = json.load(fh)
+    return {m['name'].lower() for m in data.get('members') or []
+            if m.get('action') != 'overwrite'}
+
+
+def scope_text_clean(scope_rec, slot):
+    """该 Steam 槽是否**不需要还原文本**（不落在任何非 `no_action` 的 `restore_scope` 区间里）。"""
+    for reg in (scope_rec or {}).get('regions') or []:
+        if reg.get('action') in (None, 'no_action'):
+            continue
+        a, b = (reg.get('steam_range') or [0, -1])[:2]
+        if a <= slot <= b:
+            return False
+    return True
+
+
+def site_noop(steam_sig, orig_sig, deliver, kept):
+    """(是否无需还原, 原因)。`*_sig` 见 `writer.perf_zone_sig` / `perf_expected_sig`。"""
+    if steam_sig != orig_sig:
+        return False, 'presentation-differs'
+    for op, ops in orig_sig:
+        if op not in (0x33, 0x34, 0x28, 0x1E, 0x66):
+            continue
+        for seg in ops.split(bytes((0,))):
+            if not NAME_RX.match(seg):
+                continue
+            name = seg.decode('ascii', 'replace').lower()
+            if name not in deliver:
+                return False, 'asset-missing:%s' % name
+            if name.endswith(IMG_EXT) and name in kept:
+                return False, 'asset-censored-kept:%s' % name
+    return True, 'ok'
+
+
 def is_sb_channel(chan):
     """通道是不是 `st*`／`bg*`（不论图名形状）——写盘器 `replace` 与闸的期望模型共用。"""
     return bool(chan) and (chan.startswith('st') or chan.startswith('bg'))
@@ -339,11 +431,10 @@ def image_blocks(instrs):
                         'idx': list(range(lo, k))})
             j = k
         elif op == CLEAR and s and _is_img_chan(s[0]):
-            # 只收**精确通道名**的清屏（`37 st01\0`）。族级清屏（`37 st\0` / `37 bg\0`）
-            # **不入块、也不由搬运负责**：它们是「净状态」范畴，由写盘器的状态对齐
-            # （`writer.align_state`）按「该点应有状态」逐通道发**最小修正**；
-            # 让 `replace` 顺带搬原版清屏会把净状态重新塞回搬运里（见 tool/writer.py 的
-            # `_perf_clear_kill` 与 `with_clear` 注释、doc/restoration-route.md §4）。
+            # 只收**精确通道名**的清屏（`37 st01\0`）。族级（`37 st\0` / `37 bg\0`）与
+            # 通配（`37 *\0`）按「一族 / 全盘」处理（见 `pop_clear` / `clear_hits`），
+            # 不按单通道入块：`replace` 现在是**整段替换**（doc/restoration-route.md §5.1），
+            # 这里的块划分只服务 `drop` 与状态对齐。
             out.append({'kind': 'clear', 'chan': s[0], 'name': None,
                         'idx': [j]})
             j += 1

@@ -13,6 +13,11 @@ import os
 import re
 import sys
 
+try:
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
+
 KANA = re.compile('[\u3040-\u309f\u30a1-\u30fa]')
 NL = chr(92) + 'n'
 PUNCT = '\u3000-\u303f\uff00-\uffef\u2018-\u201d\u2026\u2014'

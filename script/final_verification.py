@@ -143,6 +143,35 @@ def main(argv=None):
             missing.add((n[:-4], t))
     check('2 调用链（07/02 目标可达）', not missing, str(sorted(missing)[:6]))
 
+    # ── 2b 回想守卫/出口（入口/出口必须成对，见 doc/route-mechanics.md §1.5）──
+    # 原版头部回想分派在 Steam 侧已删 ⇒ 只搬出口就是孤儿（flag127=1 且 var110=k 时正常播放
+    # 也会在场景末尾 NextFile EVRET 回主菜单）。判据：任何宿主不得比 Steam 基线多出 EVRET；
+    # 逐脚本 action 由 resource/replay_guards.json 声明。
+    def _evr(dec):
+        ins, _ok = ws2dis.disassemble(dec)
+        return sum(1 for _o, op, _s, ops in ins
+                   if op == 0x07 and ops.split(b'\x00')[0] == b'EVRET')
+
+    guards = json.load(open(os.path.join(ROOT, 'resource', 'replay_guards.json'), encoding='utf-8'))
+    guard_bad = []
+    base_rio = read_members(os.path.join(BACKUP, 'Rio.arc'))
+    for member in sorted(rio):
+        if not member.lower().endswith('.ws2'):
+            continue
+        if member not in base_rio:
+            continue
+        a_evr, s_evr = _evr(ws2.decode(rio[member])), _evr(ws2.decode(base_rio[member]))
+        if a_evr > s_evr:
+            guard_bad.append('%s +%d' % (member[:-4], a_evr - s_evr))
+    for sc, decl in sorted(guards.get('scripts', {}).items()):
+        member = sc + '_E.ws2'
+        if member not in rio:
+            continue
+        if decl['action'] == 'drop' and _evr(ws2.decode(rio[member])) != 0:
+            guard_bad.append('%s drop 但仍有 EVRET' % sc)
+    check('2b 回想出口不得多于 Steam 基线（%d 条声明）' % len(guards.get('scripts', {})),
+          not guard_bad, str(sorted(guard_bad)[:6]))
+
     # ── 3. 成就触发点 ──
     hooks = sum(ws2.decode(d).count(b'\x04CG_ACHIEVEMENT\x00')
                 for n, d in rio.items() if n.lower().endswith('.ws2'))
@@ -381,6 +410,209 @@ def main(argv=None):
             bad_parse.append(n)
     check('9 产物 WS2 线性解析自洽（%d 个）' % len([1 for n in rio if n.lower().endswith('.ws2')]),
           not bad_parse, str(bad_parse[:6]))
+
+    # ── 9b. WS2 尾表（末尾 8 字节明文 == 实算 (消息数, 选项数)）──
+    # 引擎按尾表给「已读位图」(`MessageFlag.dat`) 分配容量，写位不查边界 ⇒ 尾表偏小会写坏堆。
+    from tool import ws2 as _ws2
+    _ok_tail, _bad_tail = _ws2.check_tails(dict(rio))
+    check('9b WS2 尾表（末尾 8 字节明文）', not _bad_tail, str(_bad_tail[:4]))
+
+    # ── 9c. 选项头（每张 `0f` 前必须有 `0e 0b 00 <count> 00 01`）──
+    # 依据：同代且选项可用的本篇（`CO1_020` = `0e 0b 00 04 00 01` + `0f 04`）实机语料；
+    # 本作 Steam / 原版都不发这条头，漏发时表能画、但引擎不进入选项态 ⇒ 只能实机发现。
+    # 见 script/checks/choice_header_check.py 与 doc/engine-mechanics.md「选项头」。
+    _bad_hdr = []
+    for _n, _d in rio.items():
+        if not _n.lower().endswith('.ws2'):
+            continue
+        try:
+            _ins, _ok2 = ws2dis.disassemble(ws2.decode(_d))
+        except Exception as _e:
+            _bad_hdr.append('%s 解析失败 %s' % (_n, _e))
+            continue
+        for _i, (_o, _op, _sz, _ops) in enumerate(_ins):
+            if _op != 0x0F:
+                continue
+            if _i == 0 or _ins[_i - 1][1] != 0x0E:
+                _bad_hdr.append('%s @0x%x 缺选项头' % (_n, _o))
+                continue
+            _p = _ins[_i - 1][3]
+            if len(_p) != 5 or _p[0] != 0x0B or _p[1] != 0x00 or _p[3] != 0x00 or _p[4] != 0x01:
+                _bad_hdr.append('%s @0x%x 头形态不对 %s' % (_n, _o, _p.hex(' ')))
+            elif _p[2] != _ops[0]:
+                _bad_hdr.append('%s @0x%x 头 count=%d ≠ 表 count=%d'
+                                % (_n, _o, _p[2], _ops[0]))
+    check('9c 选项头（`0e 0b 00 <count> 00 01`）', not _bad_hdr, str(_bad_hdr[:4]))
+
+    # ── 9d. 选项处文本/人名规范（直接复用独立闸，避免主闸与独立闸判据漂移）──
+    # 覆盖：帧内无 0x28 / 无非空 0x15、提示句以 %K 收尾、条目落点 = `0b…` + **纯标记 %P**。
+    # 实现：script/checks/choice_spec_check.py（带 --self-test，证明检查不是死代码）
+    _spec_bad = []
+    try:
+        import importlib.util as _ilu2
+        _sp2 = _ilu2.spec_from_file_location(
+            'choice_spec_check', os.path.join(ROOT, 'script', 'checks', 'choice_spec_check.py'))
+        _csc2 = _ilu2.module_from_spec(_sp2)
+        _sp2.loader.exec_module(_csc2)
+        for _tag2, _base2 in (('asset', os.path.join(ROOT, 'asset')),
+                              ('payload', os.path.join(ROOT, 'payload'))):
+            if not os.path.exists(os.path.join(_base2, 'Rio.arc')):
+                continue
+            _n2, _f2 = _csc2.check_archive(os.path.join(_base2, 'Rio.arc'))
+            _spec_bad += ['[%s] %s' % (_tag2, x) for x in _f2]
+    except Exception as _e2:
+        _spec_bad.append('规范闸执行失败：%s' % _e2)
+    check('9d 选项文本/人名规范（帧内无语音 / %K 提示句 / %P 落点）',
+          not _spec_bad, str(_spec_bad[:4]))
+    _expected_slots = {}          # 供 9f/9f2 使用（0x14 + Σ(0f count)）
+
+    # ── 9e. 人名帧一致性（内容面，跨脚本）──
+    # 对每个 `_E.ws2` 与同名原版按正文对齐：原版空名字框的行产物也必须为空；原版有名的行产物也必须有名。
+    # 实现见 script/checks/name_frame_check.py（`%LC` 日文名→罗马字键的具体映射不在此断言内）。
+    import re as _re
+    _EV = _re.compile(rb'\x15([^\x00]*)\x00|\x14(..)\x00\x00char\x00([^\x00]*)\x00', _re.S)
+
+    def _rows(_d):
+        _out, _cur = [], None
+        for _m in _EV.finditer(_d):
+            if _m.group(1) is not None:
+                _cur = _m.group(1)
+            else:
+                _out.append((_cur, _m.group(3)))
+        return _out
+
+    _name_bad = []
+    _orig = {n: ws2.decode(d) for n, d in orig.items() if n.lower().endswith('.ws2')}
+    for _n, _d in rio.items():
+        if not _n.lower().endswith('_E.ws2'):
+            continue
+        _base = _n[:-len('_E.ws2')] + '.ws2'
+        if _base not in _orig:
+            continue
+        _by = {}
+        for _c, _t in _rows(_orig[_base]):
+            _by.setdefault(_t.strip(), set()).add(_c or b'')
+        for _c, _t in _rows(ws2.decode(_d)):
+            _k = _t.strip()
+            if _k not in _by:
+                continue
+            _mine = _c or b''
+            _exp = _by[_k]
+            if _exp <= {b''} and _mine != b'':
+                _name_bad.append('%s 旁白被冠名 %r' % (_n, _mine))
+            elif _exp and b'' not in _exp and _mine == b'':
+                _name_bad.append('%s 有名台词丢了人名' % _n)
+    check('9e 人名帧一致性（旁白不得冠名 / 有名不得丢名）', not _name_bad, str(_name_bad[:4]))
+
+    # ── 9f. 跳转自洽 + `.lng` 槽位等式 ──
+    # 所有"解码流内绝对偏移"（0x01 字段 7/11、0x02/0x06 字段 0、0x0f 条目 06）必须落在指令起点；
+    # 且每个脚本的 `lng 条数 == 0x14 条数 + Σ(0f count)`。
+    # 实现见 script/checks/choice_jump_check.py。
+    from tool.ws2conv import REBASE_OPS as _ROPS
+    import struct as _st
+    _jump_bad, _slot_bad = [], []
+    for _n, _d in rio.items():
+        if not _n.lower().endswith('.ws2'):
+            continue
+        _dec = ws2.decode(_d)
+        try:
+            _ins6, _ok6 = ws2dis.disassemble(_dec)
+        except Exception:
+            continue
+        _starts = {x[0] for x in _ins6}
+        _n14 = _nch = 0
+        for _o6, _op6, _s6, _p6 in _ins6:
+            if _op6 == 0x14:
+                _n14 += 1
+            elif _op6 == 0x0F:
+                _nch += _p6[0]
+                for _e6 in _ws2.choice_entries(_dec, _o6):
+                    if _e6[4] == 'abs' and _e6[5] and _e6[5] not in _starts:
+                        _jump_bad.append('%s@0x%x 条目->%#x' % (_n, _o6, _e6[5]))
+            for _k6 in _ROPS.get(_op6, ()):
+                if len(_p6) < _k6 + 4:
+                    continue
+                _v6 = _st.unpack_from('<I', _p6, _k6)[0]
+                if _v6 and _v6 not in _starts:
+                    _jump_bad.append('%s op%#x@0x%x f%d->%#x' % (_n, _op6, _o6, _k6, _v6))
+        _expected_slots[_n] = _n14 + _nch
+    check('9f 跳转自洽（所有绝对偏移落在指令起点）', not _jump_bad, str(_jump_bad[:4]))
+
+    # 槽位等式：asset 的 zh-CN/.lng 条数 == 0x14 + Σ(0f count)
+    _zlng = {}
+    _zp = os.path.join(ROOT, 'asset', 'zh-CN', 'Rio.arc')
+    if os.path.exists(_zp):
+        for _nb, _dd in arcbuild.read_raw(_zp):
+            _nm = _nb.decode('utf-16le', 'replace')
+            if _nm.endswith('.lng'):
+                try:
+                    _zlng[_nm] = len(lng.parse_lng(_dd))
+                except Exception:
+                    pass
+    for _n, _exp in _expected_slots.items():
+        _ln = _n[:-len('.ws2')] + '.lng'
+        if _ln in _zlng and _zlng[_ln] != _exp:
+            _slot_bad.append('%s lng=%d != %d' % (_ln, _zlng[_ln], _exp))
+    check('9f2 .lng 槽位等式（lng == 0x14 + Σ(0f count)）', not _slot_bad, str(_slot_bad[:4]))
+
+    # ── 9g. 选项帧内不得有 `0x16`（Steam 侧会关闭输入门）──
+    # 本作 Steam 的 `0x16` 会把 MenuInf.enabled/effect 推成 false/true（closeMessageWindow 的效果），
+    # 输入门 GetMenuMouseEnable 因此恒不通过 ⇒ 选项能画、点不动。实机证据见
+    # doc/engine-mechanics.md「0x16 的副作用」；实现 script/checks/choice_frame_check.py。
+    _frame_bad = []
+    for _n, _d in rio.items():
+        if not _n.lower().endswith('.ws2'):
+            continue
+        _dec9 = ws2.decode(_d)
+        try:
+            _ins9, _ok9 = ws2dis.disassemble(_dec9)
+        except Exception:
+            continue
+        for _i9, (_o9, _op9, _s9, _p9) in enumerate(_ins9):
+            if _op9 != 0x0F:
+                continue
+            _stop = _o9
+            if _i9 > 0 and _ins9[_i9 - 1][1] == 0x0E:
+                _stop = _ins9[_i9 - 1][0]
+            _j9 = _i9 - 1
+            while _j9 >= 0 and _ins9[_j9][1] != 0x14:
+                _j9 -= 1
+            if _j9 < 0:
+                _frame_bad.append('%s@0x%x 无提示句' % (_n, _o9))
+                continue
+            _p0 = _ins9[_j9][0]
+            if any(_op == 0x16 and _p0 < _o < _stop for (_o, _op, _s, _pp) in _ins9):
+                _frame_bad.append('%s@0x%x 帧内含 0x16' % (_n, _o9))
+    check('9g 选项帧内无 0x16（Steam 侧会关闭输入门）', not _frame_bad, str(_frame_bad[:4]))
+
+    # ── 9h. 「新增选项」规则可复用（演练工具现造一张，走与产物同一套闸）──
+    # build() 内部已复用 choice_spec_check（帧内无语音 / %K 提示句 / 落点纯 %P）与
+    # choice_jump_check（跳转自洽 + 槽位等式），此处再校验头/尾表，任一不满足即断言失败。
+    _reh_fail = []
+    try:
+        import importlib.util as _ilu
+        _sp = _ilu.spec_from_file_location(
+            'rehearse_new_choice', os.path.join(ROOT, 'script', 'checks', 'rehearse_new_choice.py'))
+        _reh = _ilu.module_from_spec(_sp)
+        _sp.loader.exec_module(_reh)
+        _rname, _rraw, _rst = _reh.build()
+        _ok_tail, _bad_tail = _ws2.check_tails({_rname: _rraw})
+        if not _ok_tail:
+            _reh_fail.append('%s 尾表未对齐 %s' % (_rname, _bad_tail[:2]))
+        _rdec = ws2.decode(_rraw)
+        _rins, _rok = ws2dis.disassemble(_rdec)
+        if not _rok:
+            _reh_fail.append('%s 线性解析不自洽' % _rname)
+        _ri16 = [x for x in _rins if x[1] == 0x0F]
+        if len(_ri16) != 1:
+            _reh_fail.append('%s 选项表数 %d != 1' % (_rname, len(_ri16)))
+        elif _rins[_rins.index(_ri16[0]) - 1][1] != 0x0E:
+            _reh_fail.append('%s 缺选项头' % _rname)
+    except Exception as _re:
+        _reh_fail.append('演练工具执行失败：%s' % _re)
+    check('9h 新增选项规则可复用（演练：规范闸 + 跳转/槽位闸 + 头 + 尾表）',
+          not _reh_fail, str(_reh_fail[:3]))
+
 
     # ── 10. 语音重指（人工定案） ──
     vp = os.path.join(ROOT, 'resource', 'voice_repoint_manual.json')

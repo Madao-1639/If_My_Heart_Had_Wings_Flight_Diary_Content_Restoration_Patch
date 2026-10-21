@@ -31,7 +31,7 @@
 | 原版素材导入 | `script/build/import_route_assets.py`（原版 → `resource/`，幂等；`--check` 只校验）——**唯一读原版目录的地方** |
 | 写盘 | `script/build/build_route_entry.py` → `asset/Script.arc`、`asset/SysGraphic.arc`、`asset/zh-CN/SysGraphic.arc` |
 | 验收 | `script/checks/check_route_entry.py`（Lua 表/上界、中文 PNA、base PNA、Cast 分支、`initSubLayer` 覆盖、分派表、朱莉线） |
-| 发布 | `script/generate_payload.py`（`asset/` → `payload/`）→ `bash script/pack.sh`（安装器 → `releases/`）。⚠️ 现有 `payload/`、`releases/` **早于角色高亮改动，需重打** |
+| 发布 | `script/generate_payload.py`（`asset/` → `payload/`）→ `bash script/pack.sh`（安装器 → `releases/`）。⚠️ `payload/` 已在 2026-10-21 按当时 `asset/` 重建；**`releases/` 里的安装器仍早于最近的脚本改动（含回想出口剥离），发布前必须重跑 `script/pack.sh`** |
 
 ```
 python script/build/import_route_assets.py    # 仅在需要重建 resource 素材时跑
@@ -113,6 +113,29 @@ SETLIST R4[1..8] := {108, 101, 103, 104, 105, 106, 107, 102}
 |---|---|---|
 | 原版 | `LegacyGame.lua` | AFT 14 / BEF 9 / HOT 10 / KAN 9 / HUS 3 / **AGS 3** / NOV 2 / COM 1 = 51 |
 | Steam | `menu_gallery.lua` | AFT 13 / BEF 9 / HOT 10 / KAN 8 / HUS 1 / NOV 2 / COM 1 = 31（**无 AGS**，且 H 场景条目被删） |
+
+### 1.5 回想「入口 / 出口」必须成对（写盘纪律）
+
+原版每个可回想脚本在**头部**有入口分派（`01 flag[127]==1` + `01 var[110]==k` + `06 Jump <场景起点>`）、在**场景末尾**有配对的出口三连（同两条 `01` + `07 NextFile "EVRET"`）：
+
+- 正常播放：`flag[127]==0` ⇒ 条件不成立 ⇒ 两条都**跳到续场段**（`0b flag[106x]=1` → `11/12 timer01` → 下一场景 BG），继续整条路线；
+- 回想重播：`flag[127]==1` 且 `var[110]==k` ⇒ 从头部直跳 H 场景入口、播到末尾经 `EVRET` 回收（回主菜单）。
+
+**Steam 把头部那一簇删掉了**（宿主脚本中只有 `BEF_003_E`（兼作存档续玩）与 `KAN_3002_2_E` 各留 1 对，其余 12 个宿主 `01(127)` 均为 0 处），因此**只搬出口 = 退化成孤儿**：只要 `flag[127]=1` 且 `var[110]==k`（本构建 `flag127` 的置 0 点 `mainmenu @0x3b1` 落在 `01` 两分支都落不到的死代码里，实际不会被清），**正常播放**也会在该场景末尾 `NextFile EVRET` → 主菜单，把它后面的场景整段吃掉。实机表现就是「某场景播完直接回主菜单 + 后面剧情丢失」。
+
+| 脚本 | 原版守卫 | Steam 守卫 | 处置（`resource/replay_guards.json`） |
+|---|---|---|---|
+| `HUS_001` | 入口+出口 | 无 | **drop**（剥离出口三连） |
+| `AFT_003` | 入口+出口 | 无 | **drop** |
+| `AFT_007_3` | 入口+出口 | 无 | **drop** |
+| `BEF_004` | 入口+出口 | 无 | **drop** |
+| `HOT_004` | 入口+出口 | 无 | **drop** |
+| `BEF_003` | 出口（块外，本就不搬） | **入口**（`i=0..2`，兼作存档续玩检查点） | **keep** |
+| `KAN_3002_2` | 入口+出口 | 仅出口 | **keep**（还原后入口回来，重新成对） |
+
+- 写盘：`script/build/build_patch.py` 识别三连 → 按表核 `action` → 交 `tool/writer.py` 的 `skip_orig` 剥离并重定基；产物闸 `script/checks/replay_guard_check.py`（产物 `07 EVRET` 处数不得超过 Steam 基线）。
+- ⚠️ 判定「这里是终场景还是被截断」时必须回到**原版同名脚本**看尾跳，不能凭「回主菜单」本身下结论：本作 `HUS_001` 原版尾跳也是 `TITLE`（风户姐妹线的终场景是屋顶花火 + 流水素面尾声）。
+- ⚠️ 国外补丁把 `HUS_001_E` 的尾跳由 `TITLE` 硬改成 `AGS_001`（见 §3.6 末），玩过它的玩家会以为「风户线结束后还有一段」——那一段其实是**姬城あげは线**，本项目的入口是第 8 个按钮，不做尾跳硬接。
 
 ---
 

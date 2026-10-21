@@ -114,6 +114,13 @@ def parse(data, fmts):
             instrs.append((op, data[pos + 1:pos + sz]))
             pos += sz
             continue
+        if op == 0x0F:
+            # 选项表：条目**内联**在 0x0f 的操作数里（见 ws2dis._choice_parse）。必须整块作为
+            # 一条指令切分，否则条目首字节会被当成 0x5e/0x5f 等独立指令、重编 strid 后立刻失步。
+            end = ws2dis.choice_block_end(data, pos)
+            instrs.append((op, data[pos + 1:end]))
+            pos = end
+            continue
         fmt = fmts.get(op)
         assert fmt is not None, 'orig opcode %#x undefined @%#x' % (op, pos)
         p = pos + 1

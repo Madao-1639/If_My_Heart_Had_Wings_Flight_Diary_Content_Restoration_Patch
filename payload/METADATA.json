@@ -6057,7 +6057,7 @@
   },
   "Rio.arc": {
     "kind": "copy",
-    "checksum": "156431449912844a2f2b4a9a49674d94c5a96f0b994a1ae619ff364e3a8e1226"
+    "checksum": "8051d3619cb10f51421066b132a8b58a98f38d3bb6f7242860bc0148ebcb4424"
   },
   "Script.arc": {
     "kind": "copy",
@@ -55771,7 +55771,7 @@
   },
   "zh-CN/Rio.arc": {
     "kind": "copy",
-    "checksum": "71f51c94ff0a8b1e06df3f5235d867ea699f608807d0a04e3fe9809993727310"
+    "checksum": "c47326336d40c82fc08c7360039c16825157edd481a3c52e5693887fc0e60103"
   },
   "zh-CN/SysGraphic.arc": {
     "kind": "merge",

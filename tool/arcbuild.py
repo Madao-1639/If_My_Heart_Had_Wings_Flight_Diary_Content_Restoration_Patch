@@ -35,6 +35,29 @@ def read_raw(path):
     return out
 
 
+def names(path):
+    """只读头部 + 条目表，返回成员名列表（`str`）。
+
+    用途：**只要"交付面有没有这个名字"**时用——表在头部之后，读表即可，不必读几十/几百
+    MB 的成员数据（`Voice.arc` 表 380KB / `Graphic.arc` 10KB，而文件本体分别 96MB / 589MB）。
+    """
+    with open(path, 'rb') as fh:
+        head = fh.read(8)
+        count, table_size = HEADER.unpack(head)
+        blob = head + fh.read(table_size)
+    out = []
+    off = 8
+    for _ in range(count):
+        _size, _rel = ENTRY.unpack_from(blob, off)
+        off += 8
+        start = off
+        while blob[off:off + 2] != b'\0\0':
+            off += 2
+        out.append(blob[start:off].decode('utf-16le', 'replace'))
+        off += 2
+    return out
+
+
 def write_arc(members, output_path):
     """写入归档，members 为 [(name_bytes, data)]，offset 自动计算为相对偏移。"""
     table_size = sum(8 + len(n) + 2 for n, _ in members)
