@@ -54,7 +54,7 @@
 | **S1 差分扫描** | `backup/`（Steam）+ 原版目录 | 脚本级/成员级/像素级差分报告（脚本级已可用 `tool/ws2fmt.py` 做**指令级**比对） |
 | **S2 计划生成** ✅ | `resource/restore_scope.json` + `backup/` + 原版目录 | `resource/restore_plan.json`（逐脚本 `drops`/`inserts`/成就数）+ `tmp/restore_plan.md`；工具 `script/build/build_restore_plan.py` |
 | **S2b 立绘记录映射** ✅ | 计划 + `censor_map keep` 的 21 个同名 PNA + 两侧 `Graphic.arc` | `resource/pna_id_map.json`（原版记录号 → Steam 记录号、改画清单、层内修复/豁免清单）；工具 `script/build/build_pna_id_map.py`。**必须在 S3 之前**（写盘器要按表换算 `0x39`） |
-| **S3 写盘** ✅ | 计划 + `pna_id_map.json` + 原版脚本 | `asset/Rio.arc`（14 个 `*_E.ws2` 就地重建 + 新增 `AGS_001.ws2`；原版来源块的 `0x39` 记录号已按表换算；**回想出口三连按 `resource/replay_guards.json` 剥离**；**选项帧内的 `0x16` 按 `tool/ws2.drop_choice_frame_op16()` 剔除**（Steam 侧它会永久关闭输入门，删后提示句与选项同屏）、**末尾 8 字节明文尾表按新条数重写**）；工具 `script/build/build_patch.py` + `tool/writer.py` + `tool/pnaids.py`；槽位表 `resource/slot_sources.json` |
+| **S3 写盘** ✅ | 计划 + `pna_id_map.json` + 原版脚本 | `asset/Rio.arc`（14 个 `*_E.ws2` 就地重建 + 新增 `AGS_001.ws2`；原版来源块的 `0x39` 记录号已按表换算、`0x46` 子层槽绑定标志已跨引擎归一（`0x80→0xf0`，见 [lessons-learned.md](lessons-learned.md) §50）；**回想出口三连按 `resource/replay_guards.json` 剥离**；**选项帧内的 `0x16` 按 `tool/ws2.drop_choice_frame_op16()` 剔除**（Steam 侧它会永久关闭输入门，删后提示句与选项同屏）、**末尾 8 字节明文尾表按新条数重写**、**动画离场→CG 转换点按 `resource/anim_exit_clears.json` 在 CG 显示前补 `37 <通道>`**（Steam 引擎上搬入动画终点与原版不一致，见 [lessons-learned.md](lessons-learned.md) §51））；工具 `script/build/build_patch.py` + `tool/writer.py` + `tool/pnaids.py`；槽位表 `resource/slot_sources.json` |
 | **S3b 画面覆盖** ✅ | `censor_map.json` + 两侧图像归档 | `asset/Graphic.arc`/`Chip*.arc` 同名整名覆盖；工具 `script/build/build_l3.py --write-asset` |
 | **S3c 素材补入** ✅ | `asset/` + 原版目录 | 缺失成员按原版名补入（`Graphic.arc`/`Chip1`/`Chip2`/`Se`）；工具 `script/build/build_l4_extra.py` |
 | **S3d 层内修复** ✅ | `pna_id_map.json` 的 `repair` + `asset/Graphic.arc` + 原版 | 把被 Steam 改画的子图/box 换回原版（不改记录数/顺序/画布）；工具 `script/build/build_pna_repair.py`。**必须在 S3b/S3c 之后**（以它们的产物为底），并把 `GRAPHIC.arc` 的文件名规范回 backup 的 `Graphic.arc` |
@@ -124,6 +124,14 @@
 闸门：`script/checks/perf_consistency_check.py` 逐槽断言「在屏集合 == 原版行 r 的在屏集合」
 （状态模型已展开族级/通配清屏）；`script/checks/restore_asset_coverage.py` 已把
 `replace` 的原版区间纳入资源引用扫描（原版 SE/遮罩/特效名必须能在交付面找到）。
+
+**插入边界状态规范化（移植姊妹作 V-11「对齐状态」机制，两处对齐点）**：`tool/writer.rebuild_host` 在**插入块开头**（对齐「原版第 `r0-1` 行 `14` 落笔时」）与**`replace` 补块发完之后**（对齐「原版该行 `14` 落笔时」——补块＝原版行演出，发完即该行态）按原版在屏状态对齐——逐通道发**清屏**（`37 <通道>`），只对「原版该点无图、产物在屏有图」的通道发（**只发「清」是刻意的**：清屏不向格子添加演出 token；需要补/换的情形必须能被闸看见，归 `perf_sync` / `perf_sync_manual` 入库表，不静默补；`replace` 连删带补只补原版行**自带**的演出，原版行没有对应清时净丢一次「清」——被删 Steam 槽承担的清就此消失，由该处对齐兜底）。在屏状态沿**已发出的整条产物流**跟踪（宿主保留段 + 补块 + 插入块，族级/通配清屏展开）。⇒ 边界净状态不再依赖任何一条指令的存活。当前全库实测两处对齐共发 0 条清屏（边界状态已由逐槽对齐保证），属机制护栏。
+
+闸门（两道，均为 HARD）：
+
+- `script/checks/insert_boundary_check.py`：每个**插入块入口**与 **`replace` 站点入口**的在屏状态必须与原版对应点一致（帧身份归一：`norm_sprite` + `_SC` 水印 + 同编号 `S`/`B` 同帧）；缺失/取值不同＝HARD（写盘器只发清，补/换必须走入库表）。
+- `script/checks/op46_flag_check.py`：产物所有 `0x46` 的子层槽绑定标志必须落在 Steam 引擎自身词表（`0x00`/`0xf0`），原版 `0x80` 计数必须为 0（见 [lessons-learned.md](lessons-learned.md) §50）。
+- `script/checks/anim_exit_clear_check.py`：`resource/anim_exit_clears.json` 逐条落地——产物中该原版行的前缀区内、第一条 `33/34` 显示指令之前存在对应 `37 <通道>`（位置与通道精确）；`perf_sync_check`/`perf_consistency_check` 按同一张表豁免（见 [lessons-learned.md](lessons-learned.md) §51）。
 
 ---
 

@@ -168,6 +168,7 @@ def main():
     if os.path.exists(pw_path):
         for w in json.load(open(pw_path, encoding='utf-8')).get('slots') or []:
             slot_waivers[(w['script'], int(w['slot']))] = w
+    anim_clears = json.load(open(os.path.join(ROOT, 'resource', 'anim_exit_clears.json'), encoding='utf-8'))
     prod = members(os.path.join(ROOT, 'asset', 'Rio.arc'))
     steam = members(os.path.join(ROOT, 'backup', 'Rio.arc'))
     orig = members(os.path.join(paths.orig_dir(), 'Rio.arc'))
@@ -206,8 +207,19 @@ def main():
             if o is None or o >= len(orr):
                 stat['unaligned'] += 1
                 continue
+            # 动画离场清屏兜底（resource/anim_exit_clears.json 人工定案）：产物在该行起的
+            # `37 <通道>` 补清让该通道从产物 eff 消失——原版引擎上同一动画是视觉离场
+            # （状态模型看不见），故原版 eff 里该通道的图不算「产物缺失」。
+            acl_ge, acl_eq = set(), set()
+            for _r, _cs in (anim_clears.get(sc) or {}).items():
+                _r = int(_r)
+                if o >= _r:
+                    acl_ge.update(_cs)
+                if o == _r:
+                    acl_eq.update(_cs)
             notes = []
             pe, om = match(imgs_of(pr[i]['eff']), imgs_of(orr[o]['eff']), res, notes)
+            om = [x for x in om if x[0] not in acl_ge]
             if notes:
                 waived.append({'script': sc, 'slot': i, 'notes': notes})
                 stat['waived_pairs'] += len(notes)
@@ -224,7 +236,7 @@ def main():
                 stat['st_diff'] += 1
             pd = {(k, perfsync.norm_sprite(v)) for k, v in (pr[i]['own'].get('display') or {}).items()}
             od = {(k, perfsync.norm_sprite(v)) for k, v in (orr[o]['own'].get('display') or {}).items()}
-            pcl = set(pr[i]['own'].get('clear') or ())
+            pcl = set(pr[i]['own'].get('clear') or ()) - acl_eq
             ocl = set(orr[o]['own'].get('clear') or ())
             if pd != od or pcl != ocl:
                 stat['root'] += 1

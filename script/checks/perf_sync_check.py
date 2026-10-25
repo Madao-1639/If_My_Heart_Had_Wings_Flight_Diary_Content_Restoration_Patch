@@ -148,6 +148,7 @@ def main(argv=None):
     plan = json.load(open(os.path.join(ROOT, 'resource', 'restore_plan.json'), encoding='utf-8'))
     slots_all = json.load(open(os.path.join(ROOT, 'resource', 'slot_sources.json'), encoding='utf-8'))
     scope = json.load(open(os.path.join(ROOT, 'resource', 'restore_scope.json'), encoding='utf-8'))
+    anim_clears = json.load(open(os.path.join(ROOT, 'resource', 'anim_exit_clears.json'), encoding='utf-8'))
     deliver = perfsync.delivery_names(os.path.join(ROOT, 'backup'))
     kept_censored = perfsync.censored_kept_names()
     prod = members(os.path.join(args.product, 'Rio.arc'))
@@ -229,6 +230,14 @@ def main(argv=None):
                     stat['perf_sync_skip'] += 1
                 continue
             ps, rs = _own_sig(pr[i]['own']), _own_sig(ref['own'])
+            # 动画离场清屏兜底（resource/anim_exit_clears.json 人工定案）：产物按表在
+            # 该行补的 `37 <通道>` 是 Steam 引擎动画终点不一致的合法补偿，不计 own 差异
+            if src == 'orig':
+                _tbl = (anim_clears.get(sc) or {}).get(str(val))
+                if _tbl:
+                    _allowed = set(_tbl)
+                    ps['clear'] = tuple(c for c in ps['clear'] if c not in _allowed)
+                    rs['clear'] = tuple(c for c in rs['clear'] if c not in _allowed)
             if ps != rs:
                 stat['hard_own'] += 1
                 diff = {k: [ps[k], rs[k]] for k in ps if ps[k] != rs[k]}

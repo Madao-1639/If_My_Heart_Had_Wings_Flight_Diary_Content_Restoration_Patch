@@ -25,6 +25,9 @@
 | 文本槽位等式 | `python script/build/build_lng.py`（内建断言） | 逐脚本 `lng 条数 == 0x14 条数 + Σ(0f count)`；`BEF_004` = 556 官方 + 390 语料 + **2 选项** = 948 |
 | 资源覆盖 | `python script/checks/restore_asset_coverage.py` | 0 缺口 |
 | 转换纯度 | `python script/checks/convert_purity.py` | 199,983 条指令 0 异常 |
+| 插入边界状态 | `python script/checks/insert_boundary_check.py` | 60 个插入块入口 + 53 个 `replace` 站点入口的在屏状态 == 原版对应点（帧身份归一：`norm_sprite` + `_SC` + 同编号 `S`/`B` 同帧）；缺失/取值不同＝HARD。写盘器在**插入块开头**与 **`replace` 补块之后**按原版对应点状态发清屏（`tool/writer.align_state`，移植姊妹作 V-11「只发清」机制，两处对齐点），补/换类修正必须走入库表、不得静默补 |
+| `0x46` 标志词表 | `python script/checks/op46_flag_check.py` | 产物所有 `0x46` 的子层槽绑定标志 ∈ Steam 引擎词表（`0x00`/`0xf0`）；原版 `0x80` 计数 = 0（跨引擎移植归一，`tool/writer.norm_op46_flag`；见 [lessons-learned.md](lessons-learned.md) §50） |
+| 动画离场清屏 | `python script/checks/anim_exit_clear_check.py` | `resource/anim_exit_clears.json` 逐条落地：产物中该原版行的前缀区内、第一条 `33/34` 显示指令前存在 `37 <通道>`（位置与通道精确）；搬入动画在 Steam 引擎终点与原版不一致（见 [lessons-learned.md](lessons-learned.md) §51），CG 前显式清屏兜底 |
 
 本作成就基线：`CG_ACHIEVEMENT` **723 处 / 39 脚本**，`0xF0` **33 处**（逐脚本与 `backup/` 相同；`AGS_001.ws2` 为新增脚本，0 处）。交付归档 **13 个**（`asset/` 11 个 + `zh-CN/` 2 个）。
 `resource/carrier_map.json` 为**实表**（107 脚本 / 8,579 锚点），管演出判定表生成；产物侧逐槽对账走 `slot_sources`。

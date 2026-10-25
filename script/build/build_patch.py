@@ -43,6 +43,7 @@ from tool import arcbuild, paths, perfsync, pnaids, ws2, ws2dis, ws2conv, ws2fmt
 ACH = (0x04, b'CG_ACHIEVEMENT\x00')
 JUMP_RENAME = {'KAN_3002_2': {'KAN_3002_3_E': 'KAN_3003_E'}}
 REPLAY_GUARDS = os.path.join(ROOT, 'resource', 'replay_guards.json')
+ANIM_CLEARS = os.path.join(ROOT, 'resource', 'anim_exit_clears.json')
 
 
 def _cond_id(ops):
@@ -112,7 +113,7 @@ def prep_orig(dec, orig_fmts, name_map, jump_map, pna_map=None):
         offs.append(q)
         q += 1 + len(ops)
     stage = []
-    n_lc = n_jmp = n_ids = 0
+    n_lc = n_jmp = n_ids = n_46 = 0
     id_miss = []
     disp = {}
     for j, (op, ops) in enumerate(ins):
@@ -144,6 +145,18 @@ def prep_orig(dec, orig_fmts, name_map, jump_map, pna_map=None):
                 if miss:
                     id_miss.append({'op': j, 'chan': chan[0],
                                     'member': disp.get(chan[0]), 'ids': miss})
+        elif op == 0x46:
+            # 子层槽绑定标志归一（跨引擎移植，与 0x39 记录号映射同类）：`0x46` 第一条
+            # （绑定 PNA 子层到引擎层槽）的标志字节，原版工具链写 `0x80`、Steam 工具链
+            # 写 `0xf0`（全库 ~7.6k 处零交叉；`0x00`＝纯坐标定位，两侧一致）。原版块
+            # 带着 `0x80` 进 Steam 引擎会欠绑定子层槽——未重绑的槽保留上一次显示的
+            # 子图 ⇒ 「上一处的立绘未去除、压在后续 CG 上，直到清槽」。整脚本转换路径
+            # （`ws2conv.convert`）不经 `writer._conv`，必须在此归一；判据与移植路径
+            # 共用 `writer.norm_op46_flag`（幂等）。
+            ops_n = writer.norm_op46_flag(ops)
+            if ops_n != ops:
+                ops = ops_n
+                n_46 += 1
         if op == 0x15:
             q2 = ops.find(b'\x00')
             if q2 > 3 and ops[:3] == b'%LC':
@@ -168,7 +181,7 @@ def prep_orig(dec, orig_fmts, name_map, jump_map, pna_map=None):
         j += 1
     if id_miss:
         raise SystemExit('0x39 记录号映射缺项 %r' % (id_miss[:5],))
-    return out, ooffs, tail, {'lc': n_lc, 'jump': n_jmp, 'ach': n_ach, 'ids': n_ids}
+    return out, ooffs, tail, {'lc': n_lc, 'jump': n_jmp, 'ach': n_ach, 'ids': n_ids, 'flag46': n_46}
 
 
 def site_noop(sc, slot, sinstrs, s14off, oin, o14, r, scope, deliver, kept):
@@ -185,6 +198,7 @@ def main():
     plan = json.load(open(os.path.join(ROOT, 'resource', 'restore_plan.json'), encoding='utf-8'))
     scope = json.load(open(os.path.join(ROOT, 'resource', 'restore_scope.json'), encoding='utf-8'))
     guards = (json.load(open(REPLAY_GUARDS, encoding='utf-8')) or {}).get('scripts') or {}
+    anim_clears_all = json.load(open(ANIM_CLEARS, encoding='utf-8'))
     name_map = plan['meta']['name_map']
     deliver = perfsync.delivery_names(paths.STEAM)
     kept = perfsync.censored_keep_names() if hasattr(perfsync, 'censored_keep_names') else perfsync.censored_kept_names()
@@ -227,8 +241,8 @@ def main():
             steam_members.append((tgt.encode('utf-16le'), enc))
             by_name[tgt] = len(steam_members) - 1
             ach_steam[sc] = 0          # 整条被删的线路：Steam 侧不存在任何对应成就
-            report.append('| %s | whole | 新增成员 %s | %d 格 | ok=%s | lc=%d jump=%d ach=%d ids=%d |'
-                          % (sc, tgt, n14, ok, st['lc'], st['jump'], st['ach'], st['ids']))
+            report.append('| %s | whole | 新增成员 %s | %d 格 | ok=%s | lc=%d jump=%d ach=%d ids=%d flag46=%d |'
+                          % (sc, tgt, n14, ok, st['lc'], st['jump'], st['ach'], st['ids'], st['flag46']))
         else:
             i = by_name[p['steam_file']]
             steam_dec = ws2.decode(steam_members[i][1])
@@ -252,7 +266,8 @@ def main():
                    'orig_choices': orig_choice_entries(ws2.decode(raw), orig_fmts),
                    'perf_sync': p.get('perf_sync') or {},
                    'perf_sync_noop': noop,
-                   'jump_rename': JUMP_RENAME.get(sc, {}), 'script': sc}
+                   'jump_rename': JUMP_RENAME.get(sc, {}), 'script': sc,
+                   'anim_exit_clears': anim_clears_all.get(sc) or {}}
             # 回想出口三连的搬运纪律（`resource/replay_guards.json`）：Steam 删了头部回想分派，
             # 孤立地搬回出口 => flag127=1 且 var110==k 时正常播放也会提前 NextFile EVRET。
             triads = replay_exit_triads(ins)
@@ -279,6 +294,11 @@ def main():
                           % (sc, len(hit), got))
             evret_steam[sc] = evret_sites(sinstrs)
             res = writer.rebuild_host(steam_dec, ws2.decode(raw), sub, orig_fmts)
+            if res['state_fix']:
+                print('  - %s 状态规范化（插入块/replace 站点）发清屏 %d 条：%s'
+                      % (sc, len(res['state_fix']),
+                         ['槽%d r%d %s' % (x['anchor'], x['row'], x['chan'])
+                          for x in res['state_fix'][:8]]))
             assert res['ok'], '%s 产物线性解析不自洽' % sc
             n_text = res['n14'] + res['n_choice']   # 0x14 + Σ(0f count) == 文本槽位数
             assert n_text == res['n_slots'], \
@@ -295,12 +315,12 @@ def main():
                 print('  - %s 剔除选项帧内 0x16 × %d（Steam 侧会关闭输入门）' % (sc, _n16))
             steam_members[i] = (steam_members[i][0], res['raw'])
             slots = [[k, v] for k, v in res['slot_sources']]
-            report.append('| %s | host | %s | %d 槽（插 %d） | fixup=%d/%d（回落 %d） | lc=%d jump=%d ach=%d ids=%d | noop=%d |'
+            report.append('| %s | host | %s | %d 槽（插 %d） | fixup=%d/%d（回落 %d） | lc=%d jump=%d ach=%d ids=%d flag46=%d | noop=%d |'
                           % (sc, p['steam_file'], res['n_slots'],
                              sum(r[2] - r[1] + 1 for r in p['inserts']),
                              res['fixups'] - res['fix_bad'], res['fixups'],
                              res['fix_fallback'], st['lc'], st['jump'], st['ach'], st['ids'],
-                             len(res['perf_noop'])))
+                             st['flag46'], len(res['perf_noop'])))
         slot_sources[sc] = {'steam_file': p['steam_file'], 'kind': p['kind'], 'slots': slots}
 
     out_arc = os.path.join(ROOT, 'asset', 'Rio.arc')

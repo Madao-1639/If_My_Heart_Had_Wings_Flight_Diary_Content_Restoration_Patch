@@ -457,6 +457,23 @@ def drop_units(instrs, drop_slots):
     return kill | (cand - keep)
 
 
+def norm_op46_flag(ops):
+    """`0x46` 子层槽绑定标志的跨引擎归一：原版工具链 `0x80` → Steam 工具链 `0xf0`。
+
+    `0x46` 第一条（把 PNA 子层绑到引擎层槽，操作数含 4 个层槽 id 浮点）带 1 字节标志，
+    原版工具链写 `0x80`、Steam 工具链写 `0xf0`（两侧全库 ~7.6k 处零交叉；`0x00`＝纯
+    坐标定位，两侧一致）。原版块带着 `0x80` 进 Steam 引擎会欠绑定子层槽——未重绑的槽
+    保留上一次显示的子图 ⇒ 上一处的立绘残留在屏、压在后续 CG 上，直到清槽指令
+    （实机定案见 doc/lessons-learned.md「0x46 子层槽标志」条目）。幂等；产出端
+    （`build_patch.prep_orig`，供整脚本转换路径）与本函数（`_conv`，供移植/期望序列）
+    共用，两侧必须一致。
+    """
+    i = ops.find(b'\x00')
+    if 0 <= i and len(ops) > i + 3 and ops[i + 3] == 0x80:
+        return ops[:i + 3] + b'\xf0' + ops[i + 4:]
+    return ops
+
+
 def _conv(op, ops, names=None):
     rule = CONV.get(op)
     if rule is None:
@@ -470,6 +487,8 @@ def _conv(op, ops, names=None):
             ops2 = ops + b'\x00'
         else:
             ops2 = ops + b'\x00\x00\x00\x00'
+    if op == 0x46:
+        ops2 = norm_op46_flag(ops2)
     if names:
         ops2 = apply_names(ops2, names)
     return ops2
@@ -538,6 +557,20 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
     restore_frame = plan.get('restore_frame', True)
     perf_sync = plan.get('perf_sync') or {}
     perf_noop = sorted({int(x) for x in (plan.get('perf_sync_noop') or ())})
+    # 动画离场→CG 转换点的显式清屏兜底（人工定案入库，见 resource/anim_exit_clears.json）：
+    # 搬入块的 09/45/47/48/57 动画组在 Steam 引擎上的终点与原版不一致（实测 AFT_007_3
+    # 槽 226 的离场动画把 st02 移到屏内 (178,297) 而非退场 ⇒ 小鳥压在后续 CG 上）。
+    # 凡「动画后紧接 CG 显示、且 CG 块不显式清该通道」的点，在**该原版行的第一条
+    # 33/34 显示指令前**补 `37 <通道>`（与第三方补丁同型解法：动画照放，视觉由清屏保证）。
+    anim_exit_clears = {int(k): list(v) for k, v in (plan.get('anim_exit_clears') or {}).items()}
+    anim_clear_log = []
+
+    def _pending_clears(row, seen):
+        """该行的清屏通道（每行只发一次）。"""
+        if row in anim_exit_clears and row not in seen:
+            seen.add(row)
+            return anim_exit_clears[row]
+        return []
     skip_o = {int(x) for x in (plan.get('skip_orig') or ())}
     names = {k.encode('ascii'): v.encode('ascii') for k, v in plan.get('names', {}).items()}
 
@@ -625,6 +658,51 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
     fixes = []                      # (out 内绝对写位, 's'|'o'|'x', key)
     pool = 0
     si = 0                          # 14 序（= 台账槽位口径）
+
+    # ── 状态对齐（写盘器的「状态规范化」；移植自姊妹作 V-11）──
+    # 逐槽 drop/replace 只为「指令块」负责，不为「净状态」负责：一旦承载某个「清」的
+    # 指令被删/被换（或该状态由未入表的保留槽自带），那张图就一路留在屏上，直到很晚
+    # 才被别的清屏指令带走（实机表现＝上一处的立绘/CG 压在还原内容上，见
+    # doc/lessons-learned.md「0x46 子层槽标志」条目）。因此：在**插入块开头**（进块前，
+    # 对齐原版第 r0-1 行态）与 **`replace` 补块之后**（对齐原版行态）各对齐一次——
+    # 块内演出以原版同一行为准，只要进块之前状态与原版一致，块内每一行就自动一致。
+    # **只发「清」是刻意的**（姊妹作 V-11 定案）：清屏不向格子添加演出 token，对按
+    # 「每格 direct token」校验的闸天然不可见；需要**补/换**的情形（产物缺某图、同
+    # 通道取值不同）必须能被入库表看见（perf_sync / perf_sync_manual），不在构建期
+    # 静默补——那类差异由 `script/checks/insert_boundary_check.py` 按 HARD 报出。
+    ostates, _osetters = perfsync.row_setters(oinstrs)
+    cur_state = {}                  # 已发出指令流的在屏状态（族级清屏展开，与 perfsync 同口径）
+    state_fix_log = []              # [{anchor, row, chan, action, value}]
+
+    def _track(op, ops):
+        """记录已发出指令对在屏状态的影响。"""
+        if op in (0x33, 0x34):
+            s = perfsync._strs(ops)
+            if len(s) >= 2 and perfsync._is_img_chan(s[0]):
+                cur_state[s[0]] = perfsync.norm_sprite(s[1])
+        elif op == 0x37:
+            s = perfsync._strs(ops)
+            if s:
+                perfsync.pop_clear(cur_state, s[0])
+
+    def align_state(anchor, r_src):
+        """对齐到「原版第 `r_src` 行 `14` 落笔时」的在屏状态；`r_src < 0` ⇒ 脚本头（全空）。
+
+        调用点两处（姊妹作 V-11 全量）：插入块开头（`r_src = r0 - 1`，进块前）与
+        `replace` 补块发完之后（`r_src = orig_row`，补块＝原版行演出，发完即该行态）。
+        只对「原版该点无图、产物在屏有图」的通道发 `37 <通道>`；原版该点**有图**而
+        产物取值不同/缺失的情形不发指令（那要补演出，须走入库表），由闸报 HARD。
+        """
+        target = ostates[r_src] if 0 <= r_src < len(ostates) else {}
+        for c in sorted(c for c in set(target) | set(cur_state)
+                        if perfsync._is_img_chan(c)):
+            t, have = target.get(c), cur_state.get(c)
+            if t is not None or not have:
+                continue
+            out.extend(b'\x37' + c.encode('cp932') + b'\x00')
+            cur_state.pop(c, None)
+            state_fix_log.append({'anchor': anchor, 'row': r_src, 'chan': c,
+                                  'action': 'clear', 'value': have})
     buf15 = None
     buf15_off = None
     cur_pfx = b''
@@ -639,23 +717,34 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
 
     def emit_block(r0, r1, after_off, anchor):
         nonlocal pool
-        block_start.setdefault(anchor, len(out))
+        align_state(anchor, r0 - 1)         # 进块前：状态对齐到原版第 r0-1 行（在 block_start 之前，
+        block_start.setdefault(anchor, len(out))   # 回落跳转也能先经过清屏）
         i0, i1 = block_span(r0, r1)
         base = len(out)
         rel = {}
         q = 0
+        cur_row, cleared = r0, set()
         for j in range(i0, i1):
             if j in skip_o:                 # 剥离块内的原版指令（如回想出口三连）
                 continue
             op, ops = oinstrs[j]
+            for _c in _pending_clears(cur_row, cleared):   # 清屏长度计入块内偏移预计算
+                q += 2 + len(_c)
             prev_op = oinstrs[j - 1][0] if j > i0 and (j - 1) not in skip_o else None
             extra = CHOICE_HDR_LEN if (op == 0x0F and prev_op != 0x0E) else 0  # 选项头
             rel[ooff[j]] = q + extra
             q += extra + 1 + len(_conv(op, ops, names))
+            if op == 0x14:
+                cur_row += 1
+        cur_row, cleared = r0, set()
         for j in range(i0, i1):
             if j in skip_o:
                 continue
             op, ops = oinstrs[j]
+            for _c in _pending_clears(cur_row, cleared):   # 行首条显示指令前发清屏
+                out.extend(b'\x37' + _c.encode('cp932') + b'\x00')
+                cur_state.pop(_c, None)
+                anim_clear_log.append({'anchor': anchor, 'row': cur_row, 'chan': _c})
             ops2 = _conv(op, ops, names)
             if op == 0x14:
                 # 池序号全量重算：插入行的 `14.id` 必须改写为新槽序。原版行号与
@@ -706,11 +795,13 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
             if op == 0x0F and not _ends_with_choice_hdr(out):
                 out.extend(choice_hdr(ops2[0]))
             out.extend(bytes([op]) + ops2)
+            _track(op, ops2)
             remap_o[ooff[j]] = base + (len(out) - base - (1 + len(ops2)))
             if op == 0x14:
                 row = o14.index(j)
                 slot_sources.append(('orig', row))
                 pool += 1
+                cur_row = row + 1
             elif op == 0x0F:
                 # 每个条目各占一个文本槽位（与 0x14 共用计数器）：登记来源并推进 pool。
                 for _so, _to, _lo, jo, kind, val in choice_ents:
@@ -732,12 +823,28 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
     # 仍然排在补块之前执行，不会被「先画后清」抹成黑屏。多个槽落到同一偏移时按槽序拼接。
     add_at = {}
     for _slot, (anchor, seq) in sorted(perf_add.items(), key=lambda kv: int(kv[0])):
-        add_at.setdefault(anchor, []).extend(seq)
+        add_at.setdefault(anchor, []).append((_slot, seq))
 
     def emit_perf_add(anchor):
-        """把落在 `anchor`（宿主某条指令的绝对偏移）之前的补块按原顺序发出。"""
-        for op, ops in add_at.pop(anchor, ()):
-            out.extend(bytes([op]) + _conv(op, ops, names))
+        """把落在 `anchor`（宿主某条指令的绝对偏移）之前的补块按槽序发出。
+
+        每个 `replace` 槽的补块发完后再按「原版该行 `14` 落笔时」的净状态对齐一次
+        （只发清，姊妹作 V-11）：`replace` 连删带补只补原版行**自带**的演出，原版行
+        没有对应清时会净丢一次「清」——被删 Steam 槽承担的清就此消失，那张图会一直
+        留在屏上直到很晚的清屏（`emit_block` 开头的对齐管进块前，这里管补块后）。
+        """
+        for slot, seq in add_at.pop(anchor, ()):
+            for op, ops in seq:
+                ops2 = _conv(op, ops, names)
+                out.extend(bytes([op]) + ops2)
+                _track(op, ops2)
+            _spec = None
+            for _k in (slot, str(slot)):
+                if _k in perf_sync:
+                    _spec = perf_sync[_k]
+                    break
+            if _spec and _spec.get('mode') == 'replace' and _spec.get('orig_row') is not None:
+                align_state(anchor, int(_spec['orig_row']))
 
     # 脚本头插入
     for r0, r1 in by_anchor.get(-1, []):
@@ -790,6 +897,7 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
                 if v:
                     fixes.append((len(out) + 1 + k, 's', v))
         out.extend(body)
+        _track(op, bytes(body[1:]))
         if op == 0x14:
             si += 1
             for r0, r1 in by_anchor.get(si - 1, []):
@@ -878,4 +986,6 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
         'perf_kill': {k: v for k, v in sorted(perf_report.items())},
         'perf_add': {k: len(v) for k, v in sorted(perf_add.items())},
         'perf_noop': perf_noop,
+        'state_fix': state_fix_log,
+        'anim_clear': anim_clear_log,
     }
