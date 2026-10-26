@@ -58,6 +58,14 @@ def main():
     _choice_path = os.path.join(ROOT, 'resource', 'corpus', 'choice_cn.json')
     choice_cn = (json.load(open(_choice_path, encoding='utf-8')).get('scripts') or {}
                  if os.path.exists(_choice_path) else {})
+    # 变体共存的新增槽位（提示句/选项标签/%P 清框行）：中文直取 resource/variant_routes.json
+    _variant_path = os.path.join(ROOT, 'resource', 'variant_routes.json')
+    variant_texts = (json.load(open(_variant_path, encoding='utf-8')).get('scripts') or {}
+                     if os.path.exists(_variant_path) else {})
+    # Steam 槽的中文补译（官方 zh 包里仍是日文底稿的条目）：resource/corpus/steam_cn.json
+    _steam_cn_path = os.path.join(ROOT, 'resource', 'corpus', 'steam_cn.json')
+    steam_cn = (json.load(open(_steam_cn_path, encoding='utf-8')).get('scripts') or {}
+                if os.path.exists(_steam_cn_path) else {})
     zh_members = arcbuild.read_raw(os.path.join(paths.STEAM, 'zh-CN', 'Rio.arc'))
     by_name = {nb.decode('utf-16le'): i for i, (nb, _) in enumerate(zh_members)}
     # NameTable.txt 存放位置随发行包而异：官方范式在 `zh-CN/Rio.arc`，本作 Flight
@@ -88,7 +96,8 @@ def main():
             raise SystemExit('官方 zh-CN 缺 %s' % lng_name)
 
         corpus = load_corpus(sc)
-        texts, n_official, n_corpus, n_choice = [], 0, 0, 0
+        vtexts = (variant_texts.get(sc) or {}).get('texts') or {}
+        texts, n_official, n_corpus, n_choice, n_variant = [], 0, 0, 0, 0
         for src, idx in info['slots']:
             if src == 'choice':
                 row = (choice_cn.get(sc) or {}).get(str(idx))
@@ -97,11 +106,30 @@ def main():
                                      % (sc, idx))
                 texts.append(row['cn'])
                 n_choice += 1
+            elif src == 'vchoice':
+                row = vtexts.get(idx)
+                if not row or not (row.get('zh') or '').strip():
+                    raise SystemExit('%s 变体选项槽 %r 缺中文（resource/variant_routes.json）'
+                                     % (sc, (src, idx)))
+                texts.append(row['zh'])
+                n_variant += 1
+            elif src == 'variant':
+                row = vtexts.get(idx)
+                if not row or not (row.get('zh') or '').strip():
+                    raise SystemExit('%s 变体槽 %r 缺中文（resource/variant_routes.json）'
+                                     % (sc, (src, idx)))
+                texts.append(row['zh'])
+                n_variant += 1
             elif src == 'steam':
                 if official is None:
                     raise SystemExit('%s 槽 %r 需官方 lng，但缺失' % (sc, (src, idx)))
-                texts.append(official[idx])
-                n_official += 1
+                fix = (steam_cn.get(sc) or {}).get(str(idx))
+                if fix and (fix.get('cn') or '').strip():
+                    texts.append(fix['cn'])          # 补译优先（官方日文底稿条目）
+                    n_official += 1
+                else:
+                    texts.append(official[idx])
+                    n_official += 1
             else:
                 if idx not in corpus:
                     raise SystemExit('%s 原版行 %d 不在语料' % (sc, idx))
@@ -134,8 +162,9 @@ def main():
         else:
             zh_members.append((lng_name.encode('utf-16le'), blob))
             by_name[lng_name] = len(zh_members) - 1
-        report.append('| %s | %s | %d 条（官方 %d + 语料 %d + 选项 %d） | %d B |'
-                      % (sc, lng_name, len(texts), n_official, n_corpus, n_choice, len(blob)))
+        report.append('| %s | %s | %d 条（官方 %d + 语料 %d + 选项 %d + 变体 %d） | %d B |'
+                      % (sc, lng_name, len(texts), n_official, n_corpus, n_choice, n_variant,
+                         len(blob)))
 
     out = os.path.join(ROOT, 'asset', 'zh-CN', 'Rio.arc')
     os.makedirs(os.path.dirname(out), exist_ok=True)

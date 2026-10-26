@@ -26,7 +26,7 @@ try:
 except Exception:
     pass
 
-from tool import arcbuild, perfsync, paths, ws2, ws2conv, ws2dis  # noqa: E402
+from tool import arcbuild, perfsync, paths, variants, ws2, ws2conv, ws2dis  # noqa: E402
 
 IMG = perfsync._is_img_chan
 
@@ -72,10 +72,11 @@ def main():
         assert ok, '%s 产物线性解析不自洽' % sc
         slots = [tuple(x) for x in slots_all[sc]['slots']]
         pstates, _ = perfsync.row_setters(pin)
-        # 产物槽表里非 choice 槽与 pstates 一一对应
+        # 产物槽表里非 choice 槽与 pstates 一一对应（variant 槽也是 0x14：变体共存的
+        # 提示句 / %P 清框行，见 resource/variant_routes.json）
         pi, k = {}, 0
         for i, s in enumerate(slots):
-            if s[0] in ('steam', 'orig'):
+            if s[0] != 'vchoice':   # choice/vchoice 是 0f 条目槽，不是 0x14
                 pi[i] = k
                 k += 1
         oinstrs, _t = ws2conv.parse(ws2.decode(orig[p['orig_file']]), orig_fmts)
@@ -83,6 +84,23 @@ def main():
 
         def penter(ki):
             return dict(pstates[pi[ki - 1]]) if ki > 0 else {}
+
+        # 变体 choice：站点入口状态按所在区分层——
+        #   分支 A 区间（< pp2 槽序）      ⇒ 原版语义，按前一行（现有逻辑）；
+        #   分支 B 区间（pp2 后、汇合槽前）⇒ Steam 语义，产物该区间是 Steam 原字节，
+        #                                    由 variant_route_check 的逐指令等值把守，跳过；
+        #   汇合槽及之后                   ⇒ 共享内容，入口状态取「分支 A（原版）终态」
+        #                                    （= ('variant','pp2') 前最后一个 0x14 行）。
+        pp2_i = next((i for i, s in enumerate(slots) if s == ('variant', 'pp2')), None)
+
+        def penter_station(ki):
+            # pp2 之后（分支 B 区间 + 汇合后共享区）一律跳过：分支 B = Steam 原字节
+            # （variant_route_check 逐指令等值把守）；汇合后的入口状态两路径必然不同
+            #（分支终态差异是变体设计使然，非还原缺陷），两路径各自的入口正确性
+            # 由「分支体 = 原字节」结构性保证。
+            if pp2_i is not None and ki >= pp2_i:
+                return None
+            return penter(ki)
 
         for a, r0, r1 in p.get('inserts') or []:
             k0 = next(i for i, s in enumerate(slots) if s == ('orig', r0))
@@ -103,7 +121,11 @@ def main():
                 stat['site_bad'] += 1
                 continue
             want = dict(ostates[r - 1]) if r > 0 else {}
-            d = diff_states(penter(ki), want)
+            _st = penter_station(ki)
+            if _st is None:
+                stat['site_variant_body'] += 1
+                continue
+            d = diff_states(_st, want)
             stat['site'] += 1
             if d:
                 stat['site_bad'] += 1

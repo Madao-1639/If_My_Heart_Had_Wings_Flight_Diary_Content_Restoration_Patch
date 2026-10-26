@@ -28,6 +28,8 @@ own / eff
 import json
 import os
 import re
+
+from . import censormap
 import struct
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -173,9 +175,14 @@ def _strs(ops):
 
 
 def norm_sprite(name):
-    """立绘名归一：Steam `ST_<ROLE>_<pose>` → 原版 `<角色码>_<pose>`。"""
+    """立绘名归一：Steam `ST_<ROLE>_<pose>` → 原版 `<角色码>_<pose>`。
+
+    另外把 **9XX 命名隔离**的原版画名折算回原编号（`BEF_03_901B` → `BEF_03_001B`）——
+    两张画是同一张画面的两极（Steam 全年龄版 / 原版），演出比对时按同一帧身份处理。
+    """
     if not name:
         return name
+    name = censormap.normalize(name)
     m = re.match(r'^(ST_[A-Z]+)_(.*)$', name, re.I)
     if m:
         base = SPRITE_MAP.get(m.group(1).upper())

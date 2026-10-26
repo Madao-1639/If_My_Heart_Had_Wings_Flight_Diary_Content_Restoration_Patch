@@ -1385,7 +1385,7 @@
   },
   "Chip7.arc": {
     "kind": "merge",
-    "checksum": "6fa70e32dda0a1f95a56bd6f98b939f439c0d1e5baae3b1d185e38cb950da285",
+    "checksum": "e9c818b5475f2b546f116ff9ca7f2bad6b70098779660ab6c69091e9d6b4735d",
     "members": [
       {
         "name": "AFT_01_001b.png",
@@ -1889,15 +1889,15 @@
       },
       {
         "name": "BEF_03_001B.png",
-        "type": "modified"
+        "type": "keep"
       },
       {
         "name": "BEF_03_001S.png",
-        "type": "modified"
+        "type": "keep"
       },
       {
         "name": "BEF_03_006S.png",
-        "type": "modified"
+        "type": "keep"
       },
       {
         "name": "BEF_05_002b.png",
@@ -2761,6 +2761,14 @@
       },
       {
         "name": "BEF_07_040s.png",
+        "type": "added"
+      },
+      {
+        "name": "BEF_03_901B.png",
+        "type": "added"
+      },
+      {
+        "name": "BEF_03_901S.png",
         "type": "added"
       }
     ]
@@ -3725,7 +3733,7 @@
   },
   "Chip9.arc": {
     "kind": "merge",
-    "checksum": "33cf334bd3583d1ff0fd048f5308fdc7b8207b5a86efd35ea2d4a83ec5fb4a64",
+    "checksum": "358c4ebac9bec411814c8c5e8d32eccf55fa776973e9e7506642a68326107445",
     "members": [
       {
         "name": "HUS_03_001b.png",
@@ -3741,7 +3749,7 @@
       },
       {
         "name": "KAN_01_001s.png",
-        "type": "modified"
+        "type": "keep"
       },
       {
         "name": "KAN_01_002b.png",
@@ -3769,11 +3777,11 @@
       },
       {
         "name": "KAN_01_005s.png",
-        "type": "modified"
+        "type": "keep"
       },
       {
         "name": "KAN_01_006b.png",
-        "type": "modified"
+        "type": "keep"
       },
       {
         "name": "KAN_01_006s.png",
@@ -4753,6 +4761,18 @@
       },
       {
         "name": "KAN_08_023S.png",
+        "type": "added"
+      },
+      {
+        "name": "KAN_01_901s.png",
+        "type": "added"
+      },
+      {
+        "name": "KAN_01_905s.png",
+        "type": "added"
+      },
+      {
+        "name": "KAN_01_906b.png",
         "type": "added"
       }
     ]
@@ -6057,7 +6077,7 @@
   },
   "Rio.arc": {
     "kind": "copy",
-    "checksum": "8051d3619cb10f51421066b132a8b58a98f38d3bb6f7242860bc0148ebcb4424"
+    "checksum": "70816b00f0cf4aff294beadc75df0c28ed00e4661d0ee1eb8c892af3d52af399"
   },
   "Script.arc": {
     "kind": "copy",
@@ -55771,7 +55791,7 @@
   },
   "zh-CN/Rio.arc": {
     "kind": "copy",
-    "checksum": "c47326336d40c82fc08c7360039c16825157edd481a3c52e5693887fc0e60103"
+    "checksum": "176abe8781089e21f2927206a41ca0a20d113a5196a72bd8af39cf169c83596e"
   },
   "zh-CN/SysGraphic.arc": {
     "kind": "merge",

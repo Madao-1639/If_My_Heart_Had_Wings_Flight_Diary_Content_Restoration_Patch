@@ -1,0 +1,12 @@
+{
+ "note": "Steam 槽的中文补译：官方 zh 包 .lng 里仍是日文底稿的条目（Steam 简中漏译），按原版日文/英文行语义就地翻译。键 = 脚本 → steam 行号 → {jp(官方条原文), en(Steam ws2 行内嵌英文), cn(补译)}。优先级高于官方条直取。生产者/消费方：手工维护 → script/build/build_lng.py（steam 槽命中即覆盖）。",
+ "scripts": {
+  "HOT_004": {
+   "687": {
+    "jp": "そして、ほたると一晩中くちづけを交わした夜の、熱さが、幸福感が、気持ちよさが、よみがえってきた。",
+    "en": "I was probably nervous. The memory of that night when Hotaru and I first got together, the heat, the passion, all came flooding back.",
+    "cn": "大概是有些紧张吧。与萤整夜相吻的那一晚，那份炽热、幸福与美妙的感觉，重新涌上了心头。%K"
+   }
+  }
+ }
+}

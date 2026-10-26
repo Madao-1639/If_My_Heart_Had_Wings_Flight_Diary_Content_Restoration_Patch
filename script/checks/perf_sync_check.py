@@ -29,7 +29,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tool import arcbuild, ws2, ws2dis, perfsync, paths, writer  # noqa: E402
+from tool import arcbuild, ws2, ws2dis, perfsync, paths, variants, writer  # noqa: E402
 from tool.ws2conv import load_orig_formats, parse as conv_parse  # noqa: E402
 
 
@@ -124,10 +124,8 @@ def replace_order_diff(ins, oins, o14, r, prod_slot):
 
 
 def _sig(op, ops):
-    """可比值：`0x39` 的帧号列表跨版本会被 `pna_id_map` 换算，只比通道串。"""
-    if op == 0x39:
-        return (op, ops.split(b'\x00')[0])
-    return (op, ops)
+    """可比值：`0x39` 帧号跨版本由 `pna_id_map` 换算；`33/34` 图名按 9XX 命名隔离折算。"""
+    return writer.perf_sig(op, ops)
 
 
 def _conv_of(op, ops):
@@ -172,8 +170,11 @@ def main(argv=None):
         sr = rows_of(steam[sf], ws2dis.FORMATS) if sf in steam else []
         orr = rows_of(orig[of], ws2dis.FORMATS_ORIG) if of in orig else []
         # 选项条目（'choice'）占 .lng 槽位但不是台词行：行口径只看 0x14 来源槽
-        slots = [s for s in (slots_all.get(sc, {}).get('slots') or []) if s[0] != 'choice']
+        slots = [s for s in (slots_all.get(sc, {}).get('slots') or []) if s[0] not in ('choice', 'vchoice')]
         stat['slots'] += len(slots)
+        # 变体分支体（Steam 副本）槽：逐字节副本由 variant_route_check 单独把守，
+        # 不参与产物 vs 来源行的对齐与顺序闸（副本会二次命中同一 steam 行的站点）
+        vskip = variants.variant_body_slots(sf, slots, steam)
         if len(pr) != len(slots):
             hard.append({'script': sc, 'issue': 'row-count', 'product': len(pr), 'slots': len(slots)})
         orig_imgs = set()
@@ -185,8 +186,13 @@ def main(argv=None):
         for i, (src, val) in enumerate(slots):
             if i >= len(pr):
                 break
+            if i in vskip:
+                stat['variant_body_slot'] += 1
+                continue
             if src == 'orig':
                 ref = orr[val] if val < len(orr) else None
+            elif src == 'variant':
+                ref = None          # 变体共存的提示句/%P 行：无演出，不参与对齐
             else:
                 ref = sr[val] if val < len(sr) else None
             if ref is None:
@@ -302,6 +308,8 @@ def main(argv=None):
         fh.write('\n')
 
     if not args.quiet:
+        _by = collections.Counter(r['script'] for r in review)
+        print('REVIEW 分布: %s' % dict(sorted(_by.items())))
         print('演出同步：pairs %d ; HARD %d ; REVIEW %d ; 名单 %d / 落地 %d'
               % (stat['pairs'], len(hard), len(review), want, got))
         for h in hard[:8]:

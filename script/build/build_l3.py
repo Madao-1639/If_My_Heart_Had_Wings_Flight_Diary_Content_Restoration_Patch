@@ -348,12 +348,18 @@ def scan_archive(arch, orig_dir, steam_dir, prev_idx, recompute, evidence):
 
 
 # ── 整名覆盖写盘 ──
-def apply_overwrites(arch, orig_dir, steam_dir, asset_dir, ow_names):
+def apply_overwrites(arch, orig_dir, steam_dir, asset_dir, ow_names, isolate=None,
+                     keep_names=()):
     """把归档里 ow_names（小写）成员字节换成原版同名成员字节，写 asset/<归档>。
 
     以 **asset 现有文件为底**（保留其它工序已并入的成员，如 L4 补入），否则以 backup 为底；
     成员名与表位置不变，只换内容 ⇒ 与 build_patch.py 的覆盖语义一致。
+
+    `isolate`：{(原名小写): 9XX 成员名} —— **命名隔离**（见 `tool/censormap.py`）：
+      * 原名回 **Steam 字节**（两条演绎路径共用同一成员名时，原名归 Steam 路径）；
+      * 原版字节另存为 9XX 成员（供产品侧 A 路径/共享内容引用）。
     """
+    isolate = isolate or {}
     out = os.path.join(asset_dir, arch)
     base = out if os.path.exists(out) else os.path.join(steam_dir, arch)
     with open(base, 'rb') as f:
@@ -381,12 +387,39 @@ def apply_overwrites(arch, orig_dir, steam_dir, asset_dir, ow_names):
                 m[1] = bytearray(f.read(osz))
             replaced += 1
     assert replaced == len(ow_names), '%s: 覆盖数 %d != 名单 %d' % (arch, replaced, len(ow_names))
+    if isolate or keep_names:
+        have = {m[0].decode('utf-16le', 'replace').lower(): m for m in members}
+        with open(os.path.join(steam_dir, arch), 'rb') as f:
+            sfile = f.read()
+        s_tab = arc_table(os.path.join(steam_dir, arch))
+        # `keep` 成员（含取消覆盖的老条目）：原名必须回到 Steam 字节（幂等复位）
+        for low in sorted(set(keep_names) - set(isolate)):
+            if low in have and low in s_tab:
+                _sn, soff, ssz = s_tab[low]
+                have[low][1] = bytearray(sfile[soff:soff + ssz])
+        for low, iso_name in sorted(isolate.items()):
+            # 原名 ← Steam 字节（幂等：asset 底里可能还留着上一轮的覆盖字节）
+            if low in have:
+                sname, soff, ssz = arc_table(os.path.join(steam_dir, arch))[low]
+                have[low][1] = bytearray(sfile[soff:soff + ssz])
+            oname, ooff, osz = o[low]
+            with open(os.path.join(orig_dir, arch), 'rb') as f:
+                f.seek(ooff)
+                ob = f.read(osz)
+            key = iso_name.lower()
+            if key in have:
+                have[key][1] = bytearray(ob)
+            else:
+                members.append([iso_name.encode('utf-16le'), bytearray(ob)])
+                have[key] = members[-1]
+                print('  + %s: 新增隔离成员 %s（%d B，原版画）' % (arch, iso_name, osz))
     write_arc([(bytes(nb), bytes(d)) for nb, d in members], out)
     verify(out, expect_count=len(members))
     return out, replaced
 
 
-def readback_check(arch, orig_dir, steam_dir, asset_dir, ow_names, allowed_diff=()):
+def readback_check(arch, orig_dir, steam_dir, asset_dir, ow_names, allowed_diff=(),
+                   isolate=None, keep_names=()):
     """回读产物：① 成员数 == backup；② 被覆盖成员 == 原版字节；③ 其余成员 == backup 字节。
 
     `allowed_diff`：**层内修复**成员（`pna_id_map.repair`）——它们只改少数记录的
@@ -405,6 +438,10 @@ def readback_check(arch, orig_dir, steam_dir, asset_dir, ow_names, allowed_diff=
             if member_sha(out, aoff, asz) != member_sha(os.path.join(orig_dir, arch),
                                                         o[low][1], o[low][2]):
                 raise AssertionError('%s: 覆盖成员 %s != 原版字节' % (arch, sname))
+        elif (isolate and low in isolate) or low in keep_names:
+            # 命名隔离的原名：必须回到 Steam 字节（Steam 路径用）
+            if member_sha(out, aoff, asz) != member_sha(os.path.join(steam_dir, arch), soff, ssz):
+                raise AssertionError('%s: 隔离原名 %s != Steam 字节' % (arch, sname))
         elif low in allowed_diff:
             continue
         elif member_sha(out, aoff, asz) != member_sha(os.path.join(steam_dir, arch), soff, ssz):
@@ -423,7 +460,8 @@ def emit_map(records, map_path, schema, archives=None):
                 'action': r['action'], 'reason': r.get('reason', ''),
                 'evidence': {k: r.get(k) for k in
                              ('class', 'frame', 'size_diff', 'big_pixels', 'big_ratio',
-                              'bbox', 'mean_diff', 'max_abs', 'nearest', 'alias', 'pna')
+                              'bbox', 'mean_diff', 'max_abs', 'nearest', 'alias', 'pna',
+                              'isolate')
                              if r.get(k) is not None},
             }
         with open(map_path, 'w', encoding='utf-8', newline='\n') as f:
@@ -499,6 +537,14 @@ def main():
         with open(prev_path, encoding='utf-8') as f:
             for m in json.load(f).get('members', []):
                 prev_idx[(m['archive'], m['name'].lower())] = m
+    from tool import censormap  # 9XX 号段命名隔离表
+    iso_by_arch = {}
+    for low, iso_name in censormap.isolate_members():
+        for m in json.load(open(os.path.join(ROOT, 'resource', 'censor_map.json'),
+                                encoding='utf-8')).get('members', []):
+            if m['name'].lower() == low:
+                iso_by_arch.setdefault(m['archive'], {})[low] = iso_name
+                break
     all_recs, lines = [], []
     # 层内修复成员：回读时允许其字节 != backup（逐记录正确性由 pna_id_check 负责）
     layer_fix = {}
@@ -514,6 +560,12 @@ def main():
         if res is None:
             lines.append('%-14s MISSING-ON-ONE-SIDE' % arch)
             continue
+        # 台账里登记了 `isolate` 的成员：强制 keep（原名保留 Steam 画），原版画走 9XX 号段
+        for r in res['recs']:
+            if r['fold'] in (iso_by_arch.get(arch) or {}):
+                r['action'] = 'keep'
+                r['isolate'] = iso_by_arch[arch][r['fold']]
+                r['reason'] = (r.get('reason') or '') + ' [9XX 命名隔离]'
         ow = [r for r in res['recs'] if r['action'] == 'overwrite']
         kp = [r for r in res['recs'] if r['action'] == 'keep']
         lines.append('%-14s orig=%-4d steam=%-4d common=%-4d content_diff=%-3d '
@@ -533,17 +585,22 @@ def main():
     wrote = False
     for arch in archives:
         recs = [r for r in all_recs if r['archive'] == arch and r['action'] == 'overwrite']
-        if not recs:
+        iso = iso_by_arch.get(arch, {})
+        if not recs and not iso:
             continue
         names = {r['fold'] for r in recs}
+        keeps = {r['fold'] for r in all_recs if r['archive'] == arch and r['action'] == 'keep'}
         if a.write_asset:
-            out, n = apply_overwrites(arch, orig_dir, a.steam, a.asset, names)
+            out, n = apply_overwrites(arch, orig_dir, a.steam, a.asset, names, isolate=iso,
+                                      keep_names=keeps)
             cnt, n2 = readback_check(arch, orig_dir, a.steam, a.asset, names,
-                                     allowed_diff=layer_fix.get('Graphic.arc', ()))
-            print('WROTE %s: %d 覆盖，回读校验通过（成员 %d）' % (out, n, cnt))
+                                     allowed_diff=layer_fix.get('Graphic.arc', ()),
+                                     isolate=iso, keep_names=keeps)
+            print('WROTE %s: %d 覆盖 + %d 隔离，回读校验通过（成员 %d）'
+                  % (out, n, len(iso), cnt))
             wrote = True
         else:
-            print('[dry-run] %s: 拟整名覆盖 %d 名' % (arch, len(names)))
+            print('[dry-run] %s: 拟整名覆盖 %d 名 / 隔离 %d 名' % (arch, len(names), len(iso)))
     if a.emit_map and (all_recs or a.schema == 'nested'):
         n = emit_map(all_recs, a.map, a.schema, archives)
         print('MAP %s: 合并 %d 条（schema=%s）' % (a.map, n, a.schema))

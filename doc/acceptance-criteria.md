@@ -7,11 +7,13 @@
 
 | 闸 | 命令 | 本作基线 |
 |---|---|---|
-| 全量验收 | `python script/final_verification.py` | 构建阶段 33 PASS / 0 FAIL / 2 SKIP；发布阶段（`--stage release`，payload 已重建）**41 PASS / 0 FAIL / 1 SKIP**（仅无语音重指表）；含 5c 层内修复回读（repair 3）、**2b 回想出口不得多于 Steam 基线**（`replay_guards.json` 7 条声明）、**9b 尾表**（112 个 `.ws2`）、**9c 选项头**、**9d 选项文本/人名规范**、**9e 人名帧一致性**、**9f 跳转自洽**、**9f2 `.lng` 槽位等式**、**9g 选项帧内无 `0x16`**、**9h 新增选项规则可复用（演练）** |
-| 演出同步 | `python script/checks/perf_sync_check.py` | 14,129 槽对账，HARD 0 / REVIEW 0；判定表 41 条逐条落地；**顺序闸**：53 条 `replace` 槽的产物演出序列 = 原版行序列（逐条逐序，`perf_sync_checked 53`）；**前置检验**：命中「文本无需还原 + 演出序列已相同 + 素材原生」的站点不改字节、不跑顺序闸（当前 `perf_sync_noop 0`，纯回归保护） |
-| CG 序列 | `python script/checks/cg_seq_check.py` | 25 脚本，同序 25；HARD 0；REVIEW 0；继承审查差异 0 |
-| CG 解锁 | `python script/checks/cg_unlock_check.py` | 1,617 个 CG 显示点，1,616 带解锁对（白名单水印 CG）；成就钩子 723 = Steam 723，逐脚本一致；CG 名零缺失 |
+| 全量验收 | `python script/final_verification.py` | 构建阶段 40 PASS / 0 FAIL / 2 SKIP（payload 未重建的 2 项明确 SKIP）；发布阶段（`--stage release`，payload 已重建）**41 PASS / 0 FAIL / 1 SKIP**（仅无语音重指表）；含 5c 层内修复回读（repair 3）、**2b 回想出口不得多于 Steam 基线**（`replay_guards.json` 7 条声明）、**9b 尾表**（112 个 `.ws2`）、**9c 选项头**、**9d 选项文本/人名规范**、**9e 人名帧一致性**、**9f 跳转自洽**、**9f2 `.lng` 槽位等式**、**9g 选项帧内无 `0x16`**、**9h 新增选项规则可复用（演练）** |
+| 演出同步 | `python script/checks/perf_sync_check.py` | 14,528 槽对账，HARD 0 / REVIEW 141（全部为 `AFT_007_3` 还原段边界的在屏状态差，§51 遗留、与变体无关——无变体基线同为 141）；判定表 41 条逐条落地；**顺序闸**：53 条 `replace` 槽的产物演出序列 = 原版行序列（逐条逐序，`perf_sync_checked 53`）；**前置检验**：命中「文本无需还原 + 演出序列已相同 + 素材原生」的站点不改字节、不跑顺序闸（当前 `perf_sync_noop 0`，纯回归保护） |
+| CG 序列 | `python script/checks/cg_seq_check.py` | 25 脚本，同序 22 / 差异 3（= 变体共存追加的 Steam 体 CSEV 段，登记为继承审查差异）；HARD 0；REVIEW 0（变体分支体槽由 `variants.variant_body_slots` 跳过） |
+| CG 解锁 | `python script/checks/cg_unlock_check.py` | 1,669 个 CG 显示点（含变体体），有解锁对 1,668（唯一例外是白名单水印 CG `FDSDEV14_02B/S`）；**保留的 Steam 解锁对必须带 `04 CG_ACHIEVEMENT`**（逐实例）；成就钩子 **749 = Steam 基线 723 + 变体搬运体 107 − 原版分支剔除 81**（`variants.body_hook_counts` / `variants.ach_removed_counts`），逐脚本一致——**原版分支不再挂 Steam 的解锁对与成就钩子**（删格时不保留，成就由 Steam 分支原生提供）；CG 名零缺失。**不做跨分支重放**：分支体各带各的解锁点（多出的钩子会被本闸当场抓住） |
+| 变体共存 | `python script/checks/variant_route_check.py` | **15 脚本 / 8 变量**（`{1960,1961,1962,1965,1966,1967,1968,1969}`）：choice 8 个（KAN_3001_2、HUS_001、AFT_003、AFT_007_3、HOT_002、BEF_003、BEF_004、KAN_2001）+ route 7 个（KAN_3001_3/4/5、KAN_3002_1/2、HOT_003/004）；变量两侧基线 0 占用且各归其主；选项帧按**落盘布局**（`slot_sources[sc].variant.targets`）回读：条目落点/`0b var val`/`14 "%P"`/`0e` 头/提示句/汇合点；Steam 体与基线逐指令等值（route 整脚本 / choice 行区间），`KAN_3002_2` 的**声明尾跳分叉**（→ `3002_3_E`）单列；`variant`/`vchoice` 槽中文逐条非空；**画廊解锁点条件可达且归属各自分支**（Steam 站点不丢（还原区间豁免）/ 显示与解锁对同区 / 分支头部无连续 `0b` 夹带） |
 | CG/立绘 内容一致性 | `python script/checks/perf_consistency_check.py` | 14,001 槽全部内容一致；CG 差异 0 行、立绘差异 0 行；槽级豁免 5（`perf_waivers.json`：翻译拆行 2 / 水印 CG 1 / Steam 新增行 1 / 句序 1）。**在屏状态模型必须展开 `0x37` 的族级（`bg`/`st`）与通配（`*`）清屏**（`tool/perfsync.py`，见 [engine-mechanics.md](engine-mechanics.md)「图层清屏 `0x37`」）；不展开时「显示被 `37 *` 抹掉」这类黑背景缺陷是静默假绿 |
+| 同名 CG 命名隔离 | `python script/checks/cg_isolation_check.py` | 5 个 9XX 隔离名（`BEF_03_901B/901S`、`KAN_01_901S/905S/906B`）：原名成员 == Steam 字节（Steam 路径用）、9XX 成员 == 原版字节（A 路径用）、**9XX 不得出现在任何 B 体**、每个 9XX 至少被引用一次；比较类闸（`cg_seq_check`/`perf_consistency_check`/`perf_sync_check`/`insert_boundary_check`）按 `censormap.normalize()` 折算回原编号 |
 | 立绘记录号 / 层内修复 | `python script/checks/pna_id_check.py` | keep 成员 21 / 映射 839 / 层内修复 3；记录号越界 0；未修复改画引用 0；成员豁免 7 |
 | 回想守卫 / 出口 | `python script/checks/replay_guard_check.py` | 7 条声明（drop 5 / keep 2）；`action=drop` 脚本产物 EVRET = 0；任何宿主 EVRET 不得多于 Steam 基线（无孤立回想出口） |
 | WS2 尾表 | `python script/checks/ws2_tail_check.py` | 112 个 `.ws2`：末尾 8 字节明文 `[消息数][选项数]` == 实算值（基线已有偏差 0） |
@@ -29,7 +31,7 @@
 | `0x46` 标志词表 | `python script/checks/op46_flag_check.py` | 产物所有 `0x46` 的子层槽绑定标志 ∈ Steam 引擎词表（`0x00`/`0xf0`）；原版 `0x80` 计数 = 0（跨引擎移植归一，`tool/writer.norm_op46_flag`；见 [lessons-learned.md](lessons-learned.md) §50） |
 | 动画离场清屏 | `python script/checks/anim_exit_clear_check.py` | `resource/anim_exit_clears.json` 逐条落地：产物中该原版行的前缀区内、第一条 `33/34` 显示指令前存在 `37 <通道>`（位置与通道精确）；搬入动画在 Steam 引擎终点与原版不一致（见 [lessons-learned.md](lessons-learned.md) §51），CG 前显式清屏兜底 |
 
-本作成就基线：`CG_ACHIEVEMENT` **723 处 / 39 脚本**，`0xF0` **33 处**（逐脚本与 `backup/` 相同；`AGS_001.ws2` 为新增脚本，0 处）。交付归档 **13 个**（`asset/` 11 个 + `zh-CN/` 2 个）。
+本作成就基线：`CG_ACHIEVEMENT` **723 处 / 39 脚本**（产物 749 = 723 + 搬运体 107 − 原版分支剔除 81），`0xF0` **33 处**（逐脚本与 `backup/` 相同；`AGS_001.ws2` 为新增脚本，0 处）。交付归档 **13 个**（`asset/` 11 个 + `zh-CN/` 2 个）。
 `resource/carrier_map.json` 为**实表**（107 脚本 / 8,579 锚点），管演出判定表生成；产物侧逐槽对账走 `slot_sources`。
 
 > ⚠️ `script/verify_sync.py` 与 `script/checks/check_carrier_ledger.py` 为姊妹作迁移、**未适配本作 schema**，不计入本作验收；下方提到它们的能力项视为「待移植/待完善」。
@@ -48,7 +50,8 @@
 - [ ] 所有新插入的跳转/调用目标脚本在归档中确实存在
 - [ ] **文本槽位等式**：每个宿主脚本 `lng 条数 == 0x14 条数 + Σ(0f count)`（选项条目**各占一槽**，`strid` 与 `0x14` 的 `id` 共用按文件顺序的计数器）；选项中文来自 `resource/corpus/choice_cn.json`，缺译即构建失败（见 [file-formats.md](file-formats.md)「`0x0f` 选项表」与「选项编写规范」）
 - [ ] **选项处实机验收**：两项均可悬停、均可点中、两条分支各进入对应剧情、动画正常、**上一句提示文本与选项同框**（`%K` 留框）；被验配置须与 `asset/`、`payload/`、游戏目录三者同一份字节
-- [ ] **新增选项（非还原）实机验收**：手写两选项插入真实脚本后必须可显示、可点击、进入对应分支；文本必须经构建链（槽位重排 + `.lng` 补齐 + 尾表重写）后正确——绕过构建链会因槽位错位显示成别的台词
+- [ ] **画廊解锁点条件可达且归属各自分支**（变体脚本）：Steam 画廊显示站点不丢、站点显示与其解锁对同区、分支头部无 `0b`/`04 CG_ACHIEVEMENT` 夹带（`script/checks/variant_route_check.py` §5）；**不得跨分支重放**（会把任选一支都变成全解锁）
+- [ ] **保留的解锁对必须整组保留**：还原替换时原位保留的 Steam 解锁对，同拍点内必须有 `04 CG_ACHIEVEMENT`（`script/checks/cg_unlock_check.py` 闸 1b，实测 766 个实例全带）——只留 `0b` 对不留钩子＝画廊条目会亮而成就静默不弹
 - [ ] **WS2 尾表正确**：每个被改写的 `.ws2` 末尾 8 字节明文 `[u32 消息数][u32 选项条目数]` == 实算的 `0x14`/`0x0f` 条数（`script/checks/ws2_tail_check.py`、`final_verification` 9b）。偏小 ⇒ 引擎「已读位图」容量不足 ⇒ 写位越界写坏堆 ⇒ 概率性闪退（`doc/file-formats.md`『尾部 8 字节』）
 - [ ] **宿主脚本不得出现孤立的回想出口**：产物 `07 NextFile EVRET` 处数不得超过 Steam 基线（`script/checks/replay_guard_check.py` + `resource/replay_guards.json`，见 [route-mechanics.md](route-mechanics.md) §1.5）
 - [ ] 原地插入的还原内容片段之后，脚本原有的其余部分（包括 Steam 版新增的成就调用指令）未被破坏或误删。删格**只移除被删文本行的正文指令 `14` 与其名字框指令 `15`**（守卫＝不改变任何存活格的生效名字框），**格内其余指令（演出、变量与布尔写入、图层调用、跳转、成就调用）逐字节原位**（见 [restoration-route.md](restoration-route.md) §7 V-9）
@@ -133,6 +136,15 @@
 - [ ] 每次重大修改后，实际运行游戏测试受影响场景，确认无卡死、无报错、画面显示正常
 - [ ] **画面还原的实机项**：覆盖到的 CG／立绘在进入对应场景时显示为原版画面，该图名在 Steam 保留段落里的调用点**不串图**（语义仍对得上），且没有意外走进打码（`.MOS`）路径；`class=reuse`（顶包）的帧还要核对**那一处存活格**显示的是它该对上的那一帧（走调点改写后的名字），而不是被覆盖收回原版的画面
 - [ ] 测试成就触发是否正常（如果游戏支持在非 Steam 环境下模拟触发进行调试）
+- [ ] **变体共存实机项 · 佳奈子组**（`KAN_3001_2` 一次选择 → `KAN_3001_3/4/5`、`KAN_3002_1`、`KAN_3002_2/3` 全部跟随 var1960）：选项可交互（悬停/点击/双分支）、提示句留框同屏；选「膝枕」⇒ 五个后续脚本播 Steam 原生体（CSEV_17/18/19 CG 出现、`VKAN0037-0164`/`VAKA00xx` 新配音可闻、`KAN_3002_3_E` 这条原本零引用的脚本被走到）、尾跳链 `3001_4→3001_5→3002_1→3002_2→3002_3→3003` 全通；选「接受」⇒ 全部播原版体（H 连续体），3002_2 尾跳进 `KAN_3003_E`；读档回到选项点可改选另一支（不做旧存档兼容）
+- [ ] **变体共存实机项 · 双子组**（`HUS_001` 选项，独立 var1961）：S#209 后选项可交互；选「泳装冲凉」⇒ 播 Steam 差分段（CSEV_29 CG、`VASA/VYOR` 新配音）并**汇合回共有收尾段**（S#576 起两侧合流、场景正常收场进下一脚本）；选「顺势而为」⇒ 播原版 H 差分块；读档回到选项点可改选另一支
+- [ ] **变体共存实机项 · 小鸟组**（`AFT_003` 选项，var1962）：S#332 后选项可交互；选「止于亲吻」⇒ 播 Steam 段（CSEV_14 CG、`VKOT029x` 新配音）并汇合回「留级宣言」；选「顺势发展」⇒ 播原版 H 块
+- [ ] **变体共存实机项 · 萤组**（`HOT_002` 一次选择 → `HOT_004` 跟随 var1968；**合并为一线一变量**）：`HOT_002` S#1106 后选项可交互；选「只确认心意」⇒ `HOT_002` 播 Steam 59 格（`VHOT0001A/B-0010` 新配音）且 `HOT_004` 整脚本走 Steam 原生（CSEV_28 CG、`VHOT0013x`）；选「向萤索取」⇒ 两脚本播原版 H（`HOT_004` 无选项帧）。**重点验证混搭不可能**：`HOT_004` 原版分支里的「那次是第一次」只在两场都选原版时出现；**B 路径的自适应图**：`BEF_003`（`BEF_03_001B/001S`）与 `KAN_2001`（`KAN_01_001S/005S/006B`）走 Steam 分支时必须显示 Steam 画（原名），不得显示 9XX 原版画；**`HOT_003` 也必须跟随**——B 路线下该脚本（室外接吻场景）不得出现「回想起萤的身体……肌肤」的原版闪回与 `HOT_05_001B/012B`（Steam 侧不存在的 H CG，实机存档 010 曾复现）
+- [ ] **变体共存实机项 · 小鸟组**（`AFT_003` var1962 + `AFT_007_3` var1969，两个独立选择）：各自选项可交互；`AFT_003` 选「止于亲吻」⇒ 播 Steam 38 格并汇合到 **S#386「哈特！哈特，你在吗！」前**（不是 S#371，否则会读到「别以为做爱之后就能和好」）；`AFT_007_3` 选「仰望星空」⇒ 播 Steam 50 格（`VKOT0299+` 新配音）
+- [ ] **变体共存实机项 · 天音组**（`BEF_003` var1965 + `BEF_004` var1967，两个独立选择）：`BEF_003` 选「止于一个吻」⇒ 教室领带吻（`VAMA0003-0012`）；`BEF_004` 选「继续安慰」⇒ Steam 44 格安慰·烤肉收尾（`VAMA0014+`）；混搭（教室吻 + 房间 H）应自然成立
+- [ ] **变体共存实机项 · 佳奈子咨询组**（`KAN_2001` var1966，整脚本演绎）：S#13 后选项可交互；选「绕弯子问」⇒ 整脚本走 Steam 原生（含恋爱咨询绕圈版、睡相调侃、384 格；`VKAN0017-0029`/`VYOR0001-0017` 新配音）；选「问清楚」⇒ 原版直球版（含 O#256 只出现一次，不得重复）
+- [ ] **route 类两分支各走一次（极性验证）**：`KAN_3001_2` 选「讨一个膝枕」⇒ `3001_3/4/5`、`3002_1`、`3002_2/3` 必须是 Steam 内容；选「接受她的心意」⇒ 必须是原版 H 内容。萤线同理：`HOT_002` 选「就这样，向萤索取」⇒ `HOT_003` 出现原版 H 闪回（`HOT_05_001B/012B` + 「萤的，衣服下面的……身体……肌肤……」）；选「只把彼此的心意确认清楚」⇒ Steam 内容（`HOT_04_001B` + 「回忆起拥抱时，萤纤细的身体……」）。两条分支台词与 CG 必须不同（2026-10-27 曾出现"两分支同内容"）
+- [ ] **画廊解锁实机项**：① 选变体分支（`CSEV_17/18/29/14/28` 出现）后对应画廊条目点亮；② 选原版分支时对应变体条目**也**会点亮（还原替换时原位保留的 Steam 解锁对，属「画廊完整性优先」的既定口径，见 [restoration-scope.md](restoration-scope.md) §8）；③ 不存在「任选一支却点亮了全库未看过的 CG」——若出现，则判定为跨分支重放残留
 
 ## 待完善
 

@@ -30,7 +30,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tool import arcbuild, ws2, ws2dis, lng, paths, pna  # noqa: E402
+from tool import arcbuild, variants, ws2, ws2dis, lng, paths, pna  # noqa: E402
 
 ASSET = os.path.join(ROOT, 'asset')
 BACKUP = os.path.join(ROOT, 'backup')
@@ -155,24 +155,32 @@ def main(argv=None):
     guards = json.load(open(os.path.join(ROOT, 'resource', 'replay_guards.json'), encoding='utf-8'))
     guard_bad = []
     base_rio = read_members(os.path.join(BACKUP, 'Rio.arc'))
+    _body_evr = variants.body_evret_counts(base_rio)   # 变体搬运体自带的 EVRET（Steam 原生演绎）
     for member in sorted(rio):
         if not member.lower().endswith('.ws2'):
             continue
         if member not in base_rio:
             continue
         a_evr, s_evr = _evr(ws2.decode(rio[member])), _evr(ws2.decode(base_rio[member]))
-        if a_evr > s_evr:
-            guard_bad.append('%s +%d' % (member[:-4], a_evr - s_evr))
+        if a_evr > s_evr + _body_evr.get(member, 0):
+            guard_bad.append('%s +%d' % (member[:-4], a_evr - s_evr - _body_evr.get(member, 0)))
     for sc, decl in sorted(guards.get('scripts', {}).items()):
         member = sc + '_E.ws2'
         if member not in rio:
             continue
-        if decl['action'] == 'drop' and _evr(ws2.decode(rio[member])) != 0:
-            guard_bad.append('%s drop 但仍有 EVRET' % sc)
+        if (decl['action'] == 'drop'
+                and _evr(ws2.decode(rio[member])) != _body_evr.get(member, 0)):
+            guard_bad.append('%s drop 但 EVRET %d != 搬运体 %d'
+                             % (sc, _evr(ws2.decode(rio[member])), _body_evr.get(member, 0)))
     check('2b 回想出口不得多于 Steam 基线（%d 条声明）' % len(guards.get('scripts', {})),
           not guard_bad, str(sorted(guard_bad)[:6]))
 
     # ── 3. 成就触发点 ──
+    # 变体共存（resource/variant_routes.json）：Steam 体原字节接回 ⇒ 钩子期望 = 基线 +
+    # 搬运体自带钩子（双版本各带各的；基线钩子一个不丢的原则不变）。
+    body_hooks = variants.body_hook_counts(backup_rio)
+    removed = variants.ach_removed_counts()   # 原版分支（A 体）剔除的 Steam 成就钩子
+    _extra = sum(body_hooks.values()) - sum(removed.values())
     hooks = sum(ws2.decode(d).count(b'\x04CG_ACHIEVEMENT\x00')
                 for n, d in rio.items() if n.lower().endswith('.ws2'))
     f0 = 0
@@ -181,7 +189,10 @@ def main(argv=None):
             continue
         ins, _ok = ws2dis.disassemble(ws2.decode(d), formats=ws2dis.FORMATS)
         f0 += sum(1 for i in ins if i[1] == 0xF0)
-    check('3 成就钩子 %d 处' % EXPECT_HOOKS, hooks == EXPECT_HOOKS, '实测 %d' % hooks)
+    check('3 成就钩子 %d 处（基线 %d + 变体体 %d − 原版分支剔除 %d）'
+          % (EXPECT_HOOKS + _extra, EXPECT_HOOKS, sum(body_hooks.values()),
+             sum(removed.values())),
+          hooks == EXPECT_HOOKS + _extra, '实测 %d' % hooks)
     check('3 成就触发 0xF0 共 %d 处' % EXPECT_F0, f0 == EXPECT_F0, '实测 %d' % f0)
     hook_diff = []
     for n, d in rio.items():
@@ -189,9 +200,10 @@ def main(argv=None):
             continue
         ca = ws2.decode(d).count(b'\x04CG_ACHIEVEMENT\x00')
         cb = ws2.decode(backup_rio[n]).count(b'\x04CG_ACHIEVEMENT\x00')
-        if ca != cb:
-            hook_diff.append((n, cb, ca))
-    check('3 逐脚本成就钩子与 backup 相同', not hook_diff, str(hook_diff[:6]))
+        want = cb + body_hooks.get(n, 0) - removed.get(n, 0)
+        if ca != want:
+            hook_diff.append((n, want, ca))
+    check('3 逐脚本成就钩子 = backup + 变体体 − 剔除', not hook_diff, str(hook_diff[:6]))
 
     # ── 4. 资源配对 ──
     arch_names = {}

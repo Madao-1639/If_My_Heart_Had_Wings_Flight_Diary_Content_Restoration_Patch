@@ -22,7 +22,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tool import arcbuild, imgcmp, perfsync, paths, ws2, ws2dis  # noqa: E402
+from tool import arcbuild, imgcmp, perfsync, paths, variants, ws2, ws2dis  # noqa: E402
 
 CG_RX = re.compile(
     r'^(?:(?:CSEV|AFT|BEF|HOT|HUS|KAN|NOV|AGS|KOT|AMA|HUT)_\d{2,4}_\d{2,4}[A-Z]?'
@@ -194,9 +194,16 @@ def main():
                 s2o.pop(int(k), None)
             else:
                 s2o[int(k)] = int(v)
-        for i, (src, val) in enumerate([s for s in slots_all[sc]['slots'] if s[0] != 'choice']):
+        _rows = [s for s in slots_all[sc]['slots'] if s[0] not in ('choice', 'vchoice')]
+        # 变体分支体（Steam 副本）槽：逐字节副本由 variant_route_check 单独把守，
+        # 不参与「产物 vs 原版」的内容对齐（跳过，防止第二份副本被错对齐到原版行）
+        _vskip = variants.variant_body_slots(slots_all[sc]['steam_file'], slots_all[sc]['slots'], steam)
+        for i, (src, val) in enumerate(_rows):
             if i >= len(pr):
                 break
+            if i in _vskip:
+                stat['variant_body_slot'] += 1
+                continue
             if (sc, i) in slot_waivers:
                 w = slot_waivers[(sc, i)]
                 stat['waived_slot'] += 1

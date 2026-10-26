@@ -25,7 +25,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tool import arcbuild, ws2, ws2dis, perfsync, paths  # noqa: E402
+from tool import arcbuild, censormap, variants, ws2, ws2dis, perfsync, paths  # noqa: E402
 
 # 本作 CG 名：`<剧本组>_<两位场次>_<三位编号><B|S>`。
 # `CSEV_*` 是 Steam 的**审查替代 CG**（同场景着装/裁切版本，只在 Chip10.arc，原版脚本 0 引用），
@@ -69,6 +69,7 @@ def rows_of(raw, fmt):
                     if len(parts) >= 2:
                         chan = parts[0].decode('cp932', 'replace')
                         name = parts[1].decode('cp932', 'replace').upper()
+                        name = censormap.normalize(name)   # 9XX 隔离名 → 原编号
                         disp.append('%s:%s' % (chan, name))
                         if is_cg(name):
                             cg.append(name)
@@ -124,7 +125,9 @@ def main(argv=None):
 
         # 1) 逐槽自证：产物槽的 CG 集合 == 来源行的 CG 集合
         # 选项条目（'choice'）占 .lng 槽位但不是台词行：行口径只看 0x14 来源槽
-        slots = [s for s in (slots_all.get(sc, {}).get('slots') or []) if s[0] != 'choice']
+        slots = [s for s in (slots_all.get(sc, {}).get('slots') or []) if s[0] not in ('choice', 'vchoice')]
+        # 变体分支体（Steam 副本）槽：逐指令等值由 variant_route_check 把守，不参与来源比对
+        _vskip = variants.variant_body_slots(sf, slots, steam)
         sync = {int(k) for k in (p.get('perf_sync') or {})}
         stat['slots'] += len(slots)
         if len(pr) != len(slots):
@@ -132,6 +135,8 @@ def main(argv=None):
         for i, (src, val) in enumerate(slots):
             if i >= len(pr):
                 break
+            if i in _vskip:
+                continue
             if src == 'steam' and val in sync:
                 # 演出同步（replace）：该槽图像演出已按原版行重排 ⇒ 与**原版行**比
                 spec = (p.get('perf_sync') or {}).get(str(val)) or {}

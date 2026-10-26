@@ -61,6 +61,9 @@ def main():
     steam = {nb.decode('utf-16le'): d for nb, d in arcbuild.read_raw(STEAM)}
     asset = {nb.decode('utf-16le'): d for nb, d in arcbuild.read_raw(ASSET)}
 
+    from tool import variants  # 搬运体自带的 EVRET（Steam 原生演绎的一部分）
+    body_evr = variants.body_evret_counts(steam)
+
     rows, bad = [], []
     for sc, decl in sorted(declared.items()):
         member = sc + '_E.ws2'
@@ -72,13 +75,15 @@ def main():
         if not a_stat[3]:
             bad.append('%s: 产物线性解析不自洽' % sc)
         if decl['action'] == 'drop':
-            if a_stat[2] != 0:
-                bad.append('%s: action=drop 但产物仍有 %d 处 07 EVRET' % (sc, a_stat[2]))
+            if a_stat[2] != body_evr.get(member, 0):
+                bad.append('%s: action=drop 但产物 07 EVRET %d != 搬运体自带 %d'
+                           % (sc, a_stat[2], body_evr.get(member, 0)))
             if a_stat[0] != s_stat[0]:
                 bad.append('%s: action=drop 但 01(127) %d != Steam %d' % (sc, a_stat[0], s_stat[0]))
         elif decl['action'] == 'keep':
-            if a_stat[2] != s_stat[2]:
-                bad.append('%s: action=keep 但 07 EVRET %d != Steam %d' % (sc, a_stat[2], s_stat[2]))
+            if a_stat[2] != s_stat[2] + body_evr.get(member, 0):
+                bad.append('%s: action=keep 但 07 EVRET %d != Steam %d + 搬运体 %d'
+                           % (sc, a_stat[2], s_stat[2], body_evr.get(member, 0)))
         else:
             bad.append('%s: 未知 action=%r' % (sc, decl['action']))
         rows.append('| %s | %s | %d/%d/%d | %d/%d/%d | %s |'
@@ -92,8 +97,9 @@ def main():
             continue
         a_evr = stats(ws2.decode(asset[member]))[2]
         s_evr = stats(ws2.decode(steam[member]))[2]
-        if a_evr > s_evr:
-            bad.append('%s: 产物多了 %d 处 07 EVRET（孤立回想出口）' % (member, a_evr - s_evr))
+        allow = body_evr.get(member, 0)
+        if a_evr > s_evr + allow:
+            bad.append('%s: 产物多了 %d 处 07 EVRET（孤立回想出口）' % (member, a_evr - s_evr - allow))
 
     lines = ['# 回想守卫/出口一致性闸（产物 vs Steam 基线 vs resource/replay_guards.json）', '',
              '| 脚本 | action | Steam 01(127)/01(110)/EVRET | 产物 01(127)/01(110)/EVRET | 判定 |',

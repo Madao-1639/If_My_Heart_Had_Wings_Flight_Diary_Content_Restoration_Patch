@@ -46,7 +46,9 @@ def main():
             row = int(row_s)
             n_entries += len(chans)
             # 产物槽号 = 该 orig 行在槽表中的位置
-            ki = next((i for i, s in enumerate(slots) if s == ('orig', row)), None)
+            # 槽号按 **0x14 行序**计：`choice`/`vchoice`（0f 条目）不占行号
+            rows14 = [s for s in slots if s[0] not in ('choice', 'vchoice')]
+            ki = next((i for i, s in enumerate(rows14) if s == ('orig', row)), None)
             assert ki is not None, '%s 原版行 %d 不在产物槽表' % (sc, row)
             # 该槽前缀区（上一条 14 之后 → 本槽 14 之前）：清屏落点在这里
             p14 = [k for k, x in enumerate(pin) if x[1] == 0x14]

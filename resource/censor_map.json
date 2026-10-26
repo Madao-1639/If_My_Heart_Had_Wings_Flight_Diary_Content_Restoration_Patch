@@ -69,7 +69,7 @@
    "zoom": null
   },
   {
-   "action": "overwrite",
+   "action": "keep",
    "alias": null,
    "archive": "Chip7.arc",
    "bbox": [
@@ -100,10 +100,11 @@
    "review": "machine",
    "series": "Chip7.arc/bef_03",
    "size_diff": true,
-   "zoom": null
+   "zoom": null,
+   "isolate": "BEF_03_901B.png"
   },
   {
-   "action": "overwrite",
+   "action": "keep",
    "alias": {
     "frame": "bef_03_006",
     "mad": 0.23,
@@ -138,10 +139,11 @@
    "review": "machine",
    "series": "Chip7.arc/bef_03",
    "size_diff": false,
-   "zoom": null
+   "zoom": null,
+   "isolate": "BEF_03_901S.png"
   },
   {
-   "action": "overwrite",
+   "action": "keep",
    "alias": null,
    "archive": "Chip7.arc",
    "bbox": [
@@ -209,7 +211,7 @@
    "zoom": null
   },
   {
-   "action": "overwrite",
+   "action": "keep",
    "alias": null,
    "archive": "Chip9.arc",
    "bbox": [
@@ -240,7 +242,8 @@
    "review": "machine",
    "series": "Chip9.arc/kan_01",
    "size_diff": false,
-   "zoom": null
+   "zoom": null,
+   "isolate": "KAN_01_901s.png"
   },
   {
    "action": "overwrite",
@@ -447,7 +450,7 @@
    "zoom": null
   },
   {
-   "action": "overwrite",
+   "action": "keep",
    "alias": null,
    "archive": "Chip9.arc",
    "bbox": [
@@ -478,10 +481,11 @@
    "review": "machine",
    "series": "Chip9.arc/kan_01",
    "size_diff": false,
-   "zoom": null
+   "zoom": null,
+   "isolate": "KAN_01_905s.png"
   },
   {
-   "action": "overwrite",
+   "action": "keep",
    "alias": null,
    "archive": "Chip9.arc",
    "bbox": [
@@ -512,7 +516,8 @@
    "review": "machine",
    "series": "Chip9.arc/kan_01",
    "size_diff": false,
-   "zoom": null
+   "zoom": null,
+   "isolate": "KAN_01_906b.png"
   },
   {
    "action": "overwrite",

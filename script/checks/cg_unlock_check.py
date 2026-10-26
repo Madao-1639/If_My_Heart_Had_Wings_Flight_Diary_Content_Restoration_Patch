@@ -4,7 +4,9 @@
 口径（按用户 2026-10-19 指示）：**不处理 CG 鉴赏页**，只保证解锁指令被保留：
   1. 产物每一处 CG 显示都必须紧跟固有解锁对 `0x0b <A> 01 0x0b <B> 01`；
      唯一白名单是 `FDSDEV14_02B/S`（原版与 Steam 两侧都没有该对，属水印 CG）。
-  2. 成就钩子 `04 CG_ACHIEVEMENT 00` 总数与逐脚本数必须等于 Steam 基线（本作 723）。
+  2. 成就钩子 `04 CG_ACHIEVEMENT 00` 总数与逐脚本数必须等于 Steam 基线（本作 723）
+     ＋ 变体共存搬运体自带钩子（`variants.body_hook_counts`；分支体各带各的位点，
+     **不做跨分支重放** —— 选原版分支的玩家没看过 Steam 分支的 CG，不该解锁它）。
   3. 信息项：列出 Steam 有、产物无的 B 编号（鉴赏页按 Steam 编号索引），
      以及原版显示点在产物中完全消失的 CG 名。
 
@@ -12,7 +14,6 @@
 用法：工程根目录 `python script/checks/cg_unlock_check.py`
 """
 import collections
-import json
 import os
 import re
 import struct
@@ -22,7 +23,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tool import arcbuild, ws2, ws2dis, paths  # noqa: E402
+from tool import arcbuild, variants, ws2, ws2dis, paths  # noqa: E402
 
 CG_RX = re.compile(
     rb'^(?:(?:CSEV|AFT|BEF|HOT|HUS|KAN|NOV|AGS|KOT|AMA|HUT)_\d{2,4}_\d{2,4}[A-Z]?'
@@ -91,6 +92,46 @@ def scan(src):
     return sites, nopair, hooks
 
 
+def _steam_pair_sigs(steam):
+    """Steam 基线显示锚定的画廊解锁对签名集合（与产物同构口径）。"""
+    return {(a, b) for _sc, _nm, a, b in scan(steam)[0]}
+
+
+def triads(src, sigs):
+    """**保留的 Steam 解锁对必须带 CG 解锁指令**：每个 Steam 画廊对实例，
+    同一拍点（到下一个 `0x14` 之前）内必须有 `04 CG_ACHIEVEMENT 00`。
+
+    → [(脚本, 偏移, 对)]（缺钩子的）。还原替换时 writer 把 Steam 的 `0b` 对原位保留，
+    钩子必须跟着留——只留对不留钩子 = 成就点静默丢失（画廊点亮了、成就没弹）。
+    """
+    bad = []
+    for n, raw in sorted(src.items()):
+        if not n.lower().endswith('.ws2'):
+            continue
+        dec = ws2.decode(raw)
+        ins = ws2dis.disassemble(dec, formats=ws2dis.FORMATS)[0]
+        starts = {x[0]: i for i, x in enumerate(ins)}
+        for i in range(len(ins) - 1):
+            a, b = ins[i], ins[i + 1]
+            if not (a[1] == 0x0b and b[1] == 0x0b
+                    and a[3][2:3] == b'\x01' and b[3][2:3] == b'\x01'):
+                continue
+            pair = (struct.unpack('<H', a[3][:2])[0], struct.unpack('<H', b[3][:2])[0])
+            if pair not in sigs:
+                continue
+            j = starts[a[0]]
+            ok = False
+            for k in range(j + 2, len(ins)):
+                if ins[k][1] == 0x14:
+                    break
+                if ins[k][1] == 0x04 and ins[k][3].startswith(b'CG_ACHIEVEMENT'):
+                    ok = True
+                    break
+            if not ok:
+                bad.append((n[:-4], a[0], pair))
+    return bad
+
+
 def main():
     prod = members(os.path.join(ROOT, 'asset', 'Rio.arc'))
     steam = members(os.path.join(ROOT, 'backup', 'Rio.arc'))
@@ -105,13 +146,31 @@ def main():
     bad_pair = [(sc, nm) for sc, nm in pn if nm not in PAIR_WHITELIST]
     for sc, nm in bad_pair:
         fails.append('缺解锁对: %s %s' % (sc, nm))
-    # 2. 成就钩子
+    # 1b. 保留的 Steam 解锁对必须带 CG 解锁指令（替换时只能「整组留」：对 + `04`）
+    bad_triad = triads(prod, _steam_pair_sigs(steam))
+    for sc, off, pair in bad_triad:
+        fails.append('解锁对 %s @%s 缺 `04 CG_ACHIEVEMENT`（对留了、成就点丢了）' % (pair, hex(off)))
+    # 2. 成就钩子：期望 = Steam 基线；变体共存脚本（resource/variant_routes.json）把
+    #    Steam 体**原字节**接回产物 ⇒ 期望 = 基线 + 搬运体自带的钩子数（双版本各带各的，
+    #    不丢基线钩子，也不判多余为缺陷）。
+    vt_steam = {}
+    _vtp = os.path.join(ROOT, 'resource', 'variant_routes.json')
+    if os.path.exists(_vtp):
+        vt_steam = {k: v for k, v in steam.items() if k.endswith('.ws2')}
+    body_hooks = variants.body_hook_counts(vt_steam) if vt_steam else {}
+    removed = variants.ach_removed_counts()      # 原版分支（A 体）剔除的 Steam 钩子
+    expect_total = EXPECT_HOOKS + sum(body_hooks.values()) - sum(removed.values())
     total = sum(ph.values())
-    if total != EXPECT_HOOKS:
-        fails.append('成就钩子总数 %d != 基线 %d' % (total, EXPECT_HOOKS))
+    if total != expect_total:
+        fails.append('成就钩子总数 %d != 期望 %d（基线 %d + 变体体 %d − 原版分支剔除 %d）'
+                     % (total, expect_total, EXPECT_HOOKS, sum(body_hooks.values()),
+                        sum(removed.values())))
     for sc, n in sorted(sh.items()):
-        if sc in ph and ph[sc] != n:
-            fails.append('%s 成就钩子 %d != Steam %d' % (sc, ph[sc], n))
+        want = n + body_hooks.get(sc + '.ws2', 0) - removed.get(sc + '.ws2', 0)
+        if sc in ph and ph[sc] != want:
+            fails.append('%s 成就钩子 %d != 期望 %d（基线 %d + 变体体 %d − 剔除 %d）'
+                         % (sc, ph[sc], want, n, body_hooks.get(sc + '.ws2', 0),
+                            removed.get(sc + '.ws2', 0)))
 
     # 3. 信息项
     pb = {b for _, _, _, b in ps}

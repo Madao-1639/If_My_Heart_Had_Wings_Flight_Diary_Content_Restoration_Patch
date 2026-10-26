@@ -27,7 +27,7 @@ A-1 整脚本不走本模块（整脚本走 `tool.ws2conv.convert_script`，槽�
 """
 import struct
 
-from tool import ws2, ws2dis, perfsync
+from tool import censormap, ws2, ws2dis, perfsync
 from tool.ws2conv import CONV, REBASE_OPS, parse as conv_parse
 
 BLOCK_STOP = {0x01, 0x02, 0x06, 0x07, 0xFF}   # 原版块在其前截断（其后属宿主结尾）
@@ -281,9 +281,18 @@ def _perf_zone_kill(instrs, zone, lo_off, hi_off):
 
 
 def perf_sig(op, ops):
-    """站点比较用的可比值：`0x39` 的帧号跨版本由 `pna_id_map` 换算，只比通道串。"""
+    """站点比较用的可比值：`0x39` 的帧号跨版本由 `pna_id_map` 换算，只比通道串。
+
+    `33`/`34` 的图名按 **9XX 命名隔离** 折算回原编号（同一张画面的 Steam/原版两极，
+    见 `tool/censormap.py`）——否则改编号后的还原块会被判成「序列不匹配」。"""
     if op == 0x39:
         return (op, ops.split(bytes((0,)))[0])
+    if op in (0x33, 0x34):
+        parts = ops.split(bytes((0,)))
+        if len(parts) >= 2:
+            nm = censormap.normalize(parts[1].decode('ascii', 'replace'))
+            parts[1] = nm.encode('ascii', 'replace')
+            return (op, bytes((0,)).join(parts))
     return (op, ops)
 
 
@@ -383,6 +392,30 @@ def perf_sync_apply(instrs, s14off, oinstrs, o14, perf_sync, noop=()):
     return kill, add_blocks, report
 
 
+def cg_lock_sites(instrs):
+    """→ (解锁对 `0b` 偏移集, 成就钩子 `04` 偏移集)。
+
+    「CG 固有组」= `33/34 <槽> <图> 01 01` 之后、下一条 `14`/`33` 之前的
+    `0b A 01` ×2（画廊/引擎旗标对）与紧跟的 `04 CG_ACHIEVEMENT`。
+    同一张画面的解锁点与成就点——删格时若要「不保留 Steam 的痕迹」，删的就是这一组。
+    """
+    lock, hook = set(), set()
+    for i, (off, op, _sz, ops) in enumerate(instrs):
+        if op not in (0x33, 0x34):
+            continue
+        n = 0
+        for j in range(i + 1, min(len(instrs), i + 120)):
+            o2, x2 = instrs[j][1], instrs[j][3]
+            if o2 in (0x14, 0x33):
+                break
+            if o2 == 0x0B and n < 2:
+                lock.add(instrs[j][0])
+                n += 1
+            if o2 == 0x04 and x2.startswith(b'CG_ACHIEVEMENT'):
+                hook.add(instrs[j][0])
+    return lock, hook
+
+
 def _keep_in_perf_zone(op, ops):
     """演出前缀区内的指令是否保留（保留 = 状态/流程/成就；`04` 只保留非 LAYER_ORDER 调用）。"""
     if op in KEEP_OPS:
@@ -416,7 +449,7 @@ def eff_names(instrs, skip=frozenset()):
     return out
 
 
-def drop_units(instrs, drop_slots):
+def drop_units(instrs, drop_slots, no_ach_slots=None):
     """删格偏移集。
 
     三项内容：
@@ -424,7 +457,13 @@ def drop_units(instrs, drop_slots):
       2. 该槽**演出前缀区**（上一条 `14` 之后 → 本槽 `14` 之前）内**除 KEEP_OPS 外**的
          全部指令——即该行自己的语音/显示/BGM/图层/特效，删之无状态与流程副作用；
       3. 邻接 `15`（守卫：试删后任何存活格生效名字框不得改变）。
+
+    `no_ach_slots`（变体脚本专有）：这些 Steam 槽位属于「有选项的原版情节」——删它们的行时，
+    **CG 固有组（`0b` 解锁对 + `04 CG_ACHIEVEMENT`）**不再保留（成就与鉴赏由 Steam 分支原生提供），
+    其余 `0b`（场景旗标）/ `04`（非成就调用）照旧保留。
     """
+    no_ach = set(no_ach_slots or ())
+    lock, hook = cg_lock_sites(instrs) if no_ach else (set(), set())
     slot_of = {}
     k = 0
     for off, op, size, ops in instrs:
@@ -436,10 +475,13 @@ def drop_units(instrs, drop_slots):
     # 演出前缀区：从被删 `14` 往前扫到上一条 `14`（不含），删掉其中的非 KEEP_OPS 指令
     idx = {ins[0]: j for j, ins in enumerate(instrs)}
     for o in sorted(kill):
+        drop_ach = slot_of.get(o) in no_ach
         i = idx[o] - 1
         while i >= 0 and instrs[i][1] != 0x14:
-            if not _keep_in_perf_zone(instrs[i][1], instrs[i][3]):
-                kill.add(instrs[i][0])
+            ioff = instrs[i][0]
+            if (not _keep_in_perf_zone(instrs[i][1], instrs[i][3])
+                    or (drop_ach and (ioff in lock or ioff in hook))):
+                kill.add(ioff)
             i -= 1
     # 邻接 15（守卫：试删后任何存活格生效名字框不得改变）
     cand = set()
@@ -609,7 +651,11 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
     perf_missed = {k: v['missed'] for k, v in perf_report.items() if v['missed']}
     assert not perf_missed, \
         'perf_sync 通道在槽前缀区内找不到显示指令: %s' % perf_missed
-    kill = drop_units(sinstrs, set(plan['drops'])) | perf_kill
+    kill = drop_units(sinstrs, set(plan['drops']),
+                      no_ach_slots=plan.get('no_ach_slots')) | perf_kill
+    # 按「不保留 Steam 解锁/成就」剔掉的数量（供闸门对账：期望 = 基线 + 搬运体 − 本值）
+    _drop_ach = sum(1 for _o, _op, _sz, _ops in sinstrs
+                    if _o in kill and _op == 0x04 and _ops.startswith(b'CG_ACHIEVEMENT'))
 
     # 宿主结尾起点：最后一个保留 14 之后的第一条流程控制指令
     kept_slots = [s for s in range(len(s14off)) if s not in plan['drops']]
@@ -984,6 +1030,7 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
         'fix_fallback': fix_fallback,
         'fix_bad_detail': bad_detail,
         'perf_kill': {k: v for k, v in sorted(perf_report.items())},
+        'ach_dropped': _drop_ach,
         'perf_add': {k: len(v) for k, v in sorted(perf_add.items())},
         'perf_noop': perf_noop,
         'state_fix': state_fix_log,

@@ -39,11 +39,14 @@ except Exception:
     pass
 
 from tool import arcbuild, paths, perfsync, pnaids, ws2, ws2dis, ws2conv, ws2fmt, writer  # noqa: E402
+from tool import variants  # noqa: E402
+from tool import censormap  # noqa: E402  （9XX 号段命名隔离）
 
 ACH = (0x04, b'CG_ACHIEVEMENT\x00')
 JUMP_RENAME = {'KAN_3002_2': {'KAN_3002_3_E': 'KAN_3003_E'}}
 REPLAY_GUARDS = os.path.join(ROOT, 'resource', 'replay_guards.json')
 ANIM_CLEARS = os.path.join(ROOT, 'resource', 'anim_exit_clears.json')
+VARIANT_TABLE = os.path.join(ROOT, 'resource', 'variant_routes.json')
 
 
 def _cond_id(ops):
@@ -211,6 +214,16 @@ def main():
         if of and sf and of[:-4] != sf[:-4]:
             jump_map[of[:-4]] = sf[:-4]
 
+    # 变体共存表：{脚本: spec}；只对 host 类脚本生效（whole 是新增成员，无 Steam 宿主可搬）
+    variant_specs = {}
+    if os.path.exists(VARIANT_TABLE):
+        _vt = variants.load()
+        variant_specs = {k: v for k, v in (_vt.get('scripts') or {}).items()}
+        for _k, _v in variant_specs.items():
+            assert plan['scripts'].get(_k, {}).get('kind') == 'host', \
+                '%s 不在 restore_plan 的 host 名单里，变体表无法挂接' % _k
+    variant_detail = {}
+
     steam_members = arcbuild.read_raw(os.path.join(paths.STEAM, 'Rio.arc'))
     orig = {nb.decode('utf-16le'): d
             for nb, d in arcbuild.read_raw(os.path.join(paths.orig_dir(), 'Rio.arc'))}
@@ -261,7 +274,21 @@ def main():
                     noop.append(int(slot_s))
                 elif why != 'presentation-differs':
                     print('  ! %s 槽 %s 不能判 no-op：%s（照旧整段替换）' % (sc, slot_s, why))
+            # 变体脚本：**有选项的原版情节**不再保留 Steam 的 CG 解锁对与成就钩子
+            #（成就/鉴赏由 Steam 分支原生提供）。范围按变体表给出：
+            #   choice → 接缝之后到汇合点之前的那段；route → 整脚本。
+            _no_ach = None
+            _vsp = variant_specs.get(sc)
+            if _vsp:
+                if _vsp['kind'] == 'choice':
+                    _a = int(_vsp['seam']['after'][1])
+                    _b = int(((_vsp.get('confluence') or {}).get('at') or [None, None])[1]
+                             or len(s14off))
+                    _no_ach = set(range(_a + 1, _b))
+                else:
+                    _no_ach = set(range(len(s14off)))
             sub = {'drops': p['drops'], 'inserts': p['inserts'], 'external': {},
+                   'no_ach_slots': _no_ach,
                    'orig_instrs': (ins, tail), 'orig_offs': ooffs,
                    'orig_choices': orig_choice_entries(ws2.decode(raw), orig_fmts),
                    'perf_sync': p.get('perf_sync') or {},
@@ -308,11 +335,41 @@ def main():
             # 选项帧内的 `0x16` 必须剔除：Steam 侧它会把 `MenuInf.enabled/effect` 推成
             # false/true（只有 closeMessageWindow 会产生这对值），输入门永久关闭 ⇒
             # 选项能画但点不动。实机证据见 doc/engine-mechanics.md「0x16 的副作用」。
+            # ⚠️ 必须在 `variants.apply` **之前**做：还原块自带游戏原有选项帧时
+            #（`BEF_004`），这里删一条 0x16 会把后面整体前移 3 字节，令变体布局（brA/brB/conf）失准。
             _dec16 = ws2.decode(res['raw'])
             _dec16, _n16 = ws2.drop_choice_frame_op16(_dec16)
             if _n16:
                 res['raw'] = ws2.encode(_dec16)
                 print('  - %s 剔除选项帧内 0x16 × %d（Steam 侧会关闭输入门）' % (sc, _n16))
+            # 同名 CG 的 9XX 命名隔离：产品侧（A 路径 + 共享内容）一律引用原版画的新编号，
+            # 原名留给 Steam 原生体（分支 B / route 体，它们是原字节搬运，天然用原名）。
+            # 同长度改名 ⇒ 不改变任何偏移（见 tool/censormap.py）。
+            _dec_iso, _n_iso = ws2.decode(res['raw']), 0   # 名字在**解码流**里，raw 是混淆后的
+            for _old, _new in censormap.isolate_refs().items():
+                _ob, _nb = _old.encode('ascii'), _new.encode('ascii')
+                assert len(_ob) == len(_nb), '9XX 隔离名必须与原名等长：%s → %s' % (_old, _new)
+                if _ob in _dec_iso:
+                    _n_iso += _dec_iso.count(_ob)
+                    _dec_iso = _dec_iso.replace(_ob, _nb)
+            if _n_iso:
+                res['raw'] = ws2.encode(_dec_iso)
+                print('  - %s 9XX 命名隔离：%d 处显示名改为原版画编号' % (sc, _n_iso))
+            # 变体共存（resource/variant_routes.json）：Steam 差分情节以选项/路由接回
+            vspec = variant_specs.get(sc)
+            if vspec:
+                _vraw, _vslots, _vdetail = variants.apply(
+                    sc, steam_members[i][1], res['raw'], res['slot_sources'], vspec)
+                res['raw'] = _vraw
+                res['slot_sources'] = _vslots
+                _vdetail['ach_removed'] = res.get('ach_dropped', 0)
+                variant_detail[sc] = _vdetail
+                print('  - %s 变体共存（%s）：var%d，槽 %d→%d，尾表 %s'
+                      % (sc, _vdetail['kind'], _vdetail['var_id'],
+                         res['n_slots'], _vdetail['slots'], _vdetail['tail_counts']))
+            # 变体帧自身不得带 0x16（幂等复检；删到就说明拼接器写错了）
+            _dec16b, _n16b = ws2.drop_choice_frame_op16(ws2.decode(res['raw']))
+            assert _n16b == 0, '%s 变体帧内出现 0x16 ×%d（拼接器缺陷）' % (sc, _n16b)
             steam_members[i] = (steam_members[i][0], res['raw'])
             slots = [[k, v] for k, v in res['slot_sources']]
             report.append('| %s | host | %s | %d 槽（插 %d） | fixup=%d/%d（回落 %d） | lc=%d jump=%d ach=%d ids=%d flag46=%d | noop=%d |'
@@ -322,6 +379,9 @@ def main():
                              res['fix_fallback'], st['lc'], st['jump'], st['ach'], st['ids'],
                              st['flag46'], len(res['perf_noop'])))
         slot_sources[sc] = {'steam_file': p['steam_file'], 'kind': p['kind'], 'slots': slots}
+        if sc in variant_detail:
+            # 变体布局（供闸门直接使用：条目落点 brA/brB、汇合点 conf、区间、槽位信息）
+            slot_sources[sc]['variant'] = variant_detail[sc]
 
     out_arc = os.path.join(ROOT, 'asset', 'Rio.arc')
     os.makedirs(os.path.dirname(out_arc), exist_ok=True)
@@ -338,6 +398,10 @@ def main():
     # （每个「`0x33` + 两条 `0x0b`」站点之后都必须有 `04 CG_ACHIEVEMENT 00` —— 这是
     # Steam 侧的实测不变式，还原块按同型补齐后必须仍然成立）。
     prod = {nb.decode('utf-16le'): d for nb, d in arcbuild.read_raw(out_arc)}
+    # 搬运体 EVRET 口径必须取**原始 Steam 基线**（此时 steam_members 已被变体产物替换）
+    _body_evr = variants.body_evret_counts(
+        {nb.decode('utf-16le'): d for nb, d in
+         arcbuild.read_raw(os.path.join(paths.STEAM, 'Rio.arc'))})
     _ok_tail, _bad_tail = ws2.check_tails(prod)
     assert not _bad_tail, '尾表（末尾 8 字节明文）与实算条数不符：%r' % (_bad_tail[:5],)
     for sc, info in sorted(slot_sources.items()):
@@ -352,15 +416,25 @@ def main():
                 sc, n14 + _nch, n14, _nch, len(info['slots']))
         ach = sum(1 for _, op, _, ops in ins2 if op == 0x04 and ops.startswith(b'CG_ACHIEVEMENT'))
         want = ach_steam.get(sc, 0)
+        # 变体共存把 Steam 体**原字节**接回产物：原版体的钩子数已与 Steam 基线对齐，
+        # 再加 Steam 体自带的钩子 ⇒ 期望 = 基线 + 搬运体钩子数（不是回归，是双版本各带各的）
+        # 分支体各带各的解锁/成就位点，不跨分支重放（条件可达是正确语义）；
+        # 且**原版分支不带 Steam 成就钩子**（成就由 Steam 分支原生提供）⇒ 减去 A 体剔除数
+        _in_body = variant_detail.get(sc, {}).get('ach_in_body', 0)
+        _removed = variant_detail.get(sc, {}).get('ach_removed', 0)
+        _extra = _in_body - _removed
+        want += _extra
         assert ach == want, \
-            '%s 成就调用 %d != Steam 原有 %d（Steam 侧触发点必须一个不丢）' % (sc, ach, want)
+            '%s 成就调用 %d != 期望 %d（基线 %d + 搬运体 %d − 原版分支剔除 %d）' % (
+                sc, ach, want, ach_steam.get(sc, 0), _in_body, _removed)
         # ④ 回想出口不得凭空增加：产物里的 `07 NextFile EVRET` 处数必须 == Steam 原有处数。
         #    （增加 = 搬回了孤儿的「出口」而没有配套的「入口分派」⇒ 会在场景末尾提前回主菜单。）
         if info['kind'] == 'host':
             evr = evret_sites(ins2)
-            assert evr == evret_steam.get(sc, 0), \
-                '%s 回想出口 EVRET %d != Steam 原有 %d（孤立的出口会让正常播放提前退场）' \
-                % (sc, evr, evret_steam.get(sc, 0))
+            _allow = _body_evr.get(info['steam_file'], 0)
+            assert evr == evret_steam.get(sc, 0) + _allow, \
+                '%s 回想出口 EVRET %d != 期望 %d（Steam 原有 %d + 搬运体 %d；孤立的出口会让正常播放提前退场）' \
+                % (sc, evr, evret_steam.get(sc, 0) + _allow, evret_steam.get(sc, 0), _allow)
         print('  %-14s 槽 %-5d 成就调用 %-4d = Steam 原有 ✅' % (sc, len(info['slots']), ach))
     print('尾表：%d 个 .ws2 的末尾 8 字节明文 == 实算 (消息数, 选项数) ✅' % len(_ok_tail))
     print('自检通过：%d 脚本 —— 线性解析自洽 / 0x14 数 == 槽表 / Steam 成就触发点一个不丢 / 尾表正确'

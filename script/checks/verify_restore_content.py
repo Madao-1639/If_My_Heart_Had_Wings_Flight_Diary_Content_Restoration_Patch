@@ -52,6 +52,12 @@ def main():
             continue
         out_rows = rows_of(asset, sf)
         slots = slots_all[sc]['slots']
+        # 槽位序 → 0x14 序：choice/vchoice 是 0f 条目槽（不是台词行），不占 0x14 序
+        ord_of, _k = {}, 0
+        for _i, (_kind, _v) in enumerate(slots):
+            if _kind not in ('choice', 'vchoice'):
+                ord_of[_i] = _k
+                _k += 1
         texts = lng.parse_lng(zh[sf[:-4] + '.lng'], lng.KEY_FD)
         if len(texts) != len(slots):
             fails.append('%s lng \u6761\u6570 %d != \u69fd\u8868 %d' % (sc, len(texts), len(slots)))
@@ -76,7 +82,8 @@ def main():
                 corpus[sc] = want
             for i in inset:
                 n_row += 1
-                if i >= len(out_rows) or not norm(out_rows[i]['text']):
+                oi = ord_of.get(i, i)
+                if oi >= len(out_rows) or not norm(out_rows[oi]['text']):
                     fails.append('%s idx%d \u69fd %d \u4ea7\u7269\u6587\u672c\u7a7a/\u8d85\u754c' % (sc, r['id'], i))
                 elif i in (inset[0], inset[-1]):
                     if norm(texts[i]) != norm(want.get(slots[i][1], '')):
