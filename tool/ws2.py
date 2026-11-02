@@ -155,7 +155,7 @@ def check_tails(members, base=None):
 #   `0x14` 的 `id` 与 `0x0f` 各条目的 `strid` **共用一个按文件顺序递增的槽位计数器**，
 #   选项文本**也占 `.lng` 槽位** ⇒ 严格等式 `lng 条数 == 0x14 条数 + Σ(0f count)`。
 #   反例（本项目踩过）：只给 `0x14` 编号、条目沿用原版 strid ⇒ 条目会指到相邻的正文槽，
-#   选项显示成「上一句正文 / 空白」且不可选（见 doc/lessons-learned.md §48）。
+#   选项显示成「上一句正文 / 空白」且不可选（见 doc/lessons-learned.md）。
 def choice_entries(dec, off):
     """`off` 处 `0x0f` 的条目 → [(strid_off, text_off, label_off, jump_off, kind, val)]。
 

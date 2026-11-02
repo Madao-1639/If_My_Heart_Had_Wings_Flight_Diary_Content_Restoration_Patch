@@ -139,10 +139,10 @@ jump = 06 <u32 文件内绝对偏移> | 07 <脚本名>\x00
 7. **重定基**：插入点之后所有绝对偏移（`01` 字段 7/11、`02`/`06` 字段 0、`0f` 条目 `06`）整体平移。
 8. **重排槽位**：`ws2.repool_text_ids()`（`0x14` id 与条目 `strid` 同一计数器）。
 9. **补 `.lng`**：新槽位逐条给文本（`resource/corpus/` 或官方包），满足 `lng 条数 == 0x14 条数 + Σ(0f count)`；缺译即构建失败。
-9b. **重写末尾 8 字节尾表**：`[u32 消息数][u32 选项条目数]` 必须等于实算值（`tool/ws2.set_tail_counts(encode(new), ws2.tail_counts(new))`，**必须在 `encode()` 之后**）。漏写或偏小 ⇒ 引擎按尾表分配"已读位图"容量不足 ⇒ 写位越界 ⇒ 概率性闪退（见 §47、闸 9b）。
+9b. **重写末尾 8 字节尾表**：`[u32 消息数][u32 选项条目数]` 必须等于实算值（`tool/ws2.set_tail_counts(encode(new), ws2.tail_counts(new))`，**必须在 `encode()` 之后**）。漏写或偏小 ⇒ 引擎按尾表分配"已读位图"容量不足 ⇒ 写位越界 ⇒ 概率性闪退（见 [lessons-learned.md](lessons-learned.md)「改写 ws2 必须同步重写末尾 8 字节明文尾表」条、闸 9b）。
 10. **过闸**：9b（尾表）、9c（选项头）、9d（帧内无语音 / `%K` 提示句 / 落点 `0b+%P`）、9e（人名帧）、9f/9f2（跳转自洽 + 槽位等式）、9g（帧内无 `0x16`）、9h（用 `script/checks/rehearse_new_choice.py` 现造一张过同一套判据）。
 
-> **工程化落地**：本清单已由 `tool/variants.py`（表驱动拼接，`resource/variant_routes.json`）实现并经 `script/checks/variant_route_check.py` 全量把闸；新增槽位类型 `('variant', key)`＝0x14 行（提示句/`%P`）、`('vchoice', key)`＝0f 条目（**不是 0x14**，槽位↔行映射的消费方必须按类过滤，见 [lessons-learned.md](lessons-learned.md) §52）。跨脚本耦合用 `01 <mode=2> var == 0 → b` 条件路由（**布尔旗标 0=原版 / 1=Steam**；`0b` 只能存 0/1，写 2 会因布尔比较丢区分度而两分支同路，见 lessons-learned §54；逐脚本变量，现 1960/1961/1962/1965–1969，两侧全库 0 占用——**选号必须连原版画廊组的 B 旗标域一起避开**，原版 NOV_001 曾占用 1963）；choice 汇合点可指区间中部（`confluence.at` 槽锚点 = 该槽前一行的 `0x14` 之后），`variants.variant_body_slots` 供各闸跳过 Steam 副本槽；**画廊解锁组交叉重放**（`extract_groups`/`_cross_bytes`：把对方分支体的 `[0b A][0b B]`+`04` 重放到本分支前端，保证任一路径画廊/成就槽位全置位，见 [lessons-learned.md](lessons-learned.md) §53）。
+> **工程化落地**：本清单已由 `tool/variants.py`（表驱动拼接，`resource/variant_routes.json`）实现并经 `script/checks/variant_route_check.py` 全量把闸；新增槽位类型 `('variant', key)`＝0x14 行（提示句/`%P`）、`('vchoice', key)`＝0f 条目（**不是 0x14**，槽位↔行映射的消费方必须按类过滤，见 [lessons-learned.md](lessons-learned.md) 「所有槽位↔行映射的消费方必须按类过滤」条）。跨脚本耦合用 `01 <mode=2> var == 0 → b` 条件路由（**布尔旗标 0=原版 / 1=Steam**；`0b` 只能存 0/1，写 2 会因布尔比较丢区分度而两分支同路，见 [lessons-learned.md](lessons-learned.md)「一线一演绎」…条；逐脚本变量，现 1960/1961/1962/1965–1969，两侧全库 0 占用——**选号必须连原版画廊组的 B 旗标域一起避开**，原版 NOV_001 曾占用 1963）；choice 汇合点可指区间中部（`confluence.at` 槽锚点 = 该槽前一行的 `0x14` 之后），`variants.variant_body_slots` 供各闸跳过 Steam 副本槽；**画廊解锁组交叉重放**（`extract_groups`/`_cross_bytes`：把对方分支体的 `[0b A][0b B]`+`04` 重放到本分支前端，保证任一路径画廊/成就槽位全置位，见 [lessons-learned.md](lessons-learned.md) 「画廊/成就解锁就写在脚本里」条）。
 
 ### 变体路由（choice / route）的字节形态与纪律 ✅ 已定案（2026-10-27 实机校正）
 
@@ -215,7 +215,7 @@ jump = 06 <u32 文件内绝对偏移> | 07 <脚本名>\x00
   ```
   → 19 个键（`ev`；`bg01-02`；`st01-12`；`movie`；`text01-03`），**不含位置/坐标**。
 - **立绘/背景块指令**（易混）：`\x04 LAYER_ORDER\x00` 之后是若干 `\x09 <index:u16> <float>`（图层权重）与 `\x46 <槽位名>\x00 …`（图层定位）——这是**块的指令流**，不是 `LAYER_ORDER` 表内容。两版该类指令存在增删差异，属演出指令层差异，见 [engine-mechanics.md](engine-mechanics.md)。
-- **`0x46` 图层定位的两形态与跨引擎标志差 ✅**：每个显示块的 `0x46` 有两种形态——① **子层槽绑定**（操作数 = 通道`\x00` + u8 + u8 + **u16 标志** + 4×f32 层槽 id，id 实测恒为 10–13）：把该通道 PNA 的子层绑到引擎层槽；② **坐标定位**（标志 u16 恒 `0x0000` + 坐标浮点）。**标志 u16 的取值按引擎版本编码**：**原版工具链写 `0x0080`、Steam 工具链写 `0x00f0`**（两侧全库 ~7.6k 处零交叉；`0x0000` 两版一致）。`0x80` 不在 Steam 引擎自身词表内 ⇒ **移植原版指令必须归一 `0x80 → 0xf0`**（`tool/writer.norm_op46_flag`，`build_patch.prep_orig` 与 `_conv` 共用；闸 `script/checks/op46_flag_check.py`），与 `0x39` 记录号映射同类的跨引擎移植归一。⚠️ `0x80` 的引擎行为与实机「立绘遮挡 CG」的根因无涉（归一后遮挡依旧，2026-10-26 实测）——真根因与修复见 [lessons-learned.md](lessons-learned.md) §51。
+- **`0x46` 图层定位的两形态与跨引擎标志差 ✅**：每个显示块的 `0x46` 有两种形态——① **子层槽绑定**（操作数 = 通道`\x00` + u8 + u8 + **u16 标志** + 4×f32 层槽 id，id 实测恒为 10–13）：把该通道 PNA 的子层绑到引擎层槽；② **坐标定位**（标志 u16 恒 `0x0000` + 坐标浮点）。**标志 u16 的取值按引擎版本编码**：**原版工具链写 `0x0080`、Steam 工具链写 `0x00f0`**（两侧全库 ~7.6k 处零交叉；`0x0000` 两版一致）。`0x80` 不在 Steam 引擎自身词表内 ⇒ **移植原版指令必须归一 `0x80 → 0xf0`**（`tool/writer.norm_op46_flag`，`build_patch.prep_orig` 与 `_conv` 共用；闸 `script/checks/op46_flag_check.py`），与 `0x39` 记录号映射同类的跨引擎移植归一。⚠️ `0x80` 的引擎行为与实机「立绘遮挡 CG」的根因无涉（归一后遮挡依旧，2026-10-26 实测）——真根因与修复见 [lessons-learned.md](lessons-learned.md) 「立绘遮挡 CG」真根因…条。
 - **`0x01` 条件跳转**：**`01 <mode:u8> <id:u16> <val:f32> <a:u32> <b:u32>`**（共 16 字节）。语义统一为「**`var[id] OP val` 成立则顺序执行，否则跳到 `b`**」，`OP` 由 `mode & 0x3F` 决定；`b` 是**解码流内的绝对字节偏移**（真实 Steam 库 2116/2116 个可解析目标全部对齐到指令起点）⇒ 对指令流做任何插入式修改后，`b` 必须按目标指令的新偏移重定基（`script/build/convert_sl_ws2.py` 已实现）：
 
   ⚠️ **`a` 并非恒 0**：`a` 是第二个候选目标，**`a != 0` 时优先于 `b`**（例：`mainmenu.ws2 @0x38` `var[99] == 100 -> 0x15a (a=0xb8)` 的 if-else-if 派发链）⇒ `a`/`b` 两个字段都要各自重定基，值为 `0` 表示「无此目标」必须跳过。
@@ -236,7 +236,7 @@ jump = 06 <u32 文件内绝对偏移> | 07 <脚本名>\x00
 - **`0x09` 变量设置**：`09 <mode:u8> <id:u16> <val:f32>`（共 8 字节）。`mode=0` 赋值、`mode=1` 累加（`var[id] += val`）。
 - **`0x0b` 布尔变量设置**：`0b <id:u16> <val:u8>`（共 4 字节）。
 - **格内指令的归属次序 ✅**：一个文本单元的典型排布是 **演出指令（`0x33`/`0x34`/`0x1e` 及其 `LAYER_ORDER` 块）→ `0x28` 语音 → `0x15` 名字框 → `0x14` 文本**。⇒ 语音与画面 token 归**其后最近的一条 `0x14`**；该行自身不带时**沿用前一格**的生效值（语音与画面都是延续语义）。承载图取数、`script/checks/perf_sync_check.py` 的逐槽对账、`tool/scriptext.script_rows()` 的 dlg/ctrl 序都用这一口径。本作实测自证：8,831/8,993 条语音的 OGG 角色码与其后 `0x15` 名字一致，仅 8 条只与前一个名字一致 ⇒ 前缀归属成立。
-  - 连带后果：删格（`tool/writer.drop_units()`）只摘被删行的 `0x14` 与其邻接 `0x15` ⇒ 该行**前面的演出与语音指令整段留在原地**，按上述口径落进**后继格**的归属区（表现为"无对白连播语音""画面/立绘/BGM 回退"）。分诊与处置见 [restoration-route.md](restoration-route.md) §7 V-9、[lessons-learned.md](lessons-learned.md) §26。
+  - 连带后果：删格（`tool/writer.drop_units()`）只摘被删行的 `0x14` 与其邻接 `0x15` ⇒ 该行**前面的演出与语音指令整段留在原地**，按上述口径落进**后继格**的归属区（表现为"无对白连播语音""画面/立绘/BGM 回退"）。分诊与处置见 [restoration-route.md](restoration-route.md) §7 V-9、[lessons-learned.md](lessons-learned.md) 「「某类残留无害」的结论必须写下它依赖的前提」条。
 
 ### 两版操作数格式表与原版脚本转换
 
@@ -351,7 +351,7 @@ Steam版：...LAYER_ORDER\x00 <resource-id>04 01 0b <id2> \x01\x04 CG_ACHIEVEMEN
 与本作引擎相关的两个硬结论（首次改写字节码时实测）：
 
 1. **字符串长度是 1 字节**（不是头部声明的 `sizeof(size_t)`）：长度字节 = `len+1`，载荷只有 `len` 字节（**不带 NUL**）。全部 14 个 `.lua` 成员 `dump(load(b)) == b` 逐字节往返通过。
-2. **opcode 数值在本引擎相对上游 5.3 整体错位一位**：`luadis53` 在索引 9 处插了一个 `OP_UNKNOWN9`，因此 `SETTABLE` 起的所有助记符对应**本引擎 opcode = 上游 +1**（`RETURN=38` / `FORLOOP=39` / `FORPREP=40` / `SETLIST=43`；`LOADK=1` / `NEWTABLE=11` 不变）。**改字节码时 opcode 数值必须从本作样本实测反推，不能拿助记符表直接编号**（见 [lessons-learned.md](lessons-learned.md) §28）。
+2. **opcode 数值在本引擎相对上游 5.3 整体错位一位**：`luadis53` 在索引 9 处插了一个 `OP_UNKNOWN9`，因此 `SETTABLE` 起的所有助记符对应**本引擎 opcode = 上游 +1**（`RETURN=38` / `FORLOOP=39` / `FORPREP=40` / `SETLIST=43`；`LOADK=1` / `NEWTABLE=11` 不变）。**改字节码时 opcode 数值必须从本作样本实测反推，不能拿助记符表直接编号**（见 [lessons-learned.md](lessons-learned.md) 「反汇编器给出的助记符」…条）。
 
 3. **跳转 sBx 的偏置是 `MAXARG_sBx = ((1<<18)-1)>>1 = 131071`，不是 131072**（`JMP`/`FORPREP`/`FORLOOP`/`TFORLOOP` 共用）。运算符优先级 `(1<<18)-1>>1` 是 `((1<<18)-1)>>1`，照抄「1<<17」当偏置会整体偏 1，而**读写都用同一个错偏置时往返看不出来**（写进去、读出来自洽），只有改成「插入一段指令并让新块自带 JMP」时才暴露。改字节码必须显式定义 `SBX_BIAS=131071` 并单独断言目标落位。
 

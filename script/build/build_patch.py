@@ -241,7 +241,7 @@ def main():
             assert len(back) == len(conv), '%s 指令数变化' % sc
             # 尾表（末尾 8 字节明文）按**新**指令流重算：跨版本转换会改 0x14/0x0f 条数，
             # 抄原版尾表 = 引擎按旧计数分配「已读位图」⇒ 写位越界 ⇒ 概率性闪退
-            # （见 tool/ws2.py 尾表段 / lessons-learned §47）。
+            # （见 tool/ws2.py 尾表段 / doc/lessons-learned.md「改写 ws2 必须同步重写末尾 8 字节明文尾表」条）。
             _n0f = sum(1 for op, _o in conv if op == 0x0F)
             assert _n0f == 0, '%s 整脚本含 0x0f 选项表，需按条目补槽位（见 tool/ws2.choice_entries）' % sc
             _tc = ws2.tail_counts(dec[:-ws2.TAIL_LEN])

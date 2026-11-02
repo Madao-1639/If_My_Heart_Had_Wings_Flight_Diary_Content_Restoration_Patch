@@ -123,7 +123,7 @@ def build(member=None):
                     struct.pack_into('<I', new, e[3] + delta, e[5] + delta)
 
     new = ws2.repool_text_ids(bytes(new))
-    # 尾表：末尾 8 字节明文 [消息数][选项条目数] 必须等于实算（§47：偏小 ⇒ 写位越界 ⇒ 闪退）
+    # 尾表：末尾 8 字节明文 [消息数][选项条目数] 必须等于实算（doc/lessons-learned.md「改写 ws2 必须同步重写末尾 8 字节明文尾表」条：偏小 ⇒ 写位越界 ⇒ 闪退）
     counts = ws2.tail_counts(new)
     raw = ws2.set_tail_counts(ws2.encode(new), counts)
     ok_tail, bad_tail = ws2.check_tails({member: raw})

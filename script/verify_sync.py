@@ -274,7 +274,7 @@ def expected_sequence(host, n_steam_cells):
       seq[j]  = 产物第 j 格的来源 ('steam', k) | ('orig', r)
       tail[j] = 恒为空。写盘器的块跨度＝`[o14[r0-1]+1, o14[r1]+1)`，即行 r0..r1 各自的
                 演出前缀＋正文；**不携带 r1+1 的演出前缀**（携带会让同一触发连发两次
-                ⇒ 产物出现「同格重复语音」，见 doc/lessons-learned.md §16）。
+                ⇒ 产物出现「同格重复语音」，见 doc/lessons-learned.md 「取集合的声明必须写明范围」条）。
     锚点落在被删格上（rebind 改绑）时，插入块就位于该格原本的位置。
     """
     plan = host['plan']
@@ -296,7 +296,7 @@ def expected_sequence(host, n_steam_cells):
         for r in range(r0, r1 + 1):
             emit(('orig', r))
         # 写盘器的块跨度右端收到 r1 的 `14` 之后即止，**不携带 r1+1 的演出前缀**
-        # ⇒ 无「块尾前奏」，`tail` 恒为空（见 doc/lessons-learned.md §16）
+        # ⇒ 无「块尾前奏」，`tail` 恒为空（见 doc/lessons-learned.md 「取集合的声明必须写明范围」条）
         pending[0] = None
 
     for r0, r1 in sorted(by_anchor.get(-1, [])):
@@ -593,7 +593,7 @@ def main():
             return bool(arch) and low in orig_tab.get(arch, {})
 
         # 删格残留**按产物实测**：`tool/writer.drop_units()` 已把被删行的演出前缀区
-        # （语音/显示/BGM/图层/特效）一并摘除（见 doc/lessons-learned.md §16）⇒ 残留只可能
+        # （语音/显示/BGM/图层/特效）一并摘除（见 doc/lessons-learned.md 「取集合的声明必须写明范围」条）⇒ 残留只可能
         # 来自「产物里真出现了被删格的名字」。在下面的逐格核对里累计：
         # B4/B6/B7 判为 residue 的格、B8 判为 drop-residue 的 bgm 差、以及单格携带多条
         # 语音触发（= 相邻语音触发之间没有 `14`，无对白连播）。
@@ -625,7 +625,7 @@ def main():
             rewrites[owner] = (rw['to'].encode('ascii', 'replace').upper(),
                                rw['from'].encode('ascii', 'replace').upper())
         # 原版复用名改写集合（脚本名义名 → 原版实际显示名），用于把 B6/B8 里
-        # 完全由该复用解释的画面偏移判为良性（见 §51：KOT_003 KOT_12_007S→KOT_12_002B 即原版行为）。
+        # 完全由该复用解释的画面偏移判为良性（KOT_003 KOT_12_007S→KOT_12_002B 即原版行为）。
         reuse_pairs = {(rw['from'].upper(), rw['to'].upper())
                        for rw in plan.get('reuse_rewrites', [])
                        if rw.get('script') == script}

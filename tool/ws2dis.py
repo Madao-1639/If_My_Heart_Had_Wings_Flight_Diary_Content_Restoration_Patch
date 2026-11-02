@@ -18,7 +18,7 @@
     操作数，而是成员末尾的**明文尾表** `[u32 消息数][u32 选项条目数]`（**不参与** rotate-6）：
     解码后读到的是「明文的 rotate-6」（垃圾值），写盘时必须按新指令流重算并以明文附回。
     格式与崩溃机制见 `doc/file-formats.md`「尾部 8 字节」、`tool/ws2.py` 尾表段、
-    `doc/lessons-learned.md` §47。
+    `doc/lessons-learned.md` 「改写 ws2 必须同步重写末尾 8 字节明文尾表」条。
   * `0x01` Condition —— 首字节 `mode == 0` 时 5 字节，否则 16 字节（本作语料中 mode 恒非 0）。
 
 **实测不变式**（119 Steam + 107 ORIG 脚本全量核验）：
@@ -92,7 +92,7 @@ def _choice_parse(data, off):
         jump = 06 <u32 文件内绝对偏移> | 07 <脚本名>\0
     ⚠️ 必须**整体当作 0x0f 的操作数**来切分：条目首字节恰好是 `0x5e`/`0x5f` 等合法
     opcode，若按普通指令解析就会把条目当成独立指令，且重编 strid 后会立刻失步
-    （见 doc/lessons-learned.md §48）。
+    （见 doc/lessons-learned.md）。
     """
     if data[off] != OP_CHOICE:
         raise ValueError('not a 0x0f @0x%x' % off)

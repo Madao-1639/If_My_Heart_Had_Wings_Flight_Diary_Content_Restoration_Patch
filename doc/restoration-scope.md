@@ -36,7 +36,7 @@
 | 演出（`09`/`11`/`12`/`16`/`33`/`45`/`46`/`47`/`48`/`57`/`65`/`66`/`3e`） | 按原顺序整段搬入（见 [restoration-route.md](restoration-route.md) §5.1） |
 | 脚本骨架（`0b`/`0f`/`15`/`04` 成就） | 保留（逐字节） |
 | **回想出口三连**（`01 flag[127]==1` + `01 var[110]==k` + `07 NextFile EVRET`） | **不搬入**（Steam 侧头部入口分派已删 ⇒ 孤立的出口会在场景末尾把玩家送回主菜单）。逐脚本定案：`resource/replay_guards.json`；纪律：[route-mechanics.md](route-mechanics.md) §1.5 |
-| 块内分支（目标在区内的 `01`/`02`/`06`） | 随演出一起删（Steam 的语言版 CG 选择分支属演出，见 lessons-learned §44） |
+| 块内分支（目标在区内的 `01`/`02`/`06`） | 随演出一起删（Steam 的语言版 CG 选择分支属演出，见 [lessons-learned.md](lessons-learned.md)「只换显示块」…条） |
 
 ---
 
@@ -126,34 +126,21 @@
 1. **正文一律走 `zh-CN/Rio.arc` 的 `.lng`（key `0x3E`）+ `NameTable.txt`**；每改一个脚本必须**整体重建**该脚本 `.lng`，不沿用官方条目（补丁沿用致 10 脚本位置失配是前车之鉴）。
 2. **还原中文以原版日文为唯一依据，不经英文中转**——已证实英文有 2 处语义反转/错译（`HOT_004` 部训、`BEF_004` 第 251 行感受主体翻转）。
 3. **处置动作一律「直接替换」**（用户决策 2026-10-15）：Steam 的审查新写行不保留，该格/该段**整段替换为原版内容**——避免「全年龄替代场景 + 原版 H 段」tonal 重复。Scope 内 26 个原 `keep_steam_insert_orig` 区间已全部改为 `replace_with_orig`（37 区间替换 + 3 区间纯删插入 + 5 纯增保留）。
-4. **Gemini 译文做底稿，只用文本**（用户决策）：取其译文内容，**禁用其生效机制**（窄字节 CP932 直写 ws2 是妥协）；中文经 `.lng` 落地。必经流程——**归一**（繁/日字形→规范简体）+ **补译**（约 331 格无底稿）+ **清洗**（窄字节假名替换乱码字）+ **统一**（人名按官方 `NameTable`）+ **全量审校**（以原版日文为准逐行核对）。
+4. **中文来源**：还原内容一律由本项目语文案给出，**以原版日文为唯一依据**、直接写 `.lng`，**禁用窄字节 CP932 直写 ws2**；取词/遮字/称谓口径见 [script-text-extraction.md](script-text-extraction.md) §4。
 5. **官中跟译被带偏的格按原版重译**：`HUS_001` O#73-75（官中译成「将书轻轻放在了亚纱的臀部」）、`BEF_005` O#823-826（官中跟着 "Ageha and the others were saying"）、`KAN_2001` O#51-56 等；官中在 `HOT_004` 部训处反而是按原版译的（可作对照）。
 6. **语音资产**：原版 OGG 100% 不在 Steam 语音包，**必须随包发布**，否则还原场景静音；还原区间统一用原版语音名（`ASA_xxxx` 而非 Steam `VASAxxxx`）。
 7. **成就：不注入**（2026-10-16 实测定案）。理由：① ORIG 与 Steam 的 CG 固有 id 对（`0x33` 后两条 `0x0b`）**每个脚本交集都是 0** ⇒ 按 ORIG 的 id 注入 `04 "CG_ACHIEVEMENT" 00` 是**空操作**（Steam 成就表里没有该 id）；② Steam 侧原有的 `0x0b`×2 + `04 CG_ACHIEVEMENT` 属 `KEEP_OPS` / 非 `LAYER_ORDER` 调用 ⇒ **删格时已被 `writer.drop_units` 保留**，成就可达性天然不受影响（实测：被删区间内"只此一处"的 Steam 触发点 14 个，其调用全部留存）；③ `AGS_001` 是整条被删线路，Steam 侧不存在任何对应成就。
    **验收口径**：产物里 `CG_ACHIEVEMENT` 调用数 **== Steam 原有数**（逐脚本相等，`build_patch.py` 自检）。
 8. **`%LC` 人名**逐条转成 `NameTable.txt` 的罗马字键；`0x14` 的 u32 序号保持 0-based。
 
-### 6.1 中文语料流水线（定案）
+### 6.1 中文语料与 lng 流水线（现状）
 
-| 阶段 | 产物 | 工具 |
+| 阶段 | 产物 / 口径 | 工具 |
 |---|---|---|
-| 提取对齐 | `resource/corpus/cn_draft/<script>.jsonl`（ORIG 日文格 ↔ Gemini 中格，语音锚点对齐；in-scope 5 194 行） | `script/scope/build_cn_corpus.py`（`fix_hus001.py` 修 HUS_001 锚点偏移） |
-| 机械归一 | `resource/corpus/cn_norm/<script>.jsonl` + 映射表 `resource/corpus/char_map.json`（779 字） | `script/scope/normalize_cn.py`（主控手写映射表：繁/日字形→简体 + 假名乱码 + 人名统一） |
-| 分块 | `tmp/scope/cnpacks/` 22 块（≤400 行）+ `revpacks/` 31 块（≤35 行，残差） | `script/scope/build_cn_packs.py` |
-| **补译/清洗/统一/审校** | `tmp/verify/cn2/` 32 个 diff 文件（**618 处改动**，subagent 产出，只输出需改的行） | subagent（DeepSeek-V4.1-Flash，11 个批次） |
-| 合并质检 | `resource/corpus/cn/<script>.jsonl`（**5 194 行：合格 5 133 + 纯标点 60 + 1 处刻意的 `・`**） | `script/scope/{merge_cn2,fix_merge_residual,finalize_cn}.py` |
-
-**S3/S4 落地后的中文流水线（终态）**：
-
-| 阶段 | 产物 | 工具 |
-|---|---|---|
-| 槽位表 | `resource/slot_sources.json`（逐脚本「最终槽位序 → `('steam', 旧槽号)` / `('orig', 原版行号)`」） | `script/build/build_patch.py`（`tool/writer.rebuild_host` 产出） |
+| 语料正文 | `resource/corpus/cn/<script>.jsonl`（25 脚本 / 5 348 行）：逐格 `{script, orig_row, region, h_level, jp, cn, note, src?}`，行尾 LF；错字与用词**直接改语料 + 逐行复审**，取词口径见 [script-text-extraction.md](script-text-extraction.md) §4 | 手工维护 |
+| 槽位表 | `resource/slot_sources.json`（逐脚本「最终槽位序 → `('steam', 旧槽号)` / `('orig', 原版行号)`」） | `script/build/build_patch.py`（`tool.writer.rebuild_host`） |
 | lng 重建 | `asset/zh-CN/Rio.arc`：15 个 `.lng` 整体重建（保留格取官方条目、插入格取本项目语料）+ 新增 `AGS_001.lng` | `script/build/build_lng.py` |
-| 短语级修字 | 逐字映射的一形对多义残留（`鹅→撑`、`鳖→桌`、`龄→办/么`） | `script/scope/fix_cn_phrases.py`（幂等） |
-
-> **窄字节乱码实证**（清洗依据）：Gemini 底稿经 CP932 写入后，日文假名/助词被换成形近或随机汉字——堯(=あ/な/は→啊)、鶺(=ん→嗯)、瑤(=她/は/の)、鞁(=舐め/ぺろ→舔)、槇(=も/嘛)、鼕(=だ/よ→啊)、鵐(=ケン→吵，「鵐架」←「ケンカ」)、鶫(=こら→喂)、狢(=ほら→瞧)、鷭(=姫)、鰤(=やあ/でしょ)、鵞(=はぁ)。语料中出现数千次，按日文上下文重译。
->
-> **两个必须记住的坑**：① **`HUS_001` 的 ORIG↔CN 语音锚点对齐有整段偏移**（CN 补丁的语音指令比文本晚一行，且删了 9 行）⇒ 已按「锚点 + 等长段恒定偏移 / 不等长段标记歧义」重建；审 diff 前必须核对锚点，否则整脚本张冠李戴（`BEF_003` 552-559 同病，已按文本对应修正）。② **ws2 的换行标记是字面两字符 `\n`**（反斜杠+n），不是真换行；终检按字面计数，中文侧真换行要转回字面（曾误改 668 处，已回滚）。
+| 内容面闸 | 逐条标记/换行/占位一致、插入格覆盖、lng 条数等式、逐条非空、无假名残留、NameTable 键全覆盖 | `script/checks/preflight_corpus.py`、`script/build/build_lng.py` |
 
 ---
 
@@ -251,7 +238,7 @@
 - 佳奈子线：`KAN_3001_2` 一次选择 → `3001_3/4/5`、`3002_1`、`3002_2/3` 全部跟随（8 个脚本一条连续体）；`KAN_2001` 因与 H 连续性正交（在 3001_2 之前很久）而保留独立变量 1966。
 - 萤线：`HOT_002` 一次选择 → **`HOT_003`、`HOT_004` 都跟随**。**必须合并**：`HOT_004` 原版分支回指 `HOT_002` 的初夜（「疼吗？那次之后…」「──毕竟那次是第一次」，slot 830-832），两场各自选择就会出现指向不存在夜晚的矛盾；而且中间脚本 `HOT_003` 的还原块会用原版 H CG 闪回「回忆萤的身体」（实机在 B 路线撞见，见 acceptance 实机项）。
 - 天音线（`BEF_003`/`BEF_004`）、小鸟线（`AFT_003`/`AFT_007_3`）保留独立选择：实测无回指句（「那次/上次/昨晚/第一次做」零命中），两场在不同时间地点、各自版本自洽，混搭只造成"露骨/含蓄"的风格落差，不产生矛盾。
-- 判据：**后一场的还原文本若回指前一场的 H，则必须同变量**；否则可独立（`doc/lessons-learned.md` §54）。
+- 判据：**后一场的还原文本若回指前一场的 H，则必须同变量**；否则可独立（`doc/lessons-learned.md` 「一线一演绎」…条）。
 
 **画廊/成就解锁点**：
 - **条件可达是正确语义，不做跨分支重放**（2026-10-26 定案）：解锁点归属各自分支——选原版分支的玩家没看过 Steam 分支的 `CSEV_*` CG，就不该点亮它。C+C v0.5.2 的教训是「解锁点不得随切除丢失/推迟」，正确形态是「各自路径上的解锁点原样保留」，而不是「两路径都可达」。

@@ -54,7 +54,7 @@
 | **S1 差分扫描** | `backup/`（Steam）+ 原版目录 | 脚本级/成员级/像素级差分报告（脚本级已可用 `tool/ws2fmt.py` 做**指令级**比对） |
 | **S2 计划生成** ✅ | `resource/restore_scope.json` + `backup/` + 原版目录 | `resource/restore_plan.json`（逐脚本 `drops`/`inserts`/成就数）+ `tmp/restore_plan.md`；工具 `script/build/build_restore_plan.py` |
 | **S2b 立绘记录映射** ✅ | 计划 + `censor_map keep` 的 21 个同名 PNA + 两侧 `Graphic.arc` | `resource/pna_id_map.json`（原版记录号 → Steam 记录号、改画清单、层内修复/豁免清单）；工具 `script/build/build_pna_id_map.py`。**必须在 S3 之前**（写盘器要按表换算 `0x39`） |
-| **S3 写盘** ✅ | 计划 + `pna_id_map.json` + 原版脚本 | `asset/Rio.arc`（14 个 `*_E.ws2` 就地重建 + 新增 `AGS_001.ws2`；原版来源块的 `0x39` 记录号已按表换算、`0x46` 子层槽绑定标志已跨引擎归一（`0x80→0xf0`，见 [lessons-learned.md](lessons-learned.md) §50）；**回想出口三连按 `resource/replay_guards.json` 剥离**；**选项帧内的 `0x16` 按 `tool/ws2.drop_choice_frame_op16()` 剔除**（Steam 侧它会永久关闭输入门，删后提示句与选项同屏）、**末尾 8 字节明文尾表按新条数重写**、**动画离场→CG 转换点按 `resource/anim_exit_clears.json` 在 CG 显示前补 `37 <通道>`**（Steam 引擎上搬入动画终点与原版不一致，见 [lessons-learned.md](lessons-learned.md) §51））；**变体共存**：`resource/variant_routes.json` 声明的脚本在宿主重建后做「新增选项 / 变量路由」拼接（`tool/variants.py`，Steam 差分情节原字节接回，见 [restoration-scope.md](restoration-scope.md) §8）；工具 `script/build/build_patch.py` + `tool/writer.py` + `tool/pnaids.py` + `tool/variants.py`；槽位表 `resource/slot_sources.json` |
+| **S3 写盘** ✅ | 计划 + `pna_id_map.json` + 原版脚本 | `asset/Rio.arc`（14 个 `*_E.ws2` 就地重建 + 新增 `AGS_001.ws2`；原版来源块的 `0x39` 记录号已按表换算、`0x46` 子层槽绑定标志已跨引擎归一（`0x80→0xf0`，见 [lessons-learned.md](lessons-learned.md) 「跨引擎版本归一」…条）；**回想出口三连按 `resource/replay_guards.json` 剥离**；**选项帧内的 `0x16` 按 `tool/ws2.drop_choice_frame_op16()` 剔除**（Steam 侧它会永久关闭输入门，删后提示句与选项同屏）、**末尾 8 字节明文尾表按新条数重写**、**动画离场→CG 转换点按 `resource/anim_exit_clears.json` 在 CG 显示前补 `37 <通道>`**（Steam 引擎上搬入动画终点与原版不一致，见 [lessons-learned.md](lessons-learned.md) 「立绘遮挡 CG」真根因…条））；**变体共存**：`resource/variant_routes.json` 声明的脚本在宿主重建后做「新增选项 / 变量路由」拼接（`tool/variants.py`，Steam 差分情节原字节接回，见 [restoration-scope.md](restoration-scope.md) §8）；工具 `script/build/build_patch.py` + `tool/writer.py` + `tool/pnaids.py` + `tool/variants.py`；槽位表 `resource/slot_sources.json` |
 | **S3b 画面覆盖** ✅ | `censor_map.json` + 两侧图像归档 | `asset/Graphic.arc`/`Chip*.arc` 同名整名覆盖；工具 `script/build/build_l3.py --write-asset` |
 | **S3c 素材补入** ✅ | `asset/` + 原版目录 | 缺失成员按原版名补入（`Graphic.arc`/`Chip1`/`Chip2`/`Se`）；工具 `script/build/build_l4_extra.py` |
 | **S3d 层内修复** ✅ | `pna_id_map.json` 的 `repair` + `asset/Graphic.arc` + 原版 | 把被 Steam 改画的子图/box 换回原版（不改记录数/顺序/画布）；工具 `script/build/build_pna_repair.py`。**必须在 S3b/S3c 之后**（以它们的产物为底），并把 `GRAPHIC.arc` 的文件名规范回 backup 的 `Graphic.arc` |
@@ -84,7 +84,7 @@
 - `script/checks/cg_unlock_check.py`（CG 解锁）：产物每处 CG 显示必须紧跟固有解锁对 `0x0b A 01 0x0b B 01`（白名单 `FDSDEV14_02B/S`：原版与 Steam 两侧都没有该对）；**保留的 Steam 解锁对必须整组保留**（同拍点内必须有 `04 CG_ACHIEVEMENT`，闸 1b）；`04 CG_ACHIEVEMENT` 钩子总数与逐脚本数必须等于 Steam 基线 723 **+ 变体搬运体自带的钩子数 107 − 原版分支剔除的 81 = 749**（原版分支不挂 Steam 成就，见 `variants.ach_removed_counts`）（`tool/variants.body_hook_counts`；双版本各带各的，基线「一个不丢」不变；**不做跨分支重放**——多出的钩子会被本闸当场抓住）。另报告 Steam 有、产物无的 B 编号（鉴赏页按 Steam 编号索引）与原版显示点中完全消失的 CG 名——这两项属鉴赏面，只报告不判失败。
 - `script/checks/perf_consistency_check.py`（CG/立绘 内容一致性）：按语音锚点把产物槽对齐原版行（**先剔除 `resource/orig_deleted.json` 登记的原版被删行**，再应用 `resource/align_fixes.json` 的人工定案；否则整行删除会让等长缺口把后续槽整体映射错 1 行），比较在屏 CG 与立绘；**对齐的是内容不是文件名**——`tool/imgcmp.same_content` 判水印级 PNG（mean<3、>16 像素<3%）与 PNA 图层集相同者等价，不纠正；差异按根因行（own 显示/清屏）归类；`resource/perf_waivers.json` 的槽级豁免直接跳过。
 - `script/checks/pna_id_check.py`（立绘记录号 / 层内修复）：产物所有 `0x39` 记录号必须落在产物 PNA 记录表内；`repair` 记录的子图/box 必须等于原版、非 repair 记录必须等于 Steam 基线；产物引用到「改画记录」时必须已修复或成员已登记 `perf_waivers`；`repair` 不得与 `waive` 重叠。
-- `script/checks/ws2_tail_check.py`（WS2 尾表）：产物每个 `.ws2` 的**末尾 8 字节明文** `[u32 消息数][u32 选项条目数]` 必须等于实算的 `0x14`/`0x0f` 条数。偏小 ⇒ 引擎「已读位图」容量不足 ⇒ 写位越界写坏堆 ⇒ 概率性闪退；见 [file-formats.md](file-formats.md)「尾部 8 字节」与 [lessons-learned.md](lessons-learned.md) §47。
+- `script/checks/ws2_tail_check.py`（WS2 尾表）：产物每个 `.ws2` 的**末尾 8 字节明文** `[u32 消息数][u32 选项条目数]` 必须等于实算的 `0x14`/`0x0f` 条数。偏小 ⇒ 引擎「已读位图」容量不足 ⇒ 写位越界写坏堆 ⇒ 概率性闪退；见 [file-formats.md](file-formats.md)「尾部 8 字节」与 [lessons-learned.md](lessons-learned.md) 「改写 ws2 必须同步重写末尾 8 字节明文尾表」条。
 - `script/checks/replay_guard_check.py`（回想守卫/出口）：`resource/replay_guards.json` 的 `action=drop` 脚本，产物里 `07 NextFile EVRET` 必须为 0；`action=keep` 脚本的 EVRET 处数必须等于 Steam 基线；**全局**任何宿主不得比 Steam 基线多出 EVRET（= 不得出现孤立的回想出口，见 [route-mechanics.md](route-mechanics.md) §1.5）。
 - `script/checks/variant_route_check.py`（变体共存，14 脚本 / 8 变量）：路由变量 {1960,1961,1962,1965,1966,1967,1968,1969} 在两侧基线全库 0 占用、产物里只出现在变体脚本；choice 结构**按落盘布局回读**（`resource/slot_sources.json` 的 `[sc].variant.targets`：brA/brB/conf）——条目落点、`0b var val`、`14 "%P"`、`0e` 头、提示句、汇合 `06`；route 的 Steam 体与基线**逐指令等值**（`0x14` 只比正文，绝对偏移按统一 delta 平移），`KAN_3002_2` 的尾跳分叉由表内 `tail_jump_diverges` 声明；choice 的分支 B 体同样逐指令等值 Steam 行区间；`variant`/`vchoice` 槽的中文逐条非空；**画廊解锁点条件可达且归属各自分支**（Steam 站点不丢（还原区间豁免）/ 显示与解锁对同区 / 分支头部无**连续 `0b`** 夹带，政策见 [restoration-scope.md](restoration-scope.md) §8）。
 - `script/final_verification.py`（全量验收）：归档完整性、调用链、成就触发点、资源配对、零破坏性、可复现性（`--stage build` 时 payload 未重建 ⇒ 明确 SKIP，`--stage release` 强制）、交付项完整性、WS2 线性自洽、语音重指。本作基线：`CG_ACHIEVEMENT` 723 处（+变体搬运体 102 = 825）、`0xF0` 33 处；回想出口期望 = Steam 基线 + 搬运体自带（`variants.body_evret_counts`，仅 `KAN_3002_2` 1 处）；交付归档 13 个。
@@ -110,10 +110,10 @@
 
 > 为什么必须整段、不能只换显示块：宿主残留的 `45`（拖拽）/`47`（特效）/`09`（参数）会作用在
 > **已经被删掉的通道**上——实机表现是**动画错乱**（`HUS_001` 第三行「グライダーって…」前的
-> 上抛动画被丢在空的 `bg02` 上）。详见 [lessons-learned.md](lessons-learned.md) §43／§44。
+> 上抛动画被丢在空的 `bg02` 上）。详见 [lessons-learned.md](lessons-learned.md) 「补块提前缀区开头」…条／「只换显示块」…条。
 
 > 为什么不能只「保序插入显示块」：`37 *`（通配清屏）与显示块的先后有意义，见
-> [lessons-learned.md](lessons-learned.md) §43；`37` 的三种目标形态见
+> [lessons-learned.md](lessons-learned.md) 「补块提前缀区开头」…条；`37` 的三种目标形态见
 > [engine-mechanics.md](engine-mechanics.md)「图层清屏 `0x37`」。
 
 **前置检验（no-op 跳过，`perfsync.site_noop`）**：`replace` 站点在改写前先过三条件——
@@ -132,8 +132,8 @@
 闸门（两道，均为 HARD）：
 
 - `script/checks/insert_boundary_check.py`：每个**插入块入口**与 **`replace` 站点入口**的在屏状态必须与原版对应点一致（帧身份归一：`norm_sprite` + `_SC` 水印 + 同编号 `S`/`B` 同帧）；缺失/取值不同＝HARD（写盘器只发清，补/换必须走入库表）。
-- `script/checks/op46_flag_check.py`：产物所有 `0x46` 的子层槽绑定标志必须落在 Steam 引擎自身词表（`0x00`/`0xf0`），原版 `0x80` 计数必须为 0（见 [lessons-learned.md](lessons-learned.md) §50）。
-- `script/checks/anim_exit_clear_check.py`：`resource/anim_exit_clears.json` 逐条落地——产物中该原版行的前缀区内、第一条 `33/34` 显示指令之前存在对应 `37 <通道>`（位置与通道精确）；`perf_sync_check`/`perf_consistency_check` 按同一张表豁免（见 [lessons-learned.md](lessons-learned.md) §51）。
+- `script/checks/op46_flag_check.py`：产物所有 `0x46` 的子层槽绑定标志必须落在 Steam 引擎自身词表（`0x00`/`0xf0`），原版 `0x80` 计数必须为 0（见 [lessons-learned.md](lessons-learned.md) 「跨引擎版本归一」…条）。
+- `script/checks/anim_exit_clear_check.py`：`resource/anim_exit_clears.json` 逐条落地——产物中该原版行的前缀区内、第一条 `33/34` 显示指令之前存在对应 `37 <通道>`（位置与通道精确）；`perf_sync_check`/`perf_consistency_check` 按同一张表豁免（见 [lessons-learned.md](lessons-learned.md) 「立绘遮挡 CG」真根因…条）。
 
 ---
 
@@ -146,7 +146,7 @@
 - **成就：不注入**。ORIG 与 Steam 的 CG 固有 id 对交集为 0（按 ORIG id 注入是空操作）；
   Steam 侧原有的 `0x0b`×2 + `04 CG_ACHIEVEMENT` 属 `KEEP_OPS`/非 `LAYER_ORDER` ⇒ 删格时已被保留。
   验收 = 产物 `CG_ACHIEVEMENT` 数 == Steam 原有数。
-- **WS2 末尾 8 字节 = 明文尾表** `[u32 消息数][u32 选项条目数]`：引擎按它给「已读位图」（存档目录 `MessageFlag.dat`）分配容量，写位**不查边界**。改写脚本（插入/删格/跨版本搬运）后必须按新条数重写这 8 字节（明文、`encode()` 之后写）；偏小 ⇒ 概率性闪退。闸：`script/checks/ws2_tail_check.py`、`final_verification` 9b；机制见 [file-formats.md](file-formats.md)「尾部 8 字节」、踩坑见 [lessons-learned.md](lessons-learned.md) §47。
+- **WS2 末尾 8 字节 = 明文尾表** `[u32 消息数][u32 选项条目数]`：引擎按它给「已读位图」（存档目录 `MessageFlag.dat`）分配容量，写位**不查边界**。改写脚本（插入/删格/跨版本搬运）后必须按新条数重写这 8 字节（明文、`encode()` 之后写）；偏小 ⇒ 概率性闪退。闸：`script/checks/ws2_tail_check.py`、`final_verification` 9b；机制见 [file-formats.md](file-formats.md)「尾部 8 字节」、踩坑见 [lessons-learned.md](lessons-learned.md) 「改写 ws2 必须同步重写末尾 8 字节明文尾表」条。
 - **存档/已读表不在本项目范围**：`MessageFlag.dat` 的记录按首次写入的尾表定长、不随脚本增长重算，装了补丁后旧记录可能偏小；这属引擎存档系统的行为，**安装器不读不写**，本项目只负责把**脚本尾表**写对（上一项）。诊断口径见 [engine-mechanics.md](engine-mechanics.md)「已读消息位图」。
 - `.lng` 布局：`u32 count` + `u16[count]` 长度表 + 字符串体；字符串 UTF-16LE 逐字节 XOR，**本作密钥 `0x3E`**。
 - 语言包目录范式：`zh-CN/{AdvHDLang.dll, Fonts.arc, Rio.arc, Script.arc, SysGraphic.arc}`；中文剧本无 ws2，全部经 `.lng` + `NameTable.txt` 注入。
@@ -173,7 +173,7 @@
 7. **S5 校验 / S6 发布**：跑 [acceptance-criteria.md](acceptance-criteria.md) 全闸 → `script/generate_payload.py`（`asset/` → `payload/` + `METADATA.json`，自带回读重放）→ `bash script/pack.sh`（PyInstaller 安装器 → `releases/`）。
    ⚠️ `payload/` 已于 2026-10-21 按当时 `asset/` 重建；**`releases/` 的安装器仍早于最近的脚本改动（含回想出口剥离），发布前必须重跑 `bash script/pack.sh`**。
 8. ~~**L3 画面还原**~~ ✅ 已完成（`Graphic.arc` 59 覆盖 / 21 层序不等价 keep；`Chip2.arc` 2 覆盖；台账 `resource/censor_map.json`）；~~L4 补漏~~ ✅ 已完成（`Chip1/Chip2/Graphic/Se` 并集，资源覆盖闸 0 缺口）。
-9. **残余**：② **语料残留错字**（逐字映射的一形对多义残留：`鹢→裤`、`鳌→厉`、`纽→扭`、`镐→搞` 等约 40 字，收尾修正见 `script/scope/fix_cn_phrases.py`，逐行判定见 `tmp/verify/cn_residual.md`）；③ `BEF_004` 的 `0x0f` 选项菜单文案仍是日文（原版即嵌在脚本窄字节里）。
+9. **残余**：③ `BEF_004` 的 `0x0f` 选项菜单文案仍是日文（原版即嵌在脚本窄字节里）。
 
 ## 8. 与既有产物的关系
 

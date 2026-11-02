@@ -65,7 +65,7 @@
     "st01": "CUTIN_02_06.PNG"
    },
    "voice": null,
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "AFT_003",
@@ -86,7 +86,7 @@
     "bg02": "小鳥FDST01_M.PNA"
    },
    "voice": "KOTORI_0365.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "AFT_007_3",
@@ -107,7 +107,7 @@
     "st02": "C天音_01L.PNA"
    },
    "voice": "AMANE_0057.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "BEF_003",
@@ -128,7 +128,7 @@
     "st01": "C天音_01M.PNA"
    },
    "voice": "AMANE_0318.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "BEF_005",
@@ -148,7 +148,7 @@
     "bg02": "BG00_01S.PNG"
    },
    "voice": null,
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HOT_003",
@@ -172,7 +172,7 @@
     "st01": "Gほたる_01M.PNA"
    },
    "voice": "HOTARU_0472.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HOT_004",
@@ -192,7 +192,7 @@
     "st04": "EST_1000.PNG"
    },
    "voice": "HOTARU_0748.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HOT_004",
@@ -212,7 +212,7 @@
     "st01": "Gほたる_01L.PNA"
    },
    "voice": "HOTARU_0750.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HOT_004",
@@ -232,7 +232,7 @@
     "st01": "Gほたる_01M.PNA"
    },
    "voice": "HOTARU_0915.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HOT_004",
@@ -252,7 +252,7 @@
     "st01": "Gほたる_01M.PNA"
    },
    "voice": "HOTARU_0916.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HOT_004",
@@ -272,7 +272,7 @@
     "st01": "Gほたる_01M.PNA"
    },
    "voice": "HOTARU_0917.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HOT_004",
@@ -292,7 +292,7 @@
     "st01": "Gほたる_01M.PNA"
    },
    "voice": "HOTARU_0918.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HOT_004",
@@ -312,7 +312,7 @@
     "st01": "Gほたる_01M.PNA"
    },
    "voice": "HOTARU_0920.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HOT_004",
@@ -332,7 +332,7 @@
     "st01": "Gほたる_01L.PNA"
    },
    "voice": null,
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HOT_004",
@@ -352,7 +352,7 @@
     "st01": "Gほたる_01L.PNA"
    },
    "voice": "HOTARU_0922.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HOT_004",
@@ -372,7 +372,7 @@
     "st01": "Gほたる_01L.PNA"
    },
    "voice": "HOTARU_0924.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HUS_001",
@@ -393,7 +393,7 @@
     "bg01": "BG13_01S.PNG"
    },
    "voice": null,
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HUS_001",
@@ -414,7 +414,7 @@
     "st01": "D亜紗_02M.PNA"
    },
    "voice": "ASA_0383.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HUS_001",
@@ -434,7 +434,7 @@
     "st04": "D亜紗_03W.PNA"
    },
    "voice": "YORU_0312.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HUS_001",
@@ -452,7 +452,7 @@
     "st04": "D亜紗_02L.PNA"
    },
    "voice": "ASA_0407.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HUS_001",
@@ -473,7 +473,7 @@
     "st03": "D亜紗_01M.PNA"
    },
    "voice": "ASA_0435.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "HUS_001",
@@ -489,7 +489,7 @@
    },
    "orig": {},
    "voice": "YORU_0358.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_1001",
@@ -501,7 +501,7 @@
    "prod": {},
    "orig": {},
    "voice": "KANA_0119.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_2001",
@@ -522,7 +522,7 @@
     "st02": "I佳奈子_01M.PNA"
    },
    "voice": "KANA_0228.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_2002",
@@ -542,7 +542,7 @@
     "bg01": "BG12_01S.PNG"
    },
    "voice": null,
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_2004",
@@ -563,7 +563,7 @@
     "st03": "I佳奈子_01M.PNA"
    },
    "voice": "KANA_0388.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_2004",
@@ -588,7 +588,7 @@
     "st05": "E夜瑠_01M.PNA"
    },
    "voice": "KOTORI_1698.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_2004",
@@ -606,7 +606,7 @@
     "st05": "E夜瑠_01M.PNA"
    },
    "voice": "YORU_0262.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_2004",
@@ -622,7 +622,7 @@
     "st01": "I佳奈子_01M.PNA"
    },
    "voice": null,
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_2004",
@@ -642,7 +642,7 @@
     "st01": "佳奈子ST02_M.PNA"
    },
    "voice": null,
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_3001_5",
@@ -663,7 +663,7 @@
     "st02": "D亜紗_01M.PNA"
    },
    "voice": "ASA_0363.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_3002_1",
@@ -681,7 +681,7 @@
     "bg01": "BG04_02S.PNG"
    },
    "voice": null,
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_3004_2",
@@ -699,7 +699,7 @@
     "bg01": null
    },
    "voice": "MOB09_0001.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_3004_2",
@@ -723,7 +723,7 @@
     "st01": "佳奈子ST02_M.PNA"
    },
    "voice": "KANA_1155.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_3004_2",
@@ -744,7 +744,7 @@
     "st01": "EST_1022.PNG"
    },
    "voice": null,
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_3004_2",
@@ -765,7 +765,7 @@
     "st01": "I佳奈子_01L.PNA"
    },
    "voice": null,
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_3004_2",
@@ -777,7 +777,7 @@
    "prod": {},
    "orig": {},
    "voice": "KANA_1199.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_3004_2",
@@ -789,7 +789,7 @@
    "prod": {},
    "orig": {},
    "voice": null,
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_3004_2",
@@ -807,7 +807,7 @@
     "bg01": null
    },
    "voice": "KANA_1218.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_3004_2",
@@ -819,7 +819,7 @@
    "prod": {},
    "orig": {},
    "voice": "KANA_1221.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   },
   {
    "script": "KAN_3004_2",
@@ -831,7 +831,7 @@
    "prod": {},
    "orig": {},
    "voice": "KANA_1222.OGG",
-   "evidence": "doc/lessons-learned.md §17／§27"
+   "evidence": "doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条"
   }
  ],
  "review": [

@@ -9,7 +9,7 @@
 （own，即该槽演出前缀区内、上一条 `0x14` 之后）的显示演出，若原版对齐行**在屏**没有
 这张图，就是「多余的 Steam 演出」⇒ `action=drop`，由写盘器删掉那一块。
 
-为什么只有本表能拦住（见 doc/lessons-learned.md §17／§27）
+为什么只有本表能拦住（见 doc/lessons-learned.md 「同名冲突表管不到」条／「匹配行即假定演出一致」条）
 --------------------------------------------------------
 Steam 把原版**事件 CG 的显示点换成背景 + 立绘**（两侧**异名**）：
   · 同名冲突判定表 `censor_map.json` 入口是「同名两侧字节不同」⇒ 不进表；
@@ -23,7 +23,7 @@ Steam 把原版**事件 CG 的显示点换成背景 + 立绘**（两侧**异名*
 * 对齐：Steam 槽 → 原版行取自 `resource/carrier_map.json` 的 `anchor`／`match`
   **等长 1:1** 块线性内插；只作用于**保留槽**（未被 `restore_plan` drop 的槽）。
 * 可信：该对两侧**本槽自带语音号**必须相等（含两侧皆无）。不等 ⇒ 承载图 1:1 是
-  **假配对**（token 骨架相等、内容不同，见 doc/lessons-learned.md §14／§16），
+  **假配对**（token 骨架相等、内容不同，见 doc/lessons-learned.md 「token 形状相同 ≠ 内容相同」条／「取集合的声明必须写明范围」条），
   一律只登记 `review`、**不自动处置**。
 
 用法
@@ -127,7 +127,7 @@ def main(argv=None):
                      'orig_row': orig_row if orig_row is not None else s2o.get(k),
                      'action': mode, 'kind': kind, 'channels': sorted(set(chans)),
                      'prod': dict(prod), 'orig': dict(orig), 'voice': voice,
-                     'evidence': 'doc/lessons-learned.md §17／§27'}
+                     'evidence': 'doc/lessons-learned.md「同名冲突表管不到」条／「匹配行即假定演出一致」条'}
                 _so[k] = e
                 sites.append(e)
             else:
@@ -164,7 +164,7 @@ def main(argv=None):
             # 可信：两侧本槽自带语音号**相等**（含两侧皆无）。不等即判承载图假配对 ⇒ 不自动处置
             # ——实测放宽为「原版无语音也采信承载图」会放进 4 个**假锚**（EN 与日文明显不是同一句，
             # 如 AGE_005 s182「You really think so?」↔「あげはの指が、胸元に動く。」），
-            # 会把别的行的演出搬过来。宁可留 REVIEW 交人工，也不静默搬错（见 lessons-learned §27）。
+            # 会把别的行的演出搬过来。宁可留 REVIEW 交人工，也不静默搬错（见 doc/lessons-learned.md「匹配行即假定演出一致」条）。
             pv, ov = P['own'].get('voice'), O['own'].get('voice')
             # 人工定案（`resource/align_fixes.json`）按「同句」核过 ⇒ 直接可信；否则只认
             # 「两侧自带语音号相等」。
@@ -192,7 +192,7 @@ def main(argv=None):
             p_clr = {c for c in (P['own'].get('clear') or ()) if c.startswith(('st', 'bg'))}
             o_clr = {c for c in (O['own'].get('clear') or ()) if c.startswith(('st', 'bg'))}
             # 判据按**通道→图名**比（不是图名集合）——两版把同一张图放在不同通道号时，
-            # 只比图名集合会漏掉「通道号错位」，而错位会在后续清屏/换图时发散（见 §27）。
+            # 只比图名集合会漏掉「通道号错位」，而错位会在后续清屏/换图时发散（见 doc/lessons-learned.md「匹配行即假定演出一致」条）。
             if trust and (p_sb != o_sb or p_clr != o_clr):
                 add_site(k, sorted(set(p_sb) | set(o_sb)), 'replace', p_sb, o_sb,
                          (P['own'].get('voice') or [None])[0], mode='replace', orig_row=r)
