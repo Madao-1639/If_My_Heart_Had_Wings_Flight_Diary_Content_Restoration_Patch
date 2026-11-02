@@ -19,7 +19,7 @@
 {"script": "BEF_003", "orig_row": 252, "region": 0, "h_level": "H", "jp": "「ん、んちゅ、ちゅ、ちゅ、ちゅっ……ちゅぱっ、ちゅぷぷ！\\n　んぷっ、ん、ん、ん、んんっ……んんぅ……じゅるっ！」%K%P", "cn": "「唔、唔啾、啾、啾、啾……啾啪、啾噗噗！\\n　唔噗、唔、唔、唔、唔唔……唔唔……啾噜！」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_003", "orig_row": 253, "region": 0, "h_level": "H", "jp": "舌と舌を絡ませ、唇でついばみ合う。%K%P", "cn": "舌头互相缠绕，嘴唇彼此轻啄。%K%P", "note": "垦噬为乱码，ついばみ→轻啄", "src": "reviewed"}
 {"script": "BEF_003", "orig_row": 254, "region": 0, "h_level": "H", "jp": "唾液をすすり、すすりきれない分が、机の上に垂れて落ちる。%K%P", "cn": "我们吸吮着唾液，来不及吸尽的部分滴落在课桌上。%K%P", "note": "鳖面(机の上)为乱码→桌子上", "src": "reviewed"}
-{"script": "BEF_003", "orig_row": 255, "region": 0, "h_level": "H", "jp": "天音は、まるで空腹の猛獣のように、夢中で俺の唇を{貪:むさぼ}った。%K%P", "cn": "天音如同饥饿的猛兽，忘情地贪恋着我的嘴唇。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "BEF_003", "orig_row": 255, "region": 0, "h_level": "H", "jp": "天音は、まるで空腹の猛獣のように、夢中で俺の唇を{貪:むさぼ}った。%K%P", "cn": "天音如同饥饿的猛兽，忘情地{贪:むさぼ}恋着我的嘴唇。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_003", "orig_row": 256, "region": 0, "h_level": "H", "jp": "「はぁ、はぁ……はむ、むちゅっ、ちゅっ、ちゅぱっ……\\n　ん、んちゅ、ちゅぷぷっ、んぷぷっ……ちゅ、ちゅちゅっ」%K%P", "cn": "「哈啊、哈啊……啊呣、唔啾、啾、啾啪……\\n　唔、唔啾、啾噗噗、唔噗噗……啾、啾啾」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_003", "orig_row": 257, "region": 0, "h_level": "H", "jp": "その激しいキスに、俺の頭は発熱したように、だんだんぼーっとしてきた。%K%P", "cn": "这激烈的吻让我的脑袋像发了烧一般，渐渐迷糊起来。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_003", "orig_row": 258, "region": 0, "h_level": "H", "jp": "理性が薄れ、衝動が強く湧き起こる。%K%P", "cn": "理智渐渐消退，强烈的冲动涌上心头。%K%P", "note": "", "src": "gemini_norm"}
@@ -64,7 +64,7 @@
 {"script": "BEF_003", "orig_row": 297, "region": 0, "h_level": "H", "jp": "俺は、何も答えず目を逸らす。%K%P", "cn": "我没有回答，只是移开了视线。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_003", "orig_row": 298, "region": 0, "h_level": "H", "jp": "「さっきから、私の手がべとべとだぞ。\\n　これはなにかなぁ……？」%K%P", "cn": "「从刚才起，我的手就黏糊糊的了。\\n　这是什么呢……？」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_003", "orig_row": 299, "region": 0, "h_level": "H", "jp": "「それは……」%K%P", "cn": "「那是……」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "BEF_003", "orig_row": 300, "region": 0, "h_level": "H", "jp": "唇が触れ合う至近距離から、天音はニヤリと笑いながら、{淫靡:いんび}な瞳で俺の目を覗き込む。%K%P", "cn": "两人的嘴唇近得几乎相触，天音坏笑着，用淫靡的目光望进我的双眼。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "BEF_003", "orig_row": 300, "region": 0, "h_level": "H", "jp": "唇が触れ合う至近距離から、天音はニヤリと笑いながら、{淫靡:いんび}な瞳で俺の目を覗き込む。%K%P", "cn": "两人的嘴唇近得几乎相触，天音坏笑着，用{淫靡:いんび}的目光望进我的双眼。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_003", "orig_row": 301, "region": 0, "h_level": "H", "jp": "天才と呼ばれる彼女の目は、俺の全てを見透かしてしまいそうで。%K%P", "cn": "她被称为天才，那双眼睛仿佛能看穿我的一切。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_003", "orig_row": 302, "region": 0, "h_level": "H", "jp": "俺は、心の奥底にある欲望を知られることを恐れながら、どこか「見てほしい」という願望があることも感じていた。%K%P", "cn": "我害怕她看透我心底的欲望，却也察觉到，自己隐隐希望「让她看见」。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_003", "orig_row": 303, "region": 0, "h_level": "H", "jp": "きっとこの人なら、それを受け入れてくれるだろうから。%K%P", "cn": "因为我相信，换作她，一定能接纳这一切。%K%P", "note": "", "src": "gemini_norm"}

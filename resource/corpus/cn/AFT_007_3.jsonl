@@ -353,7 +353,7 @@
 {"script": "AFT_007_3", "orig_row": 404, "region": 0, "h_level": "H", "jp": "「むぅ……」%K%P", "cn": "「唔……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "AFT_007_3", "orig_row": 405, "region": 0, "h_level": "H", "jp": "「心配しないわけじゃないけど……」%K%P", "cn": "「也不是不担心……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "AFT_007_3", "orig_row": 406, "region": 0, "h_level": "H", "jp": "「……けど？」%K%P", "cn": "「……可是？」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "AFT_007_3", "orig_row": 407, "region": 0, "h_level": "H", "jp": "「一応、{証:・}は用意したから」%K%P", "cn": "「毕竟，我已经准备好信物了」%K%P", "note": "", "src": "gemini_norm"}
+{"script": "AFT_007_3", "orig_row": 407, "region": 0, "h_level": "H", "jp": "「一応、{証:・}は用意したから」%K%P", "cn": "「毕竟，我已经准备好{信:・}{物:・}了」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "AFT_007_3", "orig_row": 408, "region": 0, "h_level": "H", "jp": "「？？」%K%P", "cn": "「？？」%K%P", "note": "", "src": "punct"}
 {"script": "AFT_007_3", "orig_row": 409, "region": 0, "h_level": "H", "jp": "「それはまたな」%K%P", "cn": "「这个以后再说」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "AFT_007_3", "orig_row": 410, "region": 0, "h_level": "H", "jp": "適当にはぐらかすと、俺は抱き付く小鳥を引きずって歩きだした。%K%P", "cn": "我随口搪塞过去，拖着紧抱住我的小鸟迈开脚步。%K%P", "note": "", "src": "gemini_norm"}

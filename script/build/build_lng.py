@@ -33,12 +33,12 @@ try:
 except Exception:
     pass
 
-from tool import arcbuild, lng, paths, ws2, ws2dis  # noqa: E402
+from tool import arcbuild, lng, paths, textfix, ws2, ws2dis  # noqa: E402
 
 # 假名 = 平假名（U+3041–U+309F）+ 片假名字母（U+30A1–U+30FA）。
 # **不含**片假名标点块 U+30FB–U+30FF（`・` 中点 / `ー` 长音符 / `♪` 邻域）——
 # 本作原版正文用 `・` 做逐字强调（`お・ち・○・ち・ん`），中文照抄该写法是**刻意**的。
-KANA = re.compile(r'[\u3041-\u309f\u30a1-\u30fa]')
+KANA = re.compile(r'[\u3041-\u309f\u30a1-\u30fa]')   # 只查正文；注音 `{正文:读音}` 的读音是元数据，先经 textfix.strip_ruby 剥掉
 
 
 def load_corpus(script):
@@ -152,7 +152,7 @@ def main():
             assert len(texts) == _p14 + _pch,                 '%s lng %d 条 != 产物文本槽位 %d（0x14 %d + 选项 %d）' % (
                     sc, len(texts), _p14 + _pch, _p14, _pch)
         empty = [i for i, t in enumerate(texts) if not t.strip()]
-        kana = [i for i, t in enumerate(texts) if KANA.search(t)]
+        kana = [i for i, t in enumerate(texts) if KANA.search(textfix.strip_ruby(t))]
         assert not empty, '%s lng 有 %d 条空条目（首 %s）' % (sc, len(empty), empty[:5])
         assert not kana, '%s lng 有 %d 条假名残留（首 %s）' % (sc, len(kana), kana[:5])
         for t in texts:

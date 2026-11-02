@@ -13,12 +13,18 @@ import os
 import re
 import sys
 
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from tool import textfix  # noqa: E402
+
 try:
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 except Exception:
     pass
 
-KANA = re.compile('[\u3040-\u309f\u30a1-\u30fa]')
+KANA = re.compile('[\u3040-\u309f\u30a1-\u30fa]')   # 只查正文；注音读音是元数据，先经 textfix.strip_ruby 剥掉
 NL = chr(92) + 'n'
 PUNCT = '\u3000-\u303f\uff00-\uffef\u2018-\u201d\u2026\u2014'
 CORP = 'resource/corpus/cn'
@@ -79,7 +85,7 @@ def main():
                 cn = str(r.get('cn', ''))
                 if not cn.strip():
                     fails.append('%s \u539f\u7248\u884c %d \u8bed\u6599\u4e3a\u7a7a' % (sc, row))
-                if KANA.search(cn):
+                if KANA.search(textfix.strip_ruby(cn)):
                     fails.append('%s \u539f\u7248\u884c %d \u8bed\u6599\u542b\u5047\u540d' % (sc, row))
     print('\u8ba1\u5212\u63d2\u5165\u683c %d \u4e2a\uff0c\u8986\u76d6/\u975e\u7a7a/\u65e0\u5047\u540d \u68c0\u67e5\u5b8c\u6210' % n_ins)
 
