@@ -370,7 +370,7 @@
 {"script": "BEF_004", "orig_row": 924, "region": 1, "h_level": "H", "jp": "「どういたしまして」%K%P", "cn": "「不客气。」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_004", "orig_row": 925, "region": 1, "h_level": "H", "jp": "いつの間にか、天音のストレス解消のためにエッチしたことになっているけど……%K%P", "cn": "不知不觉，做色色的事倒成了帮天音缓解压力……%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_004", "orig_row": 926, "region": 1, "h_level": "H", "jp": "「（そこは結果オーライってことにしとこう）」%K%P", "cn": "「（就当结果好，一切都好吧。）」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "BEF_004", "orig_row": 927, "region": 1, "h_level": "H", "jp": "「イスカさんのことは、あまり気にしない方がいいよ。\\n　何か理由があったんだと思うし、きっとすぐ仲直りできるよ」%K%P", "cn": "「伊斯卡同学的事，你还是别太放在心上。\\n　我想她一定有什么理由，你们肯定很快就能和好的。」%K%P", "note": "", "src": "gemini_norm"}
+{"script": "BEF_004", "orig_row": 927, "region": 1, "h_level": "H", "jp": "「イスカさんのことは、あまり気にしない方がいいよ。\\n　何か理由があったんだと思うし、きっとすぐ仲直りできるよ」%K%P", "cn": "「伊斯卡学姐的事，你还是别太放在心上。\\n　我想她一定有什么理由，你们肯定很快就能和好的。」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_004", "orig_row": 928, "region": 1, "h_level": "H", "jp": "「ふんっだ。イスカなんてもう知らない」%K%P", "cn": "「哼。伊斯卡怎样都跟我没关系了。」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_004", "orig_row": 929, "region": 1, "h_level": "H", "jp": "ツン、とした態度で天音が言う。%K%P", "cn": "天音摆出一副冷淡的态度说道。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "BEF_004", "orig_row": 930, "region": 1, "h_level": "H", "jp": "鼻の頭にのせたメガネを、くいっと指で押し上げながら。%K%P", "cn": "同时伸出手指，把滑到鼻尖的眼镜往上推了推。%K%P", "note": "", "src": "gemini_norm"}

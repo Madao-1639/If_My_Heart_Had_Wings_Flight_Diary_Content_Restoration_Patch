@@ -409,7 +409,7 @@
 {"script": "AGS_001", "orig_row": 408, "region": "whole", "h_level": "H", "jp": "「……あーちゃんのそこ、すごく広がってる……やらしい……」%K%P", "cn": "「……扬羽酱的那里，张得好开……好色情……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "AGS_001", "orig_row": 409, "region": "whole", "h_level": "H", "jp": "「はあ、はあ……こ、こら、そんなこと言える\\n　立場じゃないでしょ……」%K%P", "cn": "「哈啊，哈啊……喂、喂，你现在哪有资格\\n　说这种话……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "AGS_001", "orig_row": 410, "region": "whole", "h_level": "H", "jp": "「ん、わかった」%K%P", "cn": "「嗯，知道了。」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "AGS_001", "orig_row": 411, "region": "whole", "h_level": "H", "jp": "「踏んじゃえ。碧も、ほら」%K%P", "cn": "「踩你。碧也来，快。」%K%P", "note": "", "src": "gemini_norm"}
+{"script": "AGS_001", "orig_row": 411, "region": "whole", "h_level": "H", "jp": "「踏んじゃえ。碧も、ほら」%K%P", "cn": "「尽管踩吧。碧也来，快。」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "AGS_001", "orig_row": 412, "region": "whole", "h_level": "H", "jp": "「ほたる……その……本当に、大丈夫なのか？」%K%P", "cn": "「萤……那个……你真的，没事吗？」%K%P", "note": "龟→吗", "src": "reviewed"}
 {"script": "AGS_001", "orig_row": 413, "region": "whole", "h_level": "H", "jp": "「平気……だよ……はぁ……」%K%P", "cn": "「没关系……的……哈啊……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "AGS_001", "orig_row": 414, "region": "whole", "h_level": "H", "jp": "「そ、そうか」%K%P", "cn": "「是、是吗。」%K%P", "note": "", "src": "gemini_norm"}

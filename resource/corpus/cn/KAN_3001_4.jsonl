@@ -9,22 +9,22 @@
 {"script": "KAN_3001_4", "orig_row": 8, "region": 0, "h_level": "H", "jp": "徐々に息苦しさが増すに連れて、頭上からの笑い声が大きくなってくる。%K%P", "cn": "呼吸越来越困难，头顶传来的笑声也越来越大。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 9, "region": 0, "h_level": "H", "jp": "んんー……何なんだ、一体……？%K%P", "cn": "唔……到底在搞什么……？%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 10, "region": 0, "h_level": "H", "jp": "「あー、起きちゃった」%K%P", "cn": "「啊，醒了」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 11, "region": 0, "h_level": "H", "jp": "…………佳奈子さん？%K%P", "cn": "…………佳奈子姐？%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 11, "region": 0, "h_level": "H", "jp": "…………佳奈子さん？%K%P", "cn": "…………佳奈子学姐？%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 12, "region": 0, "h_level": "H", "jp": "「んん？　まだ寝惚けてる？」%K%P", "cn": "「嗯？还没睡醒？」%K%P", "note": "龟→吗；寝惚けてる=睡迷糊", "src": "reviewed"}
 {"script": "KAN_3001_4", "orig_row": 13, "region": 0, "h_level": "H", "jp": "「んがっ」%K%P", "cn": "「唔嘎」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 14, "region": 0, "h_level": "H", "jp": "つんつんと、また鼻を摘まれた。%K%P", "cn": "她又戳了戳，捏住我的鼻子。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 15, "region": 0, "h_level": "H", "jp": "「んふふ……ホントにふがふが言ってる」%K%P", "cn": "「嗯呵呵……真的会发出唔嘎唔嘎的声音呢」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 16, "region": 0, "h_level": "H", "jp": "なぜ、どうして佳奈子さんが……？%K%P", "cn": "为什么，佳奈子姐怎么会……？%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 16, "region": 0, "h_level": "H", "jp": "なぜ、どうして佳奈子さんが……？%K%P", "cn": "为什么，佳奈子学姐怎么会……？%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 17, "region": 0, "h_level": "H", "jp": "この状況を把握しようと、寝起きの脳がゆっくりと覚醒していく。%K%P", "cn": "为了弄清眼下的情况，刚睡醒的大脑慢慢清醒过来。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 18, "region": 0, "h_level": "H", "jp": "あ、そうか。昨日は……。%K%P", "cn": "啊，对了。昨天……。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 19, "region": 0, "h_level": "H", "jp": "「お、おはようございます」%K%P", "cn": "「早、早上好」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 20, "region": 0, "h_level": "H", "jp": "「おはよーう」%K%P", "cn": "「早上好～」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 21, "region": 0, "h_level": "H", "jp": "佳奈子さんはあの時と同じく、白いシーツ以外何も身につけていなかった。%K%P", "cn": "佳奈子姐和那时候一样，身上除了白色床单，什么也没穿。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 21, "region": 0, "h_level": "H", "jp": "佳奈子さんはあの時と同じく、白いシーツ以外何も身につけていなかった。%K%P", "cn": "佳奈子学姐和那时候一样，身上除了白色床单，什么也没穿。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 22, "region": 0, "h_level": "H", "jp": "窓から射し込む陽光で薄い布地越しに体のラインが透けて見える。%K%P", "cn": "窗外射进来的阳光，透过薄薄的布料勾勒出她身体的曲线。%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 23, "region": 0, "h_level": "H", "jp": "……本当に俺、佳奈子さんとシちゃったんだよな。%K%P", "cn": "……我真的和佳奈子姐做了啊。%K%P", "note": "龟→啊", "src": "reviewed"}
+{"script": "KAN_3001_4", "orig_row": 23, "region": 0, "h_level": "H", "jp": "……本当に俺、佳奈子さんとシちゃったんだよな。%K%P", "cn": "……我真的和佳奈子学姐做了啊。%K%P", "note": "龟→啊", "src": "reviewed"}
 {"script": "KAN_3001_4", "orig_row": 24, "region": 0, "h_level": "H", "jp": "幸せな気持ちがこみ上げてくる。%K%P", "cn": "幸福的感觉涌上心头。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 25, "region": 0, "h_level": "H", "jp": "「碧くんの目がまたエロくなってるわねー」%K%P", "cn": "「碧君的眼神又变得色眯眯的了」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 26, "region": 0, "h_level": "H", "jp": "胸元を押さえながら、俺から庇うように体をよじる佳奈子さん。%K%P", "cn": "佳奈子姐按住胸口，像是要躲避我一般扭过身。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 26, "region": 0, "h_level": "H", "jp": "胸元を押さえながら、俺から庇うように体をよじる佳奈子さん。%K%P", "cn": "佳奈子学姐按住胸口，像是要躲避我一般扭过身。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 27, "region": 0, "h_level": "H", "jp": "「――碧くんの、ケダモノ♪」%K%P", "cn": "「——碧君这个禽兽♪」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 28, "region": 0, "h_level": "H", "jp": "「け、ケダモノって……」%K%P", "cn": "「禽、禽兽什么的……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 29, "region": 0, "h_level": "H", "jp": "「あ、違った。エロエロかあ」%K%P", "cn": "「啊，说错了。应该叫大色鬼」%K%P", "note": "", "src": "gemini_norm"}
@@ -38,7 +38,7 @@
 {"script": "KAN_3001_4", "orig_row": 37, "region": 0, "h_level": "H", "jp": "「うん」%K%P", "cn": "「嗯」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 38, "region": 0, "h_level": "H", "jp": "「うっ……」%K%P", "cn": "「唔……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 39, "region": 0, "h_level": "H", "jp": "からかわれていると分かっていても、反論の『は』の文字すら出てこない。%K%P", "cn": "明知道她在逗我，我却连一句反驳都说不出来。%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 40, "region": 0, "h_level": "H", "jp": "完全に佳奈子さんのペースだ。%K%P", "cn": "完全被佳奈子姐牵着鼻子走了。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 40, "region": 0, "h_level": "H", "jp": "完全に佳奈子さんのペースだ。%K%P", "cn": "完全被佳奈子学姐牵着鼻子走了。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 41, "region": 0, "h_level": "H", "jp": "「んふふ♪\\n　ま、今日のところはこれぐらいにしてあげる」%K%P", "cn": "「嗯呵呵♪\\n　好吧，今天就饶你到这里」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 42, "region": 0, "h_level": "H", "jp": "「あ、ありがとうございます……」%K%P", "cn": "「谢、谢谢……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 43, "region": 0, "h_level": "H", "jp": "いつもより激しめなからかいから解放され、自然とため息が漏れた。%K%P", "cn": "终于从比平时更厉害的调侃中解脱，我不由得叹了口气。%K%P", "note": "", "src": "gemini_norm"}
@@ -49,7 +49,7 @@
 {"script": "KAN_3001_4", "orig_row": 48, "region": 0, "h_level": "H", "jp": "「え……これ、もしかしてあたしが？」%K%P", "cn": "「诶……这个，难道是我……？」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 49, "region": 0, "h_level": "H", "jp": "「た、多分そうじゃないかと」%K%P", "cn": "「大、大概是吧」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 50, "region": 0, "h_level": "H", "jp": "「こんなに血が出てたのぉー？\\n　道理であんなに痛かったワケだわ……」%K%P", "cn": "「居然出了这么多血？\\n　难怪会那么疼……」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 51, "region": 0, "h_level": "H", "jp": "さり気なくシーツの血の部分を隠しながら、佳奈子さんは納得したように呟いた。%K%P", "cn": "佳奈子姐若无其事地遮住床单上的血迹，恍然般低声说道。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 51, "region": 0, "h_level": "H", "jp": "さり気なくシーツの血の部分を隠しながら、佳奈子さんは納得したように呟いた。%K%P", "cn": "佳奈子学姐若无其事地遮住床单上的血迹，恍然般低声说道。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 52, "region": 0, "h_level": "H", "jp": "「でも、これでよーやくスッキリしたわ」%K%P", "cn": "「不过，这下总算弄清楚了」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 53, "region": 0, "h_level": "H", "jp": "「何がです？」%K%P", "cn": "「什么？」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 54, "region": 0, "h_level": "H", "jp": "「あなたの看病をした時のことよ。\\n　やっぱり、何もなかったんだなーってね」%K%P", "cn": "「就是照顾你生病时的事啊。\\n　果然什么都没发生呢」%K%P", "note": "", "src": "gemini_norm"}
@@ -57,20 +57,20 @@
 {"script": "KAN_3001_4", "orig_row": 56, "region": 0, "h_level": "H", "jp": "「当たり前じゃないですか。\\n　あの時は、まだそういう関係じゃなかったのに」%K%P", "cn": "「这不是当然的吗。\\n　那时候，我们还不是这种关系啊」%K%P", "note": "龟→吗；遥→呢", "src": "reviewed"}
 {"script": "KAN_3001_4", "orig_row": 57, "region": 0, "h_level": "H", "jp": "そんな、相手の信頼を裏切るような真似、一体誰ができるというのか。%K%P", "cn": "那种背叛对方信任的事，谁能做得出来啊。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 58, "region": 0, "h_level": "H", "jp": "「ん～～……それはどーかしらねぇ？」%K%P", "cn": "「唔～……这可不好说呢？」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 59, "region": 0, "h_level": "H", "jp": "しかし佳奈子さんは、ジトーっとした視線を向けてくる。%K%P", "cn": "可佳奈子姐却投来怀疑的目光。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 59, "region": 0, "h_level": "H", "jp": "しかし佳奈子さんは、ジトーっとした視線を向けてくる。%K%P", "cn": "可佳奈子学姐却投来怀疑的目光。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 60, "region": 0, "h_level": "H", "jp": "「何でですか！」%K%P", "cn": "「为什么啊！」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 61, "region": 0, "h_level": "H", "jp": "「だって碧くん、思ってた以上にスケベだったし」%K%P", "cn": "「因为碧君比我想象中还要好色嘛」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 62, "region": 0, "h_level": "H", "jp": "「お、男という生き物は全員スケベなんです！」%K%P", "cn": "「男、男人这种生物，全都是好色的！」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 63, "region": 0, "h_level": "H", "jp": "「そこで開き直らないでよー」%K%P", "cn": "「别在这种时候理直气壮啊」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 64, "region": 0, "h_level": "H", "jp": "「す、すみません。\\n　でも佳奈子さんだって悪いんですから」%K%P", "cn": "「对、对不起。\\n　可是，佳奈子姐也有错啊」%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 64, "region": 0, "h_level": "H", "jp": "「す、すみません。\\n　でも佳奈子さんだって悪いんですから」%K%P", "cn": "「对、对不起。\\n　可是，佳奈子学姐也有错啊」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 65, "region": 0, "h_level": "H", "jp": "「えーー……どーしてよぉ？」%K%P", "cn": "「诶……为什么呀？」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 66, "region": 0, "h_level": "H", "jp": "「か、佳奈子さんが魅力的すぎるからです！」%K%P", "cn": "「因、因为佳奈子姐太有魅力了！」%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 66, "region": 0, "h_level": "H", "jp": "「か、佳奈子さんが魅力的すぎるからです！」%K%P", "cn": "「因、因为佳奈子学姐太有魅力了！」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 67, "region": 0, "h_level": "H", "jp": "「へ？」%K%P", "cn": "「诶？」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 68, "region": 0, "h_level": "H", "jp": "きょとんとする佳奈子さん。%K%P", "cn": "佳奈子姐愣住了。%K%P", "note": "鴃住→愣住（きょとん）", "src": "reviewed"}
+{"script": "KAN_3001_4", "orig_row": 68, "region": 0, "h_level": "H", "jp": "きょとんとする佳奈子さん。%K%P", "cn": "佳奈子学姐愣住了。%K%P", "note": "鴃住→愣住（きょとん）", "src": "reviewed"}
 {"script": "KAN_3001_4", "orig_row": 69, "region": 0, "h_level": "H", "jp": "「好きな女の子が身を任せてくれて、\\n　自分のすることを受け入れてくれて……」%K%P", "cn": "「喜欢的女孩子把身体交给我，\\n　接受我对她做的一切……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 70, "region": 0, "h_level": "H", "jp": "「だから俺も自分を抑えられなくて、それで」%K%P", "cn": "「所以我才控制不住自己，然后就……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 71, "region": 0, "h_level": "H", "jp": "「……また恥ずかしいこと言って、\\n　誤魔化そうとしてないー？」%K%P", "cn": "「……你是不是又想说些让人害羞的话，\\n　蒙混过去啊？」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 72, "region": 0, "h_level": "H", "jp": "言いつつ、佳奈子さんも満更ではなさそうだった。%K%P", "cn": "嘴上这么说，佳奈子姐看起来却并不讨厌。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 72, "region": 0, "h_level": "H", "jp": "言いつつ、佳奈子さんも満更ではなさそうだった。%K%P", "cn": "嘴上这么说，佳奈子学姐看起来却并不讨厌。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 73, "region": 0, "h_level": "H", "jp": "「っと、そろそろ起きないと」%K%P", "cn": "「啊，差不多该起床了」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 74, "region": 0, "h_level": "H", "jp": "朝食の支度があるので、朝はいつも早めにアラームを設定していた。%K%P", "cn": "因为要准备早餐，我一向把早上的闹钟设得很早。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 75, "region": 0, "h_level": "H", "jp": "「じゃあ、あたしも戻ろっかなー」%K%P", "cn": "「那我也该回去了」%K%P", "note": "", "src": "gemini_norm"}
@@ -79,7 +79,7 @@
 {"script": "KAN_3001_4", "orig_row": 78, "region": 0, "h_level": "H", "jp": "「あー……そりゃそうですね」%K%P", "cn": "「啊……也是」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 79, "region": 0, "h_level": "H", "jp": "間違いなく昨晩の比じゃない勢いで、質問攻めを受けるに決まってる。%K%P", "cn": "肯定会遭到比昨晚厉害得多的追问。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 80, "region": 0, "h_level": "H", "jp": "「それじゃ着替えないと……」%K%P", "cn": "「那得先穿上衣服……」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 81, "region": 0, "h_level": "H", "jp": "シーツを纏ったまま、佳奈子さんがベッドを降りていく。%K%P", "cn": "佳奈子姐裹着床单，从床上下来。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 81, "region": 0, "h_level": "H", "jp": "シーツを纏ったまま、佳奈子さんがベッドを降りていく。%K%P", "cn": "佳奈子学姐裹着床单，从床上下来。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 82, "region": 0, "h_level": "H", "jp": "脱ぎ散らかしたまま服を手に取って――。%K%P", "cn": "拿起脱下来后散落在地上的衣服——。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 83, "region": 0, "h_level": "H", "jp": "「こーらっ、後ろ向いてなさいってば」%K%P", "cn": "「喂，都说了转过身去啦」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 84, "region": 0, "h_level": "H", "jp": "「ッ！　すみません！」%K%P", "cn": "「！对不起！」%K%P", "note": "", "src": "gemini_norm"}
@@ -88,17 +88,17 @@
 {"script": "KAN_3001_4", "orig_row": 87, "region": 0, "h_level": "H", "jp": "「――はい、もういいわよ」%K%P", "cn": "「——好了，可以了」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 88, "region": 0, "h_level": "H", "jp": "「わ、分かりました」%K%P", "cn": "「知、知道了」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 89, "region": 0, "h_level": "H", "jp": "しかし照れくさくて、顔を上げることができない。%K%P", "cn": "可我害羞得抬不起头。%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 90, "region": 0, "h_level": "H", "jp": "佳奈子さんの言うとおり、俺って、本当にエロエロなのかもしれない。%K%P", "cn": "就像佳奈子姐说的，我可能真的很色。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 90, "region": 0, "h_level": "H", "jp": "佳奈子さんの言うとおり、俺って、本当にエロエロなのかもしれない。%K%P", "cn": "就像佳奈子学姐说的，我可能真的很色。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 91, "region": 0, "h_level": "H", "jp": "「ん……ちゅ」%K%P", "cn": "「唔……啾」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 92, "region": 0, "h_level": "H", "jp": "ふわり、と頬に甘い感触が触れた。%K%P", "cn": "轻柔甜蜜的触感，落在脸颊上。%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 93, "region": 0, "h_level": "H", "jp": "キスされたんだと実感する間もなく、佳奈子さんが離れていく。%K%P", "cn": "我还没来得及意识到自己被亲了，佳奈子姐就已经离开。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 93, "region": 0, "h_level": "H", "jp": "キスされたんだと実感する間もなく、佳奈子さんが離れていく。%K%P", "cn": "我还没来得及意识到自己被亲了，佳奈子学姐就已经离开。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 94, "region": 0, "h_level": "H", "jp": "「じゃねー」%K%P", "cn": "「待会儿见～」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 95, "region": 0, "h_level": "H", "jp": "「あ……」%K%P", "cn": "「啊……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 96, "region": 0, "h_level": "H", "jp": "「……今の不意打ちは反則だって」%K%P", "cn": "「……刚才那种偷袭，太犯规了吧」%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 97, "region": 0, "h_level": "H", "jp": "佳奈子さんのことが酷く恋しい。今すぐ後を追いかけたくなってしまう。%K%P", "cn": "我无比想念佳奈子姐，恨不得立刻追上去。%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 98, "region": 0, "h_level": "H", "jp": "「佳奈子さん……」%K%P", "cn": "「佳奈子姐……」%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 97, "region": 0, "h_level": "H", "jp": "佳奈子さんのことが酷く恋しい。今すぐ後を追いかけたくなってしまう。%K%P", "cn": "我无比想念佳奈子学姐，恨不得立刻追上去。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 98, "region": 0, "h_level": "H", "jp": "「佳奈子さん……」%K%P", "cn": "「佳奈子学姐……」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 99, "region": 0, "h_level": "H", "jp": "呟いた瞬間、顔から火が出そうになる。%K%P", "cn": "低声念出这个名字的瞬间，我的脸像要烧起来。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 100, "region": 0, "h_level": "H", "jp": "たまらず枕に顔を埋める。%K%P", "cn": "我受不了地把脸埋进枕头。%K%P", "note": "", "src": "gemini_norm"}
-{"script": "KAN_3001_4", "orig_row": 101, "region": 0, "h_level": "H", "jp": "ほのかに残っていた佳奈子さんの匂いに、ますます顔が熱くなってしまう。%K%P", "cn": "上面还淡淡留着佳奈子姐的气味，让我的脸越来越烫。%K%P", "note": "", "src": "gemini_norm"}
+{"script": "KAN_3001_4", "orig_row": 101, "region": 0, "h_level": "H", "jp": "ほのかに残っていた佳奈子さんの匂いに、ますます顔が熱くなってしまう。%K%P", "cn": "上面还淡淡留着佳奈子学姐的气味，让我的脸越来越烫。%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 102, "region": 0, "h_level": "H", "jp": "「はぁぁ……ヤバい」%K%P", "cn": "「唉……不妙啊」%K%P", "note": "", "src": "gemini_norm"}
 {"script": "KAN_3001_4", "orig_row": 103, "region": 0, "h_level": "H", "jp": "想えば想うほど、佳奈子さんに夢中になってしまいそうだ。%K%P", "cn": "越是想她，就越要为她着迷了。%K%P", "note": "", "src": "gemini_norm"}

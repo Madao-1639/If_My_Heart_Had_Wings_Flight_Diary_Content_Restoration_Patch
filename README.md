@@ -82,6 +82,8 @@ Steam 会检测出被修改的归档并重新下载，恢复到未安装状态�
 
 本作 `NameTable.txt` **原生放在基础 `Rio.arc`**（`zh-CN/Rio.arc` 只有 `.lng`），补丁遵循原生存放位置、不搬位；构建/闸用 `tool/lng.load_nametable()` 按「语言包优先、基础档兜底」取实际归档。
 
+**中文来源**：Steam 保留行沿用官方中文；还原行由 **GPT-6 Astra** 翻译（以原版日文为唯一依据），并逐句校订（人名、称谓与性描写用词全篇统一）。
+
 ### 三、成就
 
 不修改 Steam 的成就调用，也不改动脚本出口集合：删格时 `0xF0`、`0b` 解锁对、`SCENETITLE`/鉴赏 Hook 逐字节原位。机检：`CG_ACHIEVEMENT` 723、`0xF0` 33，逐脚本与 `backup/` 相同。
@@ -174,7 +176,7 @@ Steam 版把本作的 H 场景改写成全年龄段落，并为此新录配音�
 │   ├── checks/         验收闸（内容/演出/CG/PNA/语料）
 │   ├── scan/           勘察脚本（开发期，非流水线）
 │   ├── scope/          还原范围标定（开发期，产出 resource/restore_scope.json）
-│   ├── corpus/         中文语料构建（开发期）
+│   ├── corpus/         语料对齐/一次性修字脚本
 │   ├── generate_payload.py  生成增量补丁
 │   ├── final_verification.py 全量验收
 │   └── pack.sh         打包安装器
