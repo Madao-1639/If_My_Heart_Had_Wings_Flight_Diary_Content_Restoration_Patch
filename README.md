@@ -1,3 +1,5 @@
+简体中文 | [English](README_en.md)
+
 # 在这苍穹展翅 - 飞行日志 - 内容恢复与汉化补丁
 
 为 Steam 版[《If My Heart Had Wings -Flight Diary-》](https://store.steampowered.com/app/923810/)还原被移除的原版剧情，补回被整条删除的**姬城姐妹线**，同时保留 Steam 新增的**朱莉线**与**成就系统**，并把还原内容汉化。

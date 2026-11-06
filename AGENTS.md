@@ -58,6 +58,7 @@
 - 修改验收标准 → 更新 `doc/acceptance-criteria.md`
 - 确认新的还原范围 → 更新 `doc/restoration-targets.md`
 - 修改交付形态、打包或安装流程 → 更新 `doc/restoration-route.md` 与本文 §3
+- 修改 `README.md` 的结构或内容 → 同步 `README_en.md`（英文版面向英文开发者，不写汉化工作，改为说明「未做 localization、还原内容保留原版日文」）
 - 修改引擎机制认知（磁盘裸目录覆盖语义、`LAYER_ORDER` 行为、语言包目录） → 更新 `doc/engine-mechanics.md`
 - 重新标定本作 WS2 opcode 表 / lng 密钥 / 语音命名 → 同步 `doc/file-formats.md`、`doc/engine-mechanics.md` 与 `tool/`
 
