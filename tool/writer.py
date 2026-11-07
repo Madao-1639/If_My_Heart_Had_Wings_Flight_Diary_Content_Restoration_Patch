@@ -28,7 +28,8 @@ A-1 整脚本不走本模块（整脚本走 `tool.ws2conv.convert_script`，槽�
 import struct
 
 from tool import censormap, ws2, ws2dis, perfsync
-from tool.ws2conv import CONV, REBASE_OPS, parse as conv_parse
+from tool.ws2conv import (CONV, REBASE_OPS, parse as conv_parse,
+                          norm_op46_flag, norm_op47_flag, norm_flags as norm_orig_flags)
 
 BLOCK_STOP = {0x01, 0x02, 0x06, 0x07, 0xFF}   # 原版块在其前截断（其后属宿主结尾）
 
@@ -499,23 +500,6 @@ def drop_units(instrs, drop_slots, no_ach_slots=None):
     return kill | (cand - keep)
 
 
-def norm_op46_flag(ops):
-    """`0x46` 子层槽绑定标志的跨引擎归一：原版工具链 `0x80` → Steam 工具链 `0xf0`。
-
-    `0x46` 第一条（把 PNA 子层绑到引擎层槽，操作数含 4 个层槽 id 浮点）带 1 字节标志，
-    原版工具链写 `0x80`、Steam 工具链写 `0xf0`（两侧全库 ~7.6k 处零交叉；`0x00`＝纯
-    坐标定位，两侧一致）。原版块带着 `0x80` 进 Steam 引擎会欠绑定子层槽——未重绑的槽
-    保留上一次显示的子图 ⇒ 上一处的立绘残留在屏、压在后续 CG 上，直到清槽指令
-    （实机定案见 doc/lessons-learned.md「0x46 子层槽标志」条目）。幂等；产出端
-    （`build_patch.prep_orig`，供整脚本转换路径）与本函数（`_conv`，供移植/期望序列）
-    共用，两侧必须一致。
-    """
-    i = ops.find(b'\x00')
-    if 0 <= i and len(ops) > i + 3 and ops[i + 3] == 0x80:
-        return ops[:i + 3] + b'\xf0' + ops[i + 4:]
-    return ops
-
-
 def _conv(op, ops, names=None):
     rule = CONV.get(op)
     if rule is None:
@@ -530,6 +514,8 @@ def _conv(op, ops, names=None):
         else:
             ops2 = ops + b'\x00\x00\x00\x00'
     if op == 0x46:
+        # 幂等：原版指令表在解析时已由 `norm_orig_flags` 归一过一次（`0x47` 的同类
+        # 归一依赖流内前文，只能在整表那一层做）。
         ops2 = norm_op46_flag(ops2)
     if names:
         ops2 = apply_names(ops2, names)
@@ -599,20 +585,6 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
     restore_frame = plan.get('restore_frame', True)
     perf_sync = plan.get('perf_sync') or {}
     perf_noop = sorted({int(x) for x in (plan.get('perf_sync_noop') or ())})
-    # 动画离场→CG 转换点的显式清屏兜底（人工定案入库，见 resource/anim_exit_clears.json）：
-    # 搬入块的 09/45/47/48/57 动画组在 Steam 引擎上的终点与原版不一致（实测 AFT_007_3
-    # 槽 226 的离场动画把 st02 移到屏内 (178,297) 而非退场 ⇒ 小鳥压在后续 CG 上）。
-    # 凡「动画后紧接 CG 显示、且 CG 块不显式清该通道」的点，在**该原版行的第一条
-    # 33/34 显示指令前**补 `37 <通道>`（与第三方补丁同型解法：动画照放，视觉由清屏保证）。
-    anim_exit_clears = {int(k): list(v) for k, v in (plan.get('anim_exit_clears') or {}).items()}
-    anim_clear_log = []
-
-    def _pending_clears(row, seen):
-        """该行的清屏通道（每行只发一次）。"""
-        if row in anim_exit_clears and row not in seen:
-            seen.add(row)
-            return anim_exit_clears[row]
-        return []
     skip_o = {int(x) for x in (plan.get('skip_orig') or ())}
     names = {k.encode('ascii'): v.encode('ascii') for k, v in plan.get('names', {}).items()}
 
@@ -624,6 +596,7 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
         oinstrs, otail = plan['orig_instrs']
     else:
         oinstrs, otail = conv_parse(orig_dec, orig_fmts)
+        oinstrs = norm_orig_flags(oinstrs)      # 跨引擎标志字节（0x46/0x47），长度不变
     if plan.get('orig_offs') is not None:
         # 插过指令后累计偏移不再等于原始解码流偏移 ⇒ 由调用方提供每条的原始偏移
         # （插入指令给唯一负哨兵值，永不与真实目标碰撞）。
@@ -769,28 +742,18 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
         base = len(out)
         rel = {}
         q = 0
-        cur_row, cleared = r0, set()
         for j in range(i0, i1):
             if j in skip_o:                 # 剥离块内的原版指令（如回想出口三连）
                 continue
             op, ops = oinstrs[j]
-            for _c in _pending_clears(cur_row, cleared):   # 清屏长度计入块内偏移预计算
-                q += 2 + len(_c)
             prev_op = oinstrs[j - 1][0] if j > i0 and (j - 1) not in skip_o else None
             extra = CHOICE_HDR_LEN if (op == 0x0F and prev_op != 0x0E) else 0  # 选项头
             rel[ooff[j]] = q + extra
             q += extra + 1 + len(_conv(op, ops, names))
-            if op == 0x14:
-                cur_row += 1
-        cur_row, cleared = r0, set()
         for j in range(i0, i1):
             if j in skip_o:
                 continue
             op, ops = oinstrs[j]
-            for _c in _pending_clears(cur_row, cleared):   # 行首条显示指令前发清屏
-                out.extend(b'\x37' + _c.encode('cp932') + b'\x00')
-                cur_state.pop(_c, None)
-                anim_clear_log.append({'anchor': anchor, 'row': cur_row, 'chan': _c})
             ops2 = _conv(op, ops, names)
             if op == 0x14:
                 # 池序号全量重算：插入行的 `14.id` 必须改写为新槽序。原版行号与
@@ -847,7 +810,6 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
                 row = o14.index(j)
                 slot_sources.append(('orig', row))
                 pool += 1
-                cur_row = row + 1
             elif op == 0x0F:
                 # 每个条目各占一个文本槽位（与 0x14 共用计数器）：登记来源并推进 pool。
                 for _so, _to, _lo, jo, kind, val in choice_ents:
@@ -1034,5 +996,4 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
         'perf_add': {k: len(v) for k, v in sorted(perf_add.items())},
         'perf_noop': perf_noop,
         'state_fix': state_fix_log,
-        'anim_clear': anim_clear_log,
     }

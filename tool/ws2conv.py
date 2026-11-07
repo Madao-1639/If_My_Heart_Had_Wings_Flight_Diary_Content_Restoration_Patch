@@ -151,6 +151,66 @@ def parse(data, fmts):
     raise AssertionError('parse ran off end without 0xff')
 
 
+# ── 跨引擎「标志字节」归一（长度不变；产出端与各闸共用同一实现）────────────────
+# 两侧工具链对这两条同族指令的取值**零交叉**，带着原版取值进 Steam 引擎会落在目标引擎
+# 自身的编码词表外（0x46 欠绑定子层槽、0x47 参数来源不可依赖）。语义实证见
+# doc/engine-mechanics.md「0x47 Effect1」，闸为 script/checks/op46_flag_check.py。
+
+def norm_op46_flag(ops):
+    """`0x46` 子层槽绑定标志：原版工具链 `0x80` → Steam 工具链 `0xf0`（幂等）。
+
+    `0x46 <通道>\\0 <i16> <u8 标志> <f32×4>`；原版全库取值 {`0x00`, `0x80`}、
+    Steam 全库 {`0x00`, `0xf0`}。带 `0x80` 进 Steam 引擎会欠绑定子层槽——未重绑的槽
+    保留上一次显示的子图 ⇒ 上一处的立绘残留在屏（实机定案见 doc/lessons-learned.md）。
+    """
+    i = ops.find(b'\x00')
+    if 0 <= i and len(ops) > i + 3 and ops[i + 3] == 0x80:
+        return ops[:i + 3] + b'\xf0' + ops[i + 4:]
+    return ops
+
+
+def norm_op47_flag(ops, last_drag_type):
+    """`0x47` Effect1 的参数来源标志：原版 `0x80` → Steam `0x10` / `0xc0`（幂等）。
+
+    语义（原版引擎 `sub_440E60` 之外的真身 `sub_44E060` 实读，IDA 13338）：
+    `0x47 <通道>\\0 <特效>\\0 <u16 sel> <u8 A> <u8 B> <f32 p0..p4> <u16 X> <f32 秒>`；
+    `B` 的 **bit7 =「后随 5 个 f32 是浮点变量表索引」**（bit7=0 ⇒ 字面值）。
+    v1.0 工具链只写 `0x00`/`0x80`；新版工具链把这一位拆成「字面 `0x10` / 变量 `0xc0`」，
+    并**跟随紧邻的上一条 `0x45`(DragBackground) 的 type**：type 6（复位/缩放）⇒ `0x10`，
+    其余（0/2… 移动）⇒ `0xc0`。
+
+    依据：参考实现 `GalRevserse/advhd_ws2_tools/Ws2/Opcodes/Effect1.php`（update 模式
+    `config[3] === 128 → lastDragType === 6 ? 16 : 192`）；Steam 侧同位置逐条对齐
+    1,404 条样本 99.3% 命中（`sel == 0` 规则与其在全库零分歧）。
+    """
+    i = ops.find(b'\x00')
+    j = ops.find(b'\x00', i + 1) if i >= 0 else -1
+    if j < 0 or len(ops) <= j + 4 or ops[j + 4] != 0x80:
+        return ops
+    return ops[:j + 4] + (b'\x10' if last_drag_type == 6 else b'\xc0') + ops[j + 5:]
+
+
+def norm_flags(instrs):
+    """整表标志字节归一（`0x46` + `0x47`，长度不变 ⇒ 偏移可直接沿用）。
+
+    `0x47` 的取值依赖**流内前文**（上一条 `0x45` 的 type），所以必须按脚本整体走一遍，
+    不能逐条独立调用。返回新的 `[(op, ops)]`；对已是 Steam 取值的流是恒等变换。
+    """
+    out = []
+    drag = None
+    for op, ops in instrs:
+        if op == 0x46:
+            ops = norm_op46_flag(ops)
+        elif op == 0x45:
+            k = ops.find(b'\x00')
+            if k >= 0 and len(ops) >= k + 3:
+                drag = int.from_bytes(ops[k + 1:k + 3], 'little', signed=True)
+        elif op == 0x47:
+            ops = norm_op47_flag(ops, drag)
+        out.append((op, ops))
+    return out
+
+
 def convert(instrs, orig_offs=None):
     """应用格式差转换，并重定基块内跳转（跨块目标由调用方二次回写）。
 

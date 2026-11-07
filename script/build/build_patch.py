@@ -45,7 +45,6 @@ from tool import censormap  # noqa: E402  （9XX 号段命名隔离）
 ACH = (0x04, b'CG_ACHIEVEMENT\x00')
 JUMP_RENAME = {'KAN_3002_2': {'KAN_3002_3_E': 'KAN_3003_E'}}
 REPLAY_GUARDS = os.path.join(ROOT, 'resource', 'replay_guards.json')
-ANIM_CLEARS = os.path.join(ROOT, 'resource', 'anim_exit_clears.json')
 VARIANT_TABLE = os.path.join(ROOT, 'resource', 'variant_routes.json')
 
 
@@ -115,8 +114,18 @@ def prep_orig(dec, orig_fmts, name_map, jump_map, pna_map=None):
     for op, ops in ins:
         offs.append(q)
         q += 1 + len(ops)
+    # 跨引擎标志字节归一（与 `0x39` 记录号映射同类；长度不变 ⇒ 偏移不受影响）：
+    #   0x46 子层槽绑定标志 0x80 → 0xf0
+    #   0x47 参数来源标志   0x80 → 0x10 / 0xc0（按上一条 `0x45` 的 type）
+    # 整脚本转换路径（`ws2conv.convert`）不经 `writer._conv`，必须在此整表归一；
+    # 语义与映射依据见 `tool/writer.norm_orig_flags` / `norm_op47_flag`、
+    # doc/engine-mechanics.md「0x47 Effect1」。
+    _raw = ins
+    ins = writer.norm_orig_flags(ins)
+    n_46 = sum(1 for a, b in zip(_raw, ins) if a[0] == 0x46 and a[1] != b[1])
+    n_47 = sum(1 for a, b in zip(_raw, ins) if a[0] == 0x47 and a[1] != b[1])
     stage = []
-    n_lc = n_jmp = n_ids = n_46 = 0
+    n_lc = n_jmp = n_ids = 0
     id_miss = []
     disp = {}
     for j, (op, ops) in enumerate(ins):
@@ -149,17 +158,8 @@ def prep_orig(dec, orig_fmts, name_map, jump_map, pna_map=None):
                     id_miss.append({'op': j, 'chan': chan[0],
                                     'member': disp.get(chan[0]), 'ids': miss})
         elif op == 0x46:
-            # 子层槽绑定标志归一（跨引擎移植，与 0x39 记录号映射同类）：`0x46` 第一条
-            # （绑定 PNA 子层到引擎层槽）的标志字节，原版工具链写 `0x80`、Steam 工具链
-            # 写 `0xf0`（全库 ~7.6k 处零交叉；`0x00`＝纯坐标定位，两侧一致）。原版块
-            # 带着 `0x80` 进 Steam 引擎会欠绑定子层槽——未重绑的槽保留上一次显示的
-            # 子图 ⇒ 「上一处的立绘未去除、压在后续 CG 上，直到清槽」。整脚本转换路径
-            # （`ws2conv.convert`）不经 `writer._conv`，必须在此归一；判据与移植路径
-            # 共用 `writer.norm_op46_flag`（幂等）。
-            ops_n = writer.norm_op46_flag(ops)
-            if ops_n != ops:
-                ops = ops_n
-                n_46 += 1
+            # 子层槽绑定标志 0x80 → 0xf0；幂等（整表归一已在函数开头做过）
+            ops = writer.norm_op46_flag(ops)
         if op == 0x15:
             q2 = ops.find(b'\x00')
             if q2 > 3 and ops[:3] == b'%LC':
@@ -184,7 +184,8 @@ def prep_orig(dec, orig_fmts, name_map, jump_map, pna_map=None):
         j += 1
     if id_miss:
         raise SystemExit('0x39 记录号映射缺项 %r' % (id_miss[:5],))
-    return out, ooffs, tail, {'lc': n_lc, 'jump': n_jmp, 'ach': n_ach, 'ids': n_ids, 'flag46': n_46}
+    return out, ooffs, tail, {'lc': n_lc, 'jump': n_jmp, 'ach': n_ach, 'ids': n_ids,
+                             'flag46': n_46, 'flag47': n_47}
 
 
 def site_noop(sc, slot, sinstrs, s14off, oin, o14, r, scope, deliver, kept):
@@ -201,7 +202,6 @@ def main():
     plan = json.load(open(os.path.join(ROOT, 'resource', 'restore_plan.json'), encoding='utf-8'))
     scope = json.load(open(os.path.join(ROOT, 'resource', 'restore_scope.json'), encoding='utf-8'))
     guards = (json.load(open(REPLAY_GUARDS, encoding='utf-8')) or {}).get('scripts') or {}
-    anim_clears_all = json.load(open(ANIM_CLEARS, encoding='utf-8'))
     name_map = plan['meta']['name_map']
     deliver = perfsync.delivery_names(paths.STEAM)
     kept = perfsync.censored_keep_names() if hasattr(perfsync, 'censored_keep_names') else perfsync.censored_kept_names()
@@ -294,7 +294,7 @@ def main():
                    'perf_sync': p.get('perf_sync') or {},
                    'perf_sync_noop': noop,
                    'jump_rename': JUMP_RENAME.get(sc, {}), 'script': sc,
-                   'anim_exit_clears': anim_clears_all.get(sc) or {}}
+                   }
             # 回想出口三连的搬运纪律（`resource/replay_guards.json`）：Steam 删了头部回想分派，
             # 孤立地搬回出口 => flag127=1 且 var110==k 时正常播放也会提前 NextFile EVRET。
             triads = replay_exit_triads(ins)
@@ -372,12 +372,12 @@ def main():
             assert _n16b == 0, '%s 变体帧内出现 0x16 ×%d（拼接器缺陷）' % (sc, _n16b)
             steam_members[i] = (steam_members[i][0], res['raw'])
             slots = [[k, v] for k, v in res['slot_sources']]
-            report.append('| %s | host | %s | %d 槽（插 %d） | fixup=%d/%d（回落 %d） | lc=%d jump=%d ach=%d ids=%d flag46=%d | noop=%d |'
+            report.append('| %s | host | %s | %d 槽（插 %d） | fixup=%d/%d（回落 %d） | lc=%d jump=%d ach=%d ids=%d flag46=%d flag47=%d | noop=%d |'
                           % (sc, p['steam_file'], res['n_slots'],
                              sum(r[2] - r[1] + 1 for r in p['inserts']),
                              res['fixups'] - res['fix_bad'], res['fixups'],
                              res['fix_fallback'], st['lc'], st['jump'], st['ach'], st['ids'],
-                             st['flag46'], len(res['perf_noop'])))
+                             st['flag46'], st['flag47'], len(res['perf_noop'])))
         slot_sources[sc] = {'steam_file': p['steam_file'], 'kind': p['kind'], 'slots': slots}
         if sc in variant_detail:
             # 变体布局（供闸门直接使用：条目落点 brA/brB、汇合点 conf、区间、槽位信息）

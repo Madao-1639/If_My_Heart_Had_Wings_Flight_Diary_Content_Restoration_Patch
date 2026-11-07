@@ -31,6 +31,7 @@ if ROOT not in sys.path:
 
 from tool import arcbuild, ws2, ws2dis, perfsync, paths, variants, writer  # noqa: E402
 from tool.ws2conv import load_orig_formats, parse as conv_parse  # noqa: E402
+from tool import ws2conv  # noqa: E402
 
 
 def members(path):
@@ -146,7 +147,6 @@ def main(argv=None):
     plan = json.load(open(os.path.join(ROOT, 'resource', 'restore_plan.json'), encoding='utf-8'))
     slots_all = json.load(open(os.path.join(ROOT, 'resource', 'slot_sources.json'), encoding='utf-8'))
     scope = json.load(open(os.path.join(ROOT, 'resource', 'restore_scope.json'), encoding='utf-8'))
-    anim_clears = json.load(open(os.path.join(ROOT, 'resource', 'anim_exit_clears.json'), encoding='utf-8'))
     deliver = perfsync.delivery_names(os.path.join(ROOT, 'backup'))
     kept_censored = perfsync.censored_kept_names()
     prod = members(os.path.join(args.product, 'Rio.arc'))
@@ -208,6 +208,9 @@ def main(argv=None):
                     if ctx is None:
                         sinstrs2 = ws2dis.disassemble(ws2.decode(steam[sf]), formats=ws2dis.FORMATS)[0]
                         oins2, _t2 = conv_parse(ws2.decode(orig[of]), load_orig_formats(orig_dir))
+                        # 与产出端同口径：跨引擎标志字节（0x46/0x47）归一后再比签名，
+                        # 否则拿原版取值去要求产物会误报 replace-order（见 tool/ws2conv.norm_flags）
+                        oins2 = ws2conv.norm_flags(oins2)
                         ctx = {'ins': sinstrs2,
                                's14': [o2 for o2, op2, _s2, _x2 in sinstrs2 if op2 == 0x14],
                                'idx': {x[0]: k2 for k2, x in enumerate(sinstrs2)},
@@ -236,14 +239,6 @@ def main(argv=None):
                     stat['perf_sync_skip'] += 1
                 continue
             ps, rs = _own_sig(pr[i]['own']), _own_sig(ref['own'])
-            # 动画离场清屏兜底（resource/anim_exit_clears.json 人工定案）：产物按表在
-            # 该行补的 `37 <通道>` 是 Steam 引擎动画终点不一致的合法补偿，不计 own 差异
-            if src == 'orig':
-                _tbl = (anim_clears.get(sc) or {}).get(str(val))
-                if _tbl:
-                    _allowed = set(_tbl)
-                    ps['clear'] = tuple(c for c in ps['clear'] if c not in _allowed)
-                    rs['clear'] = tuple(c for c in rs['clear'] if c not in _allowed)
             if ps != rs:
                 stat['hard_own'] += 1
                 diff = {k: [ps[k], rs[k]] for k in ps if ps[k] != rs[k]}

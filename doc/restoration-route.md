@@ -54,7 +54,7 @@
 | **S1 差分扫描** | `backup/`（Steam）+ 原版目录 | 脚本级/成员级/像素级差分报告（脚本级已可用 `tool/ws2fmt.py` 做**指令级**比对） |
 | **S2 计划生成** ✅ | `resource/restore_scope.json` + `backup/` + 原版目录 | `resource/restore_plan.json`（逐脚本 `drops`/`inserts`/成就数）+ `tmp/restore_plan.md`；工具 `script/build/build_restore_plan.py` |
 | **S2b 立绘记录映射** ✅ | 计划 + `censor_map keep` 的 21 个同名 PNA + 两侧 `Graphic.arc` | `resource/pna_id_map.json`（原版记录号 → Steam 记录号、改画清单、层内修复/豁免清单）；工具 `script/build/build_pna_id_map.py`。**必须在 S3 之前**（写盘器要按表换算 `0x39`） |
-| **S3 写盘** ✅ | 计划 + `pna_id_map.json` + 原版脚本 | `asset/Rio.arc`（14 个 `*_E.ws2` 就地重建 + 新增 `AGS_001.ws2`；原版来源块的 `0x39` 记录号已按表换算、`0x46` 子层槽绑定标志已跨引擎归一（`0x80→0xf0`，见 [lessons-learned.md](lessons-learned.md) 「跨引擎版本归一」…条）；**回想出口三连按 `resource/replay_guards.json` 剥离**；**选项帧内的 `0x16` 按 `tool/ws2.drop_choice_frame_op16()` 剔除**（Steam 侧它会永久关闭输入门，删后提示句与选项同屏）、**末尾 8 字节明文尾表按新条数重写**、**动画离场→CG 转换点按 `resource/anim_exit_clears.json` 在 CG 显示前补 `37 <通道>`**（Steam 引擎上搬入动画终点与原版不一致，见 [lessons-learned.md](lessons-learned.md) 「立绘遮挡 CG」真根因…条））；**变体共存**：`resource/variant_routes.json` 声明的脚本在宿主重建后做「新增选项 / 变量路由」拼接（`tool/variants.py`，Steam 差分情节原字节接回，见 [restoration-scope.md](restoration-scope.md) §8）；工具 `script/build/build_patch.py` + `tool/writer.py` + `tool/pnaids.py` + `tool/variants.py`；槽位表 `resource/slot_sources.json` |
+| **S3 写盘** ✅ | 计划 + `pna_id_map.json` + 原版脚本 | `asset/Rio.arc`（14 个 `*_E.ws2` 就地重建 + 新增 `AGS_001.ws2`；原版来源块的 `0x39` 记录号已按表换算、`0x46` 子层槽绑定标志与 `0x47` 参数来源标志均已跨引擎归一（`0x80→0xf0` / `0x80→0x10|0xc0`，`tool/ws2conv.norm_flags`，见 [engine-mechanics.md](engine-mechanics.md) 「`0x47 Effect1` 语义与跨引擎标志换算」）；**回想出口三连按 `resource/replay_guards.json` 剥离**；**选项帧内的 `0x16` 按 `tool/ws2.drop_choice_frame_op16()` 剔除**（Steam 侧它会永久关闭输入门，删后提示句与选项同屏）、**末尾 8 字节明文尾表按新条数重写**）；**变体共存**：`resource/variant_routes.json` 声明的脚本在宿主重建后做「新增选项 / 变量路由」拼接（`tool/variants.py`，Steam 差分情节原字节接回，见 [restoration-scope.md](restoration-scope.md) §8）；工具 `script/build/build_patch.py` + `tool/writer.py` + `tool/pnaids.py` + `tool/variants.py`；槽位表 `resource/slot_sources.json` |
 | **S3b 画面覆盖** ✅ | `censor_map.json` + 两侧图像归档 | `asset/Graphic.arc`/`Chip*.arc` 同名整名覆盖；工具 `script/build/build_l3.py --write-asset` |
 | **S3c 素材补入** ✅ | `asset/` + 原版目录 | 缺失成员按原版名补入（`Graphic.arc`/`Chip1`/`Chip2`/`Se`）；工具 `script/build/build_l4_extra.py` |
 | **S3d 层内修复** ✅ | `pna_id_map.json` 的 `repair` + `asset/Graphic.arc` + 原版 | 把被 Steam 改画的子图/box 换回原版（不改记录数/顺序/画布）；工具 `script/build/build_pna_repair.py`。**必须在 S3b/S3c 之后**（以它们的产物为底），并把 `GRAPHIC.arc` 的文件名规范回 backup 的 `Graphic.arc` |
@@ -142,8 +142,7 @@
 闸门（两道，均为 HARD）：
 
 - `script/checks/insert_boundary_check.py`：每个**插入块入口**与 **`replace` 站点入口**的在屏状态必须与原版对应点一致（帧身份归一：`norm_sprite` + `_SC` 水印 + 同编号 `S`/`B` 同帧）；缺失/取值不同＝HARD（写盘器只发清，补/换必须走入库表）。
-- `script/checks/op46_flag_check.py`：产物所有 `0x46` 的子层槽绑定标志必须落在 Steam 引擎自身词表（`0x00`/`0xf0`），原版 `0x80` 计数必须为 0（见 [lessons-learned.md](lessons-learned.md) 「跨引擎版本归一」…条）。
-- `script/checks/anim_exit_clear_check.py`：`resource/anim_exit_clears.json` 逐条落地——产物中该原版行的前缀区内、第一条 `33/34` 显示指令之前存在对应 `37 <通道>`（位置与通道精确）；`perf_sync_check`/`perf_consistency_check` 按同一张表豁免（见 [lessons-learned.md](lessons-learned.md) 「立绘遮挡 CG」真根因…条）。
+- `script/checks/op46_flag_check.py`：产物 `0x46` 子层槽绑定标志 ∈ `{0x00,0xf0}`、`0x47` 参数来源标志 ∈ `{0x00,0x10,0xc0}`（均为 Steam 引擎自身词表），原版 `0x80` 计数必须为 0（语义见 [engine-mechanics.md](engine-mechanics.md) 「`0x47 Effect1` 语义与跨引擎标志换算」）。
 
 ---
 

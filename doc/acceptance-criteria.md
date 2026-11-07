@@ -8,7 +8,7 @@
 | 闸 | 命令 | 本作基线 |
 |---|---|---|
 | 全量验收 | `python script/final_verification.py` | 构建阶段 40 PASS / 0 FAIL / 2 SKIP（payload 未重建的 2 项明确 SKIP）；发布阶段（`--stage release`，payload 已重建）**41 PASS / 0 FAIL / 1 SKIP**（仅无语音重指表）；含 5c 层内修复回读（repair 3）、**2b 回想出口不得多于 Steam 基线**（`replay_guards.json` 7 条声明）、**9b 尾表**（112 个 `.ws2`）、**9c 选项头**、**9d 选项文本/人名规范**、**9e 人名帧一致性**、**9f 跳转自洽**、**9f2 `.lng` 槽位等式**、**9g 选项帧内无 `0x16`**、**9h 新增选项规则可复用（演练）** |
-| 演出同步 | `python script/checks/perf_sync_check.py` | 14,528 槽对账，HARD 0 / REVIEW 141（全部为 `AFT_007_3` 还原段边界的在屏状态差，见 [lessons-learned.md](lessons-learned.md)「立绘遮挡 CG」真根因…条所述的遗留、与变体无关——无变体基线同为 141）；判定表 41 条逐条落地；**顺序闸**：53 条 `replace` 槽的产物演出序列 = 原版行序列（逐条逐序，`perf_sync_checked 53`）；**前置检验**：命中「文本无需还原 + 演出序列已相同 + 素材原生」的站点不改字节、不跑顺序闸（当前 `perf_sync_noop 0`，纯回归保护） |
+| 演出同步 | `python script/checks/perf_sync_check.py` | 14,528 槽对账，HARD 0 / REVIEW 0；判定表 41 条逐条落地；**顺序闸**：53 条 `replace` 槽的产物演出序列 = 原版行序列（逐条逐序，`perf_sync_checked 53`）；**前置检验**：命中「文本无需还原 + 演出序列已相同 + 素材原生」的站点不改字节、不跑顺序闸（当前 `perf_sync_noop 0`，纯回归保护） |
 | CG 序列 | `python script/checks/cg_seq_check.py` | 25 脚本，同序 22 / 差异 3（= 变体共存追加的 Steam 体 CSEV 段，登记为继承审查差异）；HARD 0；REVIEW 0（变体分支体槽由 `variants.variant_body_slots` 跳过） |
 | CG 解锁 | `python script/checks/cg_unlock_check.py` | 1,669 个 CG 显示点（含变体体），有解锁对 1,668（唯一例外是白名单水印 CG `FDSDEV14_02B/S`）；**保留的 Steam 解锁对必须带 `04 CG_ACHIEVEMENT`**（逐实例）；成就钩子 **749 = Steam 基线 723 + 变体搬运体 107 − 原版分支剔除 81**（`variants.body_hook_counts` / `variants.ach_removed_counts`），逐脚本一致——**原版分支不再挂 Steam 的解锁对与成就钩子**（删格时不保留，成就由 Steam 分支原生提供）；CG 名零缺失。**不做跨分支重放**：分支体各带各的解锁点（多出的钩子会被本闸当场抓住） |
 | 变体共存 | `python script/checks/variant_route_check.py` | **15 脚本 / 8 变量**（`{1960,1961,1962,1965,1966,1967,1968,1969}`）：choice 8 个（KAN_3001_2、HUS_001、AFT_003、AFT_007_3、HOT_002、BEF_003、BEF_004、KAN_2001）+ route 7 个（KAN_3001_3/4/5、KAN_3002_1/2、HOT_003/004）；变量两侧基线 0 占用且各归其主；选项帧按**落盘布局**（`slot_sources[sc].variant.targets`）回读：条目落点/`0b var val`/`14 "%P"`/`0e` 头/提示句/汇合点；Steam 体与基线逐指令等值（route 整脚本 / choice 行区间），`KAN_3002_2` 的**声明尾跳分叉**（→ `3002_3_E`）单列；`variant`/`vchoice` 槽中文逐条非空；**画廊解锁点条件可达且归属各自分支**（Steam 站点不丢（还原区间豁免）/ 显示与解锁对同区 / 分支头部无连续 `0b` 夹带） |
@@ -28,8 +28,7 @@
 | 资源覆盖 | `python script/checks/restore_asset_coverage.py` | 0 缺口 |
 | 转换纯度 | `python script/checks/convert_purity.py` | 199,983 条指令 0 异常 |
 | 插入边界状态 | `python script/checks/insert_boundary_check.py` | 60 个插入块入口 + 53 个 `replace` 站点入口的在屏状态 == 原版对应点（帧身份归一：`norm_sprite` + `_SC` + 同编号 `S`/`B` 同帧）；缺失/取值不同＝HARD。写盘器在**插入块开头**与 **`replace` 补块之后**按原版对应点状态发清屏（`tool/writer.align_state`，移植姊妹作 V-11「只发清」机制，两处对齐点），补/换类修正必须走入库表、不得静默补 |
-| `0x46` 标志词表 | `python script/checks/op46_flag_check.py` | 产物所有 `0x46` 的子层槽绑定标志 ∈ Steam 引擎词表（`0x00`/`0xf0`）；原版 `0x80` 计数 = 0（跨引擎移植归一，`tool/writer.norm_op46_flag`；见 [lessons-learned.md](lessons-learned.md) 「跨引擎版本归一」…条） |
-| 动画离场清屏 | `python script/checks/anim_exit_clear_check.py` | `resource/anim_exit_clears.json` 逐条落地：产物中该原版行的前缀区内、第一条 `33/34` 显示指令前存在 `37 <通道>`（位置与通道精确）；搬入动画在 Steam 引擎终点与原版不一致（见 [lessons-learned.md](lessons-learned.md) 「立绘遮挡 CG」真根因…条），CG 前显式清屏兜底 |
+| `0x46`/`0x47` 标志词表 | `python script/checks/op46_flag_check.py` | 产物所有 `0x46` 子层槽绑定标志 ∈ `{0x00,0xf0}`、所有 `0x47` 参数来源标志 ∈ `{0x00,0x10,0xc0}`（均为 Steam 引擎自身词表）；原版取值（`0x80`）计数 = 0（跨引擎归一 `tool/ws2conv.norm_flags`；语义与依据见 [engine-mechanics.md](engine-mechanics.md)「`0x47 Effect1` 语义与跨引擎标志换算」） |
 
 本作成就基线：`CG_ACHIEVEMENT` **723 处 / 39 脚本**（产物 749 = 723 + 搬运体 107 − 原版分支剔除 81），`0xF0` **33 处**（逐脚本与 `backup/` 相同；`AGS_001.ws2` 为新增脚本，0 处）。交付归档 **13 个**（`asset/` 11 个 + `zh-CN/` 2 个）。
 `resource/carrier_map.json` 为**实表**（107 脚本 / 8,579 锚点），管演出判定表生成；产物侧逐槽对账走 `slot_sources`。
