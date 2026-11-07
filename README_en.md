@@ -26,10 +26,14 @@ run it.
 
 The installer goes through these steps:
 
-1. Locate the game folder (auto-detected from the Steam library; you can type the path manually)
-2. List the files that will be modified and wait for confirmation
-3. Merge the resources and overwrite the scripts in place
-4. Hash-verify every written file by reading it back
+1. Pick the installer language (Chinese / English, **Chinese by default** on Enter; `--ui-lang=en`
+   skips the prompt). Everything after that is printed in that single language
+2. Locate the game folder (auto-detected from the Steam library; you can type the path manually)
+3. List the files that will be modified and wait for confirmation
+4. Merge the resources and overwrite the scripts in place
+5. Hash-verify every written file by reading it back
+
+The installer writes no registry keys and does not change the game's default language: the `zh-CN/` language pack is deployed like any other file, and which language the game runs in is up to the game's own settings.
 
 The game folder is usually
 `<Steam library>\steamapps\common\IF MY HEART HAD WINGS FLIGHT DIARY`. You can delete the installer
