@@ -12,7 +12,7 @@ the source scripts; everything else keeps the **official English** text of the S
 
 For personal use with a legitimately purchased copy. This repository contains no game assets.
 
-> **Current version: v0.0.4** — content restoration, all route entries wired up, both performance
+> **Current version: v0.0.5** — content restoration, all route entries wired up, both performance
 > variants preserved; awaiting full play-through verification.
 
 ![Beamer](https://shared.steamstatic.com/store_item_assets/steam/apps/923810/library_hero.jpg?t=1573643900)
