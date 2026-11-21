@@ -1,16 +1,24 @@
 # -*- coding: utf-8 -*-
 """CG 解锁指令闸（产物 vs Steam 基线 vs 原版）。
 
-口径（按用户 2026-10-19 指示）：**不处理 CG 鉴赏页**，只保证解锁指令被保留：
-  1. 产物每一处 CG 显示都必须紧跟固有解锁对 `0x0b <A> 01 0x0b <B> 01`；
-     唯一白名单是 `FDSDEV14_02B/S`（原版与 Steam 两侧都没有该对，属水印 CG）。
-  2. 成就钩子 `04 CG_ACHIEVEMENT 00` 总数与逐脚本数必须等于 Steam 基线（本作 723）
-     ＋ 变体共存搬运体自带钩子（`variants.body_hook_counts`；分支体各带各的位点，
-     **不做跨分支重放** —— 选原版分支的玩家没看过 Steam 分支的 CG，不该解锁它）。
-  3. 信息项：列出 Steam 有、产物无的 B 编号（鉴赏页按 Steam 编号索引），
-     以及原版显示点在产物中完全消失的 CG 名。
+口径（用户 2026-10-28 定案：**ASF 解锁指令保存方式**，见 `doc/file-formats.md`
+「CG 显示的固有 id 对」与 `tool/cgunlock.py`）：
 
-退出码：1 = 第 1/2 项失败；第 3 项只报告。
+  1. HARD **禁止原版编号的解锁对**：产物里出现的每个 `0b A 01 0b B 01` 都必须是
+     Steam 原生对。原版编号在 `CG_PAGE*` / `CG_ACHIEVEMENT` 里不存在（置位是空操作），
+     但原版 B 值与 Steam 画廊条目号（1170..1488）**有重叠** ⇒ 会凭空点亮没看过的缩略图、
+     虚增 CG 完成度。
+  2. HARD **Steam 原生对守恒**：Steam 基线每个显示点（CG 名 → 解锁对）在产物**同名脚本**
+     里仍存在同一对。删格时组会被**提前到该删格之前的存活格入口**（位置变了，对不变）；
+     被替换区间里 Steam 专属的组同样前移 —— 所以这里**只比存在性，不比位置**。
+  3. HARD **画廊条目可达**：`CG_PAGE01..09` 的每个条目号 B 必须在产物全库被置位
+     （否则该缩略图永久锁死）；`CG_ACHIEVEMENT` 的最高阈值必须 ≤ 可置位条目数。
+  4. HARD 成就钩子 `04 CG_ACHIEVEMENT 00` 总数与逐脚本数必须等于 Steam 基线（本作 723）
+     ＋ 变体共存搬运体自带钩子（`variants.body_hook_counts`）− 原版分支剔除
+     （`variants.ach_removed_counts`）。
+  5. 信息项：列出 Steam 有、产物无的 B 编号，以及原版显示点在产物中完全消失的 CG 名。
+
+退出码：1 = HARD 项失败；第 5 项只报告。
 用法：工程根目录 `python script/checks/cg_unlock_check.py`
 """
 import collections
@@ -23,7 +31,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tool import arcbuild, variants, ws2, ws2dis, paths  # noqa: E402
+from tool import arcbuild, cgunlock, variants, ws2, ws2dis, paths  # noqa: E402
 
 CG_RX = re.compile(
     rb'^(?:(?:CSEV|AFT|BEF|HOT|HUS|KAN|NOV|AGS|KOT|AMA|HUT)_\d{2,4}_\d{2,4}[A-Z]?'
@@ -97,68 +105,189 @@ def _steam_pair_sigs(steam):
     return {(a, b) for _sc, _nm, a, b in scan(steam)[0]}
 
 
-def triads(src, sigs):
-    """**保留的 Steam 解锁对必须带 CG 解锁指令**：每个 Steam 画廊对实例，
-    同一拍点（到下一个 `0x14` 之前）内必须有 `04 CG_ACHIEVEMENT 00`。
+def hooked_pair_counts(src, sigs):
+    """→ {脚本: n}：**带同拍点 `04 CG_ACHIEVEMENT` 的解锁对实例**数（指令流口径）。
 
-    → [(脚本, 偏移, 对)]（缺钩子的）。还原替换时 writer 把 Steam 的 `0b` 对原位保留，
-    钩子必须跟着留——只留对不留钩子 = 成就点静默丢失（画廊点亮了、成就没弹）。
+    为什么按**计数**而不是按「某个对必须带钩子」：同名反查会把**原版还原块**里的解锁对
+    换成 Steam 编号（同一张画面两版各一套编号），那块**不得**补钩子
+    （`doc/engine-mechanics.md` §成就触发点契约 保留纪律 2「不新增任何成就触发指令」）。
+    按「对 → 必须带钩子」判会把这类正确位点误报成丢失；按计数则只看
+    「Steam 基线本来带钩子的那 N 个位点是否还在」（对留了钩子丢了 = 画廊亮而成就静默）。
     """
-    bad = []
+    out = {}
     for n, raw in sorted(src.items()):
         if not n.lower().endswith('.ws2'):
             continue
-        dec = ws2.decode(raw)
-        ins = ws2dis.disassemble(dec, formats=ws2dis.FORMATS)[0]
-        starts = {x[0]: i for i, x in enumerate(ins)}
+        ins = ws2dis.disassemble(ws2.decode(raw), formats=ws2dis.FORMATS)[0]
+        got = 0
         for i in range(len(ins) - 1):
             a, b = ins[i], ins[i + 1]
-            if not (a[1] == 0x0b and b[1] == 0x0b
-                    and a[3][2:3] == b'\x01' and b[3][2:3] == b'\x01'):
+            if not (a[1] == 0x0B and b[1] == 0x0B
+                    and len(a[3]) >= 3 and len(b[3]) >= 3
+                    and a[3][2:3] == bytes((1,)) and b[3][2:3] == bytes((1,))):
                 continue
             pair = (struct.unpack('<H', a[3][:2])[0], struct.unpack('<H', b[3][:2])[0])
             if pair not in sigs:
                 continue
-            j = starts[a[0]]
-            ok = False
-            for k in range(j + 2, len(ins)):
+            for k in range(i + 2, len(ins)):
                 if ins[k][1] == 0x14:
                     break
                 if ins[k][1] == 0x04 and ins[k][3].startswith(b'CG_ACHIEVEMENT'):
-                    ok = True
+                    got += 1
                     break
-            if not ok:
-                bad.append((n[:-4], a[0], pair))
-    return bad
+        out[n[:-4]] = got
+    return out
+
+
+def gallery_entries(steam):
+    """`CG_PAGE01..09` 的画廊条目号（`0x01 mode=2 id=B val=1.0`）→ {B}。"""
+    out = set()
+    for n, raw in sorted(steam.items()):
+        if not n.upper().startswith('CG_PAGE'):
+            continue
+        ins = ws2dis.disassemble(ws2.decode(raw), formats=ws2dis.FORMATS)[0]
+        for _off, op, sz, ops in ins:
+            if op != 0x01 or sz < 7 or ops[0] != 2:
+                continue
+            if struct.unpack('<f', ops[3:7])[0] == 1.0:
+                out.add(struct.unpack('<H', ops[1:3])[0])
+    return out
+
+
+def ach_threshold(steam):
+    """`CG_ACHIEVEMENT` 对计数旗标（55）的最大阈值；找不到返回 None。"""
+    name = next((k for k in steam if k.upper().startswith('CG_ACHIEVEMENT')), None)
+    if name is None:
+        return None
+    ins = ws2dis.disassemble(ws2.decode(steam[name]), formats=ws2dis.FORMATS)[0]
+    top = None
+    for _off, op, sz, ops in ins:
+        if op != 0x01 or sz < 7 or ops[0] != 0x80:
+            continue
+        if struct.unpack('<H', ops[1:3])[0] != 55:
+            continue
+        val = struct.unpack('<f', ops[3:7])[0]
+        top = val if top is None else max(top, val)
+    return top
+
+
+def _orig_members():
+    """原版发行目录的 Rio.arc 成员；目录不可用时返回 `None`（只跳过原版侧信息项）。"""
+    try:
+        return members(os.path.join(paths.orig_dir(), 'Rio.arc'))
+    except RuntimeError:
+        return None
+
+
+def pairs_by_script(src):
+    """{脚本: {(A, B)}}：每个脚本写过的**相邻**解锁对（指令流口径）。"""
+    out = {}
+    for n, raw in sorted(src.items()):
+        if not n.lower().endswith('.ws2'):
+            continue
+        ins = ws2dis.disassemble(ws2.decode(raw), formats=ws2dis.FORMATS)[0]
+        got = set()
+        for k in range(len(ins) - 1):
+            a, b = ins[k], ins[k + 1]
+            if (a[1] == 0x0B and b[1] == 0x0B
+                    and len(a[3]) >= 3 and len(b[3]) >= 3
+                    and a[3][2:3] == bytes((1,)) and b[3][2:3] == bytes((1,))):
+                got.add((struct.unpack('<H', a[3][:2])[0],
+                         struct.unpack('<H', b[3][:2])[0]))
+        out[n[:-4]] = got
+    return out
 
 
 def main():
     prod = members(os.path.join(ROOT, 'asset', 'Rio.arc'))
     steam = members(os.path.join(ROOT, 'backup', 'Rio.arc'))
-    orig = members(os.path.join(paths.orig_dir(), 'Rio.arc'))
+    orig = _orig_members()
 
     ps, pn, ph = scan(prod)
     ss, sn, sh = scan(steam)
-    os_, on, oh = scan(orig)
+    os_, on, oh = scan(orig) if orig else ([], [], {})
 
     fails = []
-    # 1. 解锁对
-    bad_pair = [(sc, nm) for sc, nm in pn if nm not in PAIR_WHITELIST]
-    for sc, nm in bad_pair:
-        fails.append('缺解锁对: %s %s' % (sc, nm))
-    # 1b. 保留的 Steam 解锁对必须带 CG 解锁指令（替换时只能「整组留」：对 + `04`）
-    bad_triad = triads(prod, _steam_pair_sigs(steam))
-    for sc, off, pair in bad_triad:
-        fails.append('解锁对 %s @%s 缺 `04 CG_ACHIEVEMENT`（对留了、成就点丢了）' % (pair, hex(off)))
-    # 2. 成就钩子：期望 = Steam 基线；变体共存脚本（resource/variant_routes.json）把
-    #    Steam 体**原字节**接回产物 ⇒ 期望 = 基线 + 搬运体自带的钩子数（双版本各带各的，
-    #    不丢基线钩子，也不判多余为缺陷）。
+    idx, native = cgunlock.steam_index(
+        {k: v for k, v in steam.items() if k.lower().endswith('.ws2')})
+    # 1. 解锁对的内容判据：每处 CG 显示**必须在同一格内**点亮自己的画廊条目——
+    #    即本格（前缀区 + 该显示之后到下一个 `0x14`）内出现「显示名 → Steam 解锁对」
+    #    里的那个 B。位置不限（ASF 口径允许把组**提前**到删格之前的存活格入口，
+    #    也允许原版还原的显示点不带组——那类由「抛弃原版独有 / 同名反查」兜住）。
+    #    白名单 = 两侧都没有该对的水印 CG。
+    ins_by_script = {}
+    for n, raw in sorted(prod.items()):
+        if n.lower().endswith('.ws2'):
+            ins_by_script[n[:-4]] = ws2dis.disassemble(
+                ws2.decode(raw), formats=ws2dis.FORMATS)[0]
+    for sc, nm in pn:
+        if nm in PAIR_WHITELIST:
+            continue
+        want = idx.get(nm)
+        if want is None:
+            continue                     # Steam 自己就没给这张图登记条目
+        ins = ins_by_script.get(sc) or []
+        ok = False
+        for k, (_off, op, _sz, ops) in enumerate(ins):
+            if op != 0x33:
+                continue
+            parts = [x for x in ops.split(bytes((0,))) if x]
+            if len(parts) < 2 or parts[1].decode('ascii', 'replace').upper() != nm:
+                continue
+            beat = []
+            for j in range(k + 1, len(ins)):
+                if ins[j][1] == 0x14:
+                    break
+                beat.append(ins[j])
+            ids = set()
+            for j in range(len(beat) - 1):
+                a, b = beat[j], beat[j + 1]
+                if (a[1] == 0x0B and b[1] == 0x0B
+                        and a[3][2:3] == bytes((1,)) and b[3][2:3] == bytes((1,))):
+                    ids.add(struct.unpack('<H', b[3][:2])[0])
+            if want[1] in ids:
+                ok = True
+                break
+        if not ok:
+            fails.append('缺解锁对（同格未点亮 B=%d）: %s %s' % (want[1], sc, nm))
+    # 1b. 禁止**原版编号**的解锁对：Steam 画廊/计数表里没有这些 id，但原版 B 值域
+    #     （1180..1922）与 Steam 条目号（1170..1488）重叠 ⇒ 会误点亮没看过的缩略图。
+    cg_spec = cgunlock.scan(
+        {k: v for k, v in prod.items() if k.lower().endswith('.ws2')}, idx, native)
+    for sc, spec in sorted(cg_spec.items()):
+        if spec['drop']:
+            for off, a, b in spec['drop'][:3]:
+                fails.append('%s 仍有原版编号解锁对 (%d, %d) @%s（应抛弃，见 tool/cgunlock.py）'
+                             % (sc, a, b, hex(off)))
+        if spec['repoint']:
+            for off, a, b, a2, b2 in spec['repoint'][:3]:
+                fails.append('%s 同名解锁对未反查 (%d,%d) → (%d,%d) @%s'
+                             % (sc, a, b, a2, b2, hex(off)))
+    # 1c. 保留的 Steam 解锁对必须带 CG 解锁指令（替换时只能「整组留」：对 + `04`）
     vt_steam = {}
     _vtp = os.path.join(ROOT, 'resource', 'variant_routes.json')
     if os.path.exists(_vtp):
         vt_steam = {k: v for k, v in steam.items() if k.endswith('.ws2')}
     body_hooks = variants.body_hook_counts(vt_steam) if vt_steam else {}
     removed = variants.ach_removed_counts()      # 原版分支（A 体）剔除的 Steam 钩子
+
+    _sig = _steam_pair_sigs(steam)
+    _w_s = hooked_pair_counts(steam, _sig)
+    _w_p = hooked_pair_counts(prod, _sig)
+    for _sc, _n in sorted(_w_s.items()):
+        _got = _w_p.get(_sc)
+        if _got is None:
+            continue
+        # 期望 = **Steam 基线**带钩子的位点数（不减不增）：
+        #   * 搬运体（Steam 体原字节接回）本身就在基线之内 ⇒ 不能加；
+        #   * 原版分支剔除的钩子本来就不在基线计数里（剔的是原版块那批）⇒ 不能减。
+        _want = _n
+        if _got < _want:
+            fails.append('%s 带钩子的解锁对实例 %d < 期望 %d（对留了、成就点丢了）'
+                         % (_sc, _got, _want))
+    # 2. 成就钩子：期望 = Steam 基线；变体共存脚本（resource/variant_routes.json）把
+    #    Steam 体**原字节**接回产物 ⇒ 期望 = 基线 + 搬运体自带的钩子数（双版本各带各的，
+    #    不丢基线钩子，也不判多余为缺陷）。
     expect_total = EXPECT_HOOKS + sum(body_hooks.values()) - sum(removed.values())
     total = sum(ph.values())
     if total != expect_total:
@@ -171,6 +300,40 @@ def main():
             fails.append('%s 成就钩子 %d != 期望 %d（基线 %d + 变体体 %d − 剔除 %d）'
                          % (sc, ph[sc], want, n, body_hooks.get(sc + '.ws2', 0),
                             removed.get(sc + '.ws2', 0)))
+
+    # 2b. Steam 原生对守恒（脚本粒度、只比存在性：删格会把组**提前**到存活格入口，
+    #     位置变了但组合不变；被替换区间里仍是 Steam 独有的组同样前移）。
+    ps_pairs = pairs_by_script(prod)
+    for sc, want in sorted(pairs_by_script(steam).items()):
+        have = ps_pairs.get(sc)
+        if have is None:
+            continue
+        lost = sorted(p for p in want if p not in have and p in native)
+        if lost:
+            fails.append('%s 丢 %d 个 Steam 原生解锁对（应前移到存活格入口）: %s'
+                         % (sc, len(lost), lost[:6]))
+    # 2c. 画廊条目可达 + CG 收集成就阈值可达
+    #     置位来源 = 产物 Rio.arc **∪ 未交付归档**（玩家原档）：朱莉线（`Rio1.arc`）
+    #     的画廊条目只有它自己会点亮，产物 `Rio.arc` 里本来就不该有（`julie_guard`）。
+    entries, top = gallery_entries(steam), ach_threshold(steam)
+    writes = set()
+    for _src in (prod, {}) + tuple(
+            members(os.path.join(ROOT, 'asset', a)) if os.path.exists(
+                os.path.join(ROOT, 'asset', a)) else members(os.path.join(ROOT, 'backup', a))
+            for a in ('Rio1.arc',)):
+        for n, raw in _src.items():
+            if not n.lower().endswith('.ws2'):
+                continue
+            ins = ws2dis.disassemble(ws2.decode(raw), formats=ws2dis.FORMATS)[0]
+            for _off, op, _sz, ops in ins:
+                if op == 0x0B and len(ops) >= 3 and ops[2] == 0x01:
+                    writes.add(struct.unpack('<H', ops[:2])[0])
+    locked = sorted(b for b in entries if b not in writes)
+    if locked:
+        fails.append('画廊条目永不解锁 %d 个: %s' % (len(locked), locked[:8]))
+    if top is not None and top > len(entries) - len(locked):
+        fails.append('CG 收集成就阈值 %g > 可置位条目 %d（「全 CG」不可达）'
+                     % (top, len(entries) - len(locked)))
 
     # 3. 信息项
     pb = {b for _, _, _, b in ps}
@@ -201,7 +364,9 @@ def main():
         for f in fails[:20]:
             print('  ', f)
         return 1
-    print('\n✅ 解锁指令保留：CG 显示点全部带解锁对（白名单除外），成就钩子逐脚本与 Steam 一致')
+    print('')
+    print('✅ 解锁组合规：无原版编号对（同名已反查 / 原版独有已抛弃）、'
+          'Steam 原生对守恒、画廊条目全部可达；成就钩子逐脚本与 Steam 一致')
     return 0
 
 

@@ -12,8 +12,9 @@ the source scripts; everything else keeps the **official English** text of the S
 
 For personal use with a legitimately purchased copy. This repository contains no game assets.
 
-> **Current version: v0.0.5** — content restoration, all route entries wired up, both performance
-> variants preserved; awaiting full play-through verification.
+> **Current version: v0.0.6** — content restoration, all route entries wired up, both performance
+> variants preserved; this release fixes an out-of-range CG unlock-group issue (original-release ids
+> could light up gallery thumbnails never seen).
 
 ![Beamer](https://shared.steamstatic.com/store_item_assets/steam/apps/923810/library_hero.jpg?t=1573643900)
 

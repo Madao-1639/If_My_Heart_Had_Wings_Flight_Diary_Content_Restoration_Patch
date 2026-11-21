@@ -78,6 +78,8 @@ def _ends_with_choice_hdr(out):
 #   * 原版侧按**演出集**整段搬（保序）：下面这组口径之外的（流程控制 / 名字框 / 成就
 #     调用）不搬，避免把原版脚本骨架带进宿主；
 #   * 宿主侧只保留**非演出**指令（状态写入、流程、成就、名字框、引擎调用）。
+CG_HOOK = b'\x04CG_ACHIEVEMENT\x00'   # 成就钩子（`04 "CG_ACHIEVEMENT" 00`）
+
 _PERF_TAKE_STEAM_ONLY = {0x05, 0x07, 0x0F, 0x15, 0x1C, 0xF0, 0xFF}   # 宿主逐字节保留
 _PERF_FLOW = {0x01, 0x02, 0x06}          # 目标全在本槽前缀区内 ⇒ 属演出分支，随演出删
 _PERF_TAKE_ORIG_SKIP = {0x01, 0x02, 0x06, 0x07, 0x0F, 0x15, 0xF0, 0xFF}  # 原版侧不搬
@@ -241,10 +243,16 @@ def _perf_replace_zone(oinstrs, o14, r):
     """
     i0 = o14[r - 1] + 1 if r > 0 else 0
     i1 = o14[r]
+    _pairj = {k for p in cg_pair_instances(oinstrs) for k in p[:2]}
     out = []
     for j in range(i0, i1):
         op, ops = oinstrs[j]
         if op in _PERF_TAKE_ORIG_SKIP:
+            continue
+        if op == 0x0B and j in _pairj:
+            # 原版命名空间的**画廊解锁对**不得随演出搬入：Steam 的 `0b` 已原位保留在
+            # 槽前缀区（`KEEP_OPS`），只搬演出、不搬原版编号的解锁组（见
+            # doc/file-formats.md「CG 显示的固有 id 对」）。
             continue
         if op == 0x04 and ops.split(b'\x00')[0] != b'LAYER_ORDER':
             continue
@@ -415,6 +423,35 @@ def cg_lock_sites(instrs):
             if o2 == 0x04 and x2.startswith(b'CG_ACHIEVEMENT'):
                 hook.add(instrs[j][0])
     return lock, hook
+
+
+def cg_pair_instances(instrs):
+    """CG 固有解锁对实例（`0b A 01` **紧邻** `0b B 01`）→ [(首条下标, 次条下标, A, B)]。
+
+    只认**相邻**两条：跨版本语义里这一对是「显示 → 画廊组 → 条目号」的固定形态；
+    不相邻的 `0b` 是场景旗标，既不能搬也不能删（见 doc/file-formats.md「CG 显示的固有
+    id 对」）。
+    """
+    out = []
+    for k in range(len(instrs) - 1):
+        a, b = instrs[k], instrs[k + 1]
+        if a[1] != 0x0B or b[1] != 0x0B:
+            continue
+        if len(a[3]) < 3 or len(b[3]) < 3:
+            continue
+        if a[3][2] != 0x01 or b[3][2] != 0x01:
+            continue
+        out.append((k, k + 1,
+                    int.from_bytes(a[3][:2], 'little'),
+                    int.from_bytes(b[3][:2], 'little')))
+    return out
+
+
+def cg_group_payload(A, B, hook=False):
+    """解锁组字节：`0b A 01 0b B 01`（+ 成就钩子）。"""
+    out = (b'\x0b' + struct.pack('<H', A) + b'\x01'
+           + b'\x0b' + struct.pack('<H', B) + b'\x01')
+    return out + (CG_HOOK if hook else b'')
 
 
 def _keep_in_perf_zone(op, ops):
@@ -608,6 +645,8 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
             ooff.append(p)
             p += 1 + len(ops)
     o14 = [j for j, (op, ops) in enumerate(oinstrs) if op == 0x14]   # 行 r ↔ o14[r]
+    # 原版**画廊解锁对**的指令下标（插入时整对丢弃，见下文 emit_block）
+    orig_pair_j = {k for p in cg_pair_instances(oinstrs) for k in p[:2]}
     for j in sorted(skip_o):
         assert 0 <= j < len(oinstrs), 'skip_orig 越界: %r' % (j,)
         assert oinstrs[j][0] != 0x14, \
@@ -626,6 +665,67 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
         'perf_sync 通道在槽前缀区内找不到显示指令: %s' % perf_missed
     kill = drop_units(sinstrs, set(plan['drops']),
                       no_ach_slots=plan.get('no_ach_slots')) | perf_kill
+    # ── 解锁组的保存方式（用户 2026-10-28 定案）──
+    #
+    # 一、**删格**：不得把 Steam 的 CG 解锁组一并删掉。`drop_units` 会连带删掉被删格
+    #     前缀区里的显示块，解锁对即使留在原处也失去「显示 → 组」的上下文；做法是把
+    #     它们**提前到该删格之前的存活格入口**（那里 `0b` 仍无条件执行，时机只会早不会晚）。
+    # 二、**被替换的区间**：抛弃**原版**独有的解锁组（原版编号在 Steam 成就表/画廊表里
+    #     不存在，按原版 id 置位是空操作，但其 B 会与 Steam 的画廊条目号碰撞而误点亮未看过
+    #     的缩略图 / 虚增 CG 完成度，见 doc/file-formats.md「CG 显示的固有 id 对」）；
+    #     同名 CG 反查（`cg_unlock_repoint`）把原版编号换成 Steam 那一对。
+    # 三、被替换区间里**仍有 Steam 专属**的解锁组时，同样提前到该区间之前的存活格入口。
+    #
+    # 实现：先算三张表，由 `emit_block`（插入块入口）/ `emit_perf_add`（`replace` 补块
+    # 开头）/ 宿主正常流（槽前缀区开头）三个出口发出。
+    _Keep = KEEP_OPS
+    idx14 = {o: j for j, o in enumerate(s14off)}
+    pair_at = {p[0]: p for p in cg_pair_instances(sinstrs)}    # 首条下标 → (k, k2, A, B)
+    pair_members = {k for p in pair_at.values() for k in p[:2]}
+
+    def _zone_of_slot(slot):
+        """Steam 槽前缀区对应的指令下标区间，加上该槽自身的 `14`。"""
+        j = idx14[s14off[slot]]
+        return (idx14[s14off[slot - 1]] + 1 if slot else 0), j + 1
+
+    # 每个被删格的解锁组（只认紧邻对；归到 slot = 首条 `0b` 之前最近的 `14` 所属槽）
+    _drop_slots = set(plan['drops'])
+    _kept_slots = [s for s in range(len(s14off)) if s not in _drop_slots]
+
+    _no_ach = set(plan.get('no_ach_slots') or ())
+    payload_carrier = {}          # 抢位解锁组的承载点 → [(op, ops)]
+    slot_payload = {}             # Steam 槽号 → [(op, ops)]：在该槽前缀区开头发出
+    hoist_kill = set()            # 已抢位、须从原处删除的成就钩子偏移
+    for s in sorted(_drop_slots):
+        if s in _no_ach:
+            # 变体脚本的原版分支：成就/鉴赏由 Steam 分支原生提供 ⇒ 整组丢弃、不抢位
+            # （见 doc/restoration-scope.md §8）。
+            continue
+        _lo, _hi = _zone_of_slot(s)
+        grp = [p for p in pair_at.values() if _lo <= p[0] < _hi]
+        if not grp:
+            continue
+        items = []
+        for _k, _k2, a, b in grp:
+            items.append((0x0B, struct.pack('<H', a) + bytes((1,))))
+            items.append((0x0B, struct.pack('<H', b) + bytes((1,))))
+            # 同拍点（到本格下一条 `14` 之前）的成就钩子随组一起前移：
+            # 只搬 `0b` 不搬 `04` = 画廊条目亮了而成就静默不弹。
+            for _j in range(_k2 + 1, len(sinstrs)):
+                if sinstrs[_j][1] == 0x14:
+                    break
+                if (sinstrs[_j][1] == 0x04
+                        and sinstrs[_j][3].startswith(b'CG_ACHIEVEMENT')):
+                    items.append((0x04, sinstrs[_j][3]))
+                    hoist_kill.add(sinstrs[_j][0])
+                    break
+        prev = [k for k in _kept_slots if k < s]
+        if prev:
+            slot_payload.setdefault(prev[-1], []).extend(items)
+        else:
+            payload_carrier.setdefault(-1, []).extend(items)
+    kill |= hoist_kill
+
     # 按「不保留 Steam 解锁/成就」剔掉的数量（供闸门对账：期望 = 基线 + 搬运体 − 本值）
     _drop_ach = sum(1 for _o, _op, _sz, _ops in sinstrs
                     if _o in kill and _op == 0x04 and _ops.startswith(b'CG_ACHIEVEMENT'))
@@ -745,6 +845,8 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
         for j in range(i0, i1):
             if j in skip_o:                 # 剥离块内的原版指令（如回想出口三连）
                 continue
+            if oinstrs[j][0] == 0x0B and j in orig_pair_j:
+                continue                    # 原版命名空间的解锁对不搬入（见文件头「解锁组保存方式」）
             op, ops = oinstrs[j]
             prev_op = oinstrs[j - 1][0] if j > i0 and (j - 1) not in skip_o else None
             extra = CHOICE_HDR_LEN if (op == 0x0F and prev_op != 0x0E) else 0  # 选项头
@@ -752,6 +854,8 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
             q += extra + 1 + len(_conv(op, ops, names))
         for j in range(i0, i1):
             if j in skip_o:
+                continue
+            if oinstrs[j][0] == 0x0B and j in orig_pair_j:
                 continue
             op, ops = oinstrs[j]
             ops2 = _conv(op, ops, names)
@@ -854,13 +958,37 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
             if _spec and _spec.get('mode') == 'replace' and _spec.get('orig_row') is not None:
                 align_state(anchor, int(_spec['orig_row']))
 
-    # 脚本头插入
+    def emit_groups(items):
+        """发出被删格抢位过来的解锁组（`0b A 01 0b B 01`）。"""
+        for op2, ops2 in items:
+            out.extend(bytes([op2]) + ops2)
+
+    # 槽 `s`（>0）的前缀区起点 = 上一条 `14` 之后的**第一条指令**。`slot_payload` 以
+    # 「上一条存活槽」为键，所以多数情况下该起点正是那条 `14` 的下一条指令；
+    # 仅当上一槽也被删、或起点指令本身被删时靠**取最近存活指令**回退。
+    _slot_entry_off = {}
+    for _s in sorted(slot_payload):
+        _j = idx14[s14off[_s]] + 1 if _s >= 0 else 0
+        while _j < len(sinstrs) and sinstrs[_j][0] in kill:
+            _j += 1
+        if _j < len(sinstrs):
+            _slot_entry_off.setdefault(sinstrs[_j][0], _s)
+
+    # 脚本头插入（锚 -1）：入口先发抢位的解锁组，再进块；两者都没有就什么都不发。
+    _head_grp = list(payload_carrier.pop(-1, ())) + list(slot_payload.pop(-1, ()))
+    if _head_grp:
+        emit_groups(_head_grp)
     for r0, r1 in by_anchor.get(-1, []):
         emit_block(r0, r1, -1, -1)
 
     pos = 0
     for off, op, size, ops in sinstrs:
         pos = off + size
+        # 宿主某槽前缀区的**起点** = 上一条 `14` 之后的指令 ⇒ 在此先发抢位的解锁组
+        # （组排在 `replace` 补块与槽自带语音/显示之前，语义上「进这一格就点亮」）。
+        if off in _slot_entry_off:
+            flush15()
+            emit_groups(slot_payload.pop(_slot_entry_off[off], ()))
         if off in add_at:
             flush15()
             emit_perf_add(off)
@@ -912,6 +1040,8 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
                 emit_block(r0, r1, off, si - 1)
     flush15()
     assert not add_at, '演出同步补块落点不在宿主指令起点: %s' % sorted(add_at)
+    assert not slot_payload, '抢位解锁组无处落盘（锚槽入口不存在）: %s' % sorted(slot_payload)
+    assert not payload_carrier, '抢位解锁组无处落盘（脚本头锚未发出）: %s' % sorted(payload_carrier)
     # ⚠️ 末尾 8 字节 = **明文尾表** `[u32 消息数][u32 选项条目数]`（不参与 rotate-6）。
     # 引擎按它给「已读位图」（`MessageFlag.dat`）分配容量，写位**不查边界** ⇒ 尾表若小于
     # 真实消息数，高位下标越界写坏堆 ⇒ 概率性闪退。inserts/drops 都会改变 0x14 条数，

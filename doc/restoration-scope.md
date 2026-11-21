@@ -129,7 +129,8 @@
 4. **中文来源**：还原内容一律由本项目语文案给出，**以原版日文为唯一依据**、直接写 `.lng`，**禁用窄字节 CP932 直写 ws2**；取词/遮字/称谓口径见 [script-text-extraction.md](script-text-extraction.md) §4。
 5. **官中跟译被带偏的格按原版重译**：`HUS_001` O#73-75（官中译成「将书轻轻放在了亚纱的臀部」）、`BEF_005` O#823-826（官中跟着 "Ageha and the others were saying"）、`KAN_2001` O#51-56 等；官中在 `HOT_004` 部训处反而是按原版译的（可作对照）。
 6. **语音资产**：原版 OGG 100% 不在 Steam 语音包，**必须随包发布**，否则还原场景静音；还原区间统一用原版语音名（`ASA_xxxx` 而非 Steam `VASAxxxx`）。
-7. **成就：不注入**（2026-10-16 实测定案）。理由：① ORIG 与 Steam 的 CG 固有 id 对（`0x33` 后两条 `0x0b`）**每个脚本交集都是 0** ⇒ 按 ORIG 的 id 注入 `04 "CG_ACHIEVEMENT" 00` 是**空操作**（Steam 成就表里没有该 id）；② Steam 侧原有的 `0x0b`×2 + `04 CG_ACHIEVEMENT` 属 `KEEP_OPS` / 非 `LAYER_ORDER` 调用 ⇒ **删格时已被 `writer.drop_units` 保留**，成就可达性天然不受影响（实测：被删区间内"只此一处"的 Steam 触发点 14 个，其调用全部留存）；③ `AGS_001` 是整条被删线路，Steam 侧不存在任何对应成就。
+7. **成就钩子不注入**（2026-10-16 实测定案）：按 ORIG 的 id 注入 `04 "CG_ACHIEVEMENT" 00` 是**空操作**（Steam 成就表按 B 索引，原版 B 查不到）；`AGS_001` 是整条被删线路，Steam 侧不存在任何对应成就。
+   ⚠️ 但 **`0b` 解锁对不是空操作**（2026-10-28 修正）：原版 B 值域与 Steam 画廊条目号**重叠**，原版编号进产物会误点亮没看过的缩略图、虚增 CG 收集计数。处置（删格前移 / 抛弃原版独有 / 同名反查）见 [file-formats.md](file-formats.md)「CG 显示、解锁组与成就钩子」。
    **验收口径**：产物里 `CG_ACHIEVEMENT` 调用数 **== Steam 原有数**（逐脚本相等，`build_patch.py` 自检）。
 8. **`%LC` 人名**逐条转成 `NameTable.txt` 的罗马字键；`0x14` 的 u32 序号保持 0-based。
 

@@ -12,24 +12,23 @@
 
 > 状态图例：✅ 已确认 / ⚠️ 部分确认 / ❓ 未知
 > 基线：Steam `backup/`（只读）；引擎分析基于 **脱壳** `AdvHD.exe.unpacked.exe`（VAdvHD 1.72c `Release - Steam`）。
-> 机器可读数据：`resource/achievement_map.json`。
 
 ---
 
-## 一、脚本层：CG 显示点与 29 处 `0xF0` ✅
+## 一、脚本层：CG 显示点与 33 处 `0xF0` ✅
 
 Steam 版每个 CG 显示点的固定结构：
 
 ```
 0x33 <槽位> <资源名.PNG> <u8> <u8>      ; 显示 CG
-0x0b <u16 A> 01                          ; A ∈ 1089…1189：场景/图库分组
-0x0b <u16 B> 01                          ; B ∈ 1190…2674：该 CG 编号
+0x0b <u16 A> 01                          ; A ∈ 1080…1141：CG 组号
+0x0b <u16 B> 01                          ; B ∈ 1170…1443：画廊缩略图条目号
 0x04 "CG_ACHIEVEMENT" 00                 ; RunFile 成就脚本（16 字节，含 NUL）
 ```
 
-全库（`Rio.arc` **158 个 `.ws2`**）共 **29 处 `0xF0 <u8 idx>` 指令**（线性解析 153/158；`CG_PAGE10/12`、`CO1_018`、`CO2_005`、`HUT_005` 含内嵌菜单/数据表，无法线性解析，其 `0xF0` 未计入）。分布：`CG_Achievement` 6 处，其余 23 处散落在 17 个剧情/菜单脚本。
+全库（`Rio.arc` **111 个 `.ws2`**）共 **33 处 `0xF0 <u8 idx>` 指令**，分布在 **15 个脚本**（`CG_Achievement` 占 6 处）。`0x04 CG_ACHIEVEMENT` 共 **723 处 / 39 个脚本**。
 
-`CG_Achievement.ws2` 本身是 **VM 字节码，不是不透明数据表**：
+`CG_Achievement.ws2` 本身是 **VM 字节码，不是不透明数据表**（**6702 字节** = 8 字节头 + **274** × 24 字节记录 + 118 字节尾部）：
 
 ```
 头        : 09 00 37 00 00 00 00 00            ; LayerConfig(mode=0, id=55, 0.0) —— 初始化计数器
@@ -116,14 +115,13 @@ for i in 0..count-1:
 | 12 | `_13` | Too Bad!（bad end） | `CO2_999` @0x0260f（`NextFile "TITLE"` 之前） |
 | 13 | `_14` | Astonishing!（all routes） | `title` @0x00050（5 个通关 flag 全真后） |
 | 14 | `_15` | First Contact | `CG_Achievement`（`var[55] >= 1`） |
-| 15 | `_16` | Approach（20%） | `CG_Achievement`（`>= 79`） |
-| 16 | `_17` | Take-Off（40%） | `CG_Achievement`（`>= 158`） |
-| 17 | `_18` | Soar（60%） | `CG_Achievement`（`>= 237`） |
-| 18 | `_19` | Glide（80%） | `CG_Achievement`（`>= 316`） |
-| 19 | `_20` | Morning Glory（100%） | `CG_Achievement`（`>= 395`） |
-| **28** | — | — | `CG_PAGE09` @0x1ce7：**越界（成就数 = 20）⇒ 空操作**（遗留触发点） |
+| 15 | `_16` | Approach（20%） | `CG_Achievement`（`>= 55`） |
+| 16 | `_17` | Take-Off（40%） | `CG_Achievement`（`>= 110`） |
+| 17 | `_18` | Soar（60%） | `CG_Achievement`（`>= 165`） |
+| 18 | `_19` | Glide（80%） | `CG_Achievement`（`>= 220`） |
+| 19 | `_20` | Morning Glory（100%） | `CG_Achievement`（`>= 274`） |
 
-脚本层的 `0xF0` 扫描可复现：`tool/ws2dis.py --arc <Rio.arc>`（解析率 153/158）。
+脚本层的 `0xF0` 扫描可复现：`tool/ws2dis.py --arc <Rio.arc>`（本作 111/111 全部可线性解析）。
 
 ## 五、为什么还原不需要动它
 
@@ -135,7 +133,7 @@ for i in 0..count-1:
 
 | 对象 | 路径 |
 |---|---|
-| 机器可读映射表 | `resource/achievement_map.json`（20 项成就 + 29 处触发点） |
+| 实测触发点 | 33 处 `0xF0` / 15 脚本；723 处 `04 CG_ACHIEVEMENT` / 39 脚本（复扫：`tool/ws2dis.py --arc Rio.arc`） |
 | WS2 反汇编器 | `tool/ws2dis.py` + `tool/ws2fmt.txt` |
 | 引擎触发契约（工程依据） | [engine-mechanics.md](engine-mechanics.md) §成就触发点契约 |
 | 成就指令在文件格式中的位置 | [file-formats.md](file-formats.md) §成就注入机制 |

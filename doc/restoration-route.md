@@ -152,7 +152,7 @@
 - **立绘 `0x39` 的 u16 = PNA 记录下标（0 基，含哨兵/空记录）**，不是 `layer_id` 字段；同名 PNA 的记录表跨版本会变（Steam 删哨兵/加层/重排）⇒ 原版来源块必须按 `resource/pna_id_map.json` 换算，记录表不等价者不整名覆盖、改走层内修复（见 [pna-resources.md](pna-resources.md)）。
 - **本作 WS2 操作数格式表**：`AdvHD.exe` 的 `0x57ada8`（.rdata）按原始 opcode 索引，160/256 项有定义；类型码语义为 `0=i8`、`1/2=16位`、`3/4/5=32位`、`6/9/10=NUL 终止串（**含 NUL**，10 大写化）`、`8=占位（0 字节）`、`7=计数标记（先读 u8）`；`0xff`（9 B）与 `0x01`（mode 相关）是表外特例。
 - **交叉验证**：Steam 侧 111/111 剧本 100% 平铺，且逐脚本 `0x14` 计数 == 官方 `zh-CN/Rio.arc` 同名 `.lng` 条目数。
-- **成就：不注入**。ORIG 与 Steam 的 CG 固有 id 对交集为 0（按 ORIG id 注入是空操作）；
+- **成就：不注入**（按 ORIG id 注入 `04 CG_ACHIEVEMENT` 是空操作）。但 **`0b` 解锁对不是空操作**，须按 [file-formats.md](file-formats.md)「CG 显示、解锁组与成就钩子」的三条纪律处置；
   Steam 侧原有的 `0x0b`×2 + `04 CG_ACHIEVEMENT` 属 `KEEP_OPS`/非 `LAYER_ORDER` ⇒ 删格时已被保留。
   验收 = 产物 `CG_ACHIEVEMENT` 数 == Steam 原有数。
 - **WS2 末尾 8 字节 = 明文尾表** `[u32 消息数][u32 选项条目数]`：引擎按它给「已读位图」（存档目录 `MessageFlag.dat`）分配容量，写位**不查边界**。改写脚本（插入/删格/跨版本搬运）后必须按新条数重写这 8 字节（明文、`encode()` 之后写）；偏小 ⇒ 概率性闪退。闸：`script/checks/ws2_tail_check.py`、`final_verification` 9b；机制见 [file-formats.md](file-formats.md)「尾部 8 字节」、踩坑见 [lessons-learned.md](lessons-learned.md) 「改写 ws2 必须同步重写末尾 8 字节明文尾表」条。

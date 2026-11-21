@@ -304,46 +304,41 @@ jump = 06 <u32 文件内绝对偏移> | 07 <脚本名>\x00
 - 合并规则与消费方：`script/build/build_nametable.py`（官方保序在前 ⇒ 同键覆盖 ⇒ 新键追加表尾；L4 由 `build_l4.py` G10 消费并断言 `SL_*` 用到的名牌键在表内，本体线在构建 `zh-CN/Rio.arc` 处接入同一构建器）
 
 
-### 成就注入机制 ✅ 已完全确认（脚本层 + 引擎层）
+### CG 显示、解锁组与成就钩子 ✅ 已完全确认
 
-Steam 版 `Rio.arc` 中存在一个原版没有的独立脚本 `CG_Achievement.ws2`（9606 字节），是一段**以 CG 编号为键、维护 CG 收集计数并触发收集类成就的 VM 字节码**。触发契约见 [engine-mechanics.md](engine-mechanics.md) §成就触发点契约；完整映射链（29 处 `0xF0` 触发点 → 20 项成就）见 [achievement-mechanics.md](achievement-mechanics.md)。
-
-**结构 ✅ 已逐字节复核**（解码后 9606 字节 = 8 字节头 + 395 × 24 字节记录 + 118 字节尾部）：
+Steam 侧每个 CG 显示点的固定形态（**四连**）：
 
 ```
-头        : 09 00 37 00 00 00 00 00                  ; LayerConfig(mode=0, id=55, 0.0) —— 初始化 CG 计数器
-每条记录  : 01 02 <u16 CG编号> 00 00 80 3f           ; Condition(mode=2, id=CG编号, val=1.0, b=下一记录)
-            00 00 00 00 <u32 下一记录偏移>           ; a = 0；b 恒为 (本记录偏移 + 24)，正向链表
-            09 01 37 00 00 00 80 3f                  ; LayerConfig(mode=1, id=55, 1.0) —— var[55] += 1.0
-尾部      : 6 × [ Condition(mode=0x80, id=55, <float 阈值>, b=下一块) + F0 <u8 idx> ] + 05 + ff + 8 字节尾
+0x33 <槽> <名.PNG> 00 01 01           ; 显示 CG
+0x0b <A:u16> 01                       ; A ∈ 1080…1141：CG 组号（同一张 CG 的 B/S 变体共用一个 A）
+0x0b <B:u16> 01                       ; B ∈ 1170…1443：画廊缩略图条目号
+0x04 "CG_ACHIEVEMENT" 00              ; 成就钩子（Steam 独有；原版 0 条）
 ```
 
-- **本文件是 VM 字节码，不是不透明数据表**。每条记录语义：`if (var[CG编号] == 1.0) var[55] += 1.0`（`0x01` 的 `mode&0x3F == 2` 即 `==`：成立则顺序执行，否则跳 `b`）。`var[CG编号]` 由显示点处的 `0x0b <CG编号> 01` 置 1。
-- 395 条记录的 CG 编号 = **1190 … 2674**，严格递增、互不重复；表内**无任何 ASCII 字符串**（成就名不在脚本层）。
-- 尾部 6 条 `F0 <u8>` 是**成就触发指令**（`F0` = `SetAchievement`，完整映射见 [achievement-mechanics.md](achievement-mechanics.md)），阈值依次为 **1 / 79 / 158 / 237 / 316 / 395**（即 1 个 CG 与 **20% / 40% / 60% / 80% / 100% × 395**），索引 `14/15/16/17/18/19` ⇒ 成就 `IMH_ACHIEVEMENT_15..20`（First Contact / Approach / Take-Off / Soar / Glide / Morning Glory）。
-- 常量尾巴 `09 01 37 00 00 00 80 3f` 在 `Rio.arc` 全部 **158 个 `.ws2`** 中**只出现在本文件**（395 次），是成就表专用模板；记录里的 `01 02 <u16> 00 00 80 3f` 则是通用写法（其他脚本共 1420 次，见 `CG_PAGE01-12`、`FLAG_CHECK` 等）。
+本作 `Rio.arc` **111 个 `.ws2`**：`0x04 CG_ACHIEVEMENT` 共 **723 处 / 39 个脚本**，`0xF0`
+共 **33 处 / 15 个脚本**。`A`/`B` 是引擎侧约定的键，**不可重算**；读者与成就计数机制见
+[achievement-mechanics.md](achievement-mechanics.md)。
 
-**键值对应 ✅ 已核对**：`CG_Achievement.ws2` 的 395 个编号集合 **= 全部 CG 显示点的第二个 `0x0b` 变量（B）取值集合（394 个）∪ {1195}**，一一对应、无一遗漏；表内多出的 `1195` 在 Steam 脚本中没有任何显示点（疑似被删 CG 的遗留条目）。
+**⚠️ 两版各自编号，且 B 值域有重叠**（原版 B 可达 1922，Steam 条目号 1170..1488）⇒ 原版编号
+的 `0b` 对进产物**不是空操作**：它会撞上 Steam 的另一个条目，凭空点亮没看过的缩略图并虚增
+CG 收集计数（实测 249 处碰撞，涉及 8 个画廊页、81 个条目）。原版 A（1025..1152）与 Steam A
+也重叠，但**没有任何脚本读 A** ⇒ 只需管 B。
 
-对比同一场景脚本（如 `AGE_001.ws2`）在 Steam 版与原版的对应位置，发现显示 CG 的指令序列中，Steam 版比原版多出一段：
+**解锁组的保存方式 ✅ 定案（用户 2026-10-28；实现 `tool/cgunlock.py` + `tool/writer.py`）**
 
-```
-原版：  ...LAYER_ORDER\x00 <resource-id>04 01 0b <id2> \x01\x04 LAYER_ORDER\x00...
-Steam版：...LAYER_ORDER\x00 <resource-id>04 01 0b <id2> \x01\x04 CG_ACHIEVEMENT\x00 \x04 LAYER_ORDER\x00...
-```
+| 情形 | 处置 |
+|---|---|
+| **删格** | 该格前缀区的解锁组（含同拍点 `04 CG_ACHIEVEMENT`）**提前到该删格之前的存活格入口**。`0b` 在那里仍无条件执行，时机只会早不会晚；只搬 `0b` 不搬 `04` = 画廊亮而成就静默不弹。变体脚本的原版分支（`no_ach_slots`）例外：整组丢弃（见 [restoration-scope.md](restoration-scope.md) §8） |
+| **被替换的区间** | **抛弃**原版独有的解锁组：插入块与 `replace` 补块都不搬原版 `0b` 对（`cg_pair_instances` 只认相邻对；原版场景旗标照旧搬，见 `perf_is_presentation`）。原版块里那条 `04` 也随之不需要（原版本来没有成就钩子） |
+| **区间里仍有 Steam 专属组** | 同样提前到区间之前的存活格入口 |
+| **Steam 也有同名显示点** | **同名反查**：改写为 Steam 那一对（B 换成 Steam 条目号）。Steam 侧「显示名 → 解锁对」是**单射**（375 名，一名多对 0）⇒ 映射无歧义 |
 
-即：显示 CG 的固有指令（含两个内在 id 字段，原版就存在，与成就无关）之后，Steam 版额外插入了一条 `\x04 CG_ACHIEVEMENT \x00` 调用指令。已确认 51 个脚本文件包含对 `CG_ACHIEVEMENT` 的调用；用正则匹配全部 0x33 CG 显示指令逐一核对，Steam 版 `Rio.arc` 全部 **158 个 `.ws2`** 中共有 920 处 CG 显示，全部 920 处紧跟成就调用，覆盖率 100%——即 Steam 版对每一次 CG 显示都无条件注入了这条调用，不是选择性注入。
-
-**注入方法（已实现并验证，见 `tool/ws2.py` 的 `inject()`）**：向脚本中插入内容时，若该场景在 Steam 版中存在对应的 CG 显示点，直接复用 Steam 版脚本中已经写好的这条调用指令，绝不重新计算或编造内在的 id 字段。已验证：从一段真实 Steam 脚本中剥离全部成就调用后，用 `inject()` 重新处理，可以逐字节还原出原始 Steam 版脚本。
-
-**调用点的两个 id 字段 ✅ 已定性**（920 处全量统计）：
-
-| 字段 | 取值域 | 去重 | 含义 |
-|---|---|---|---|
-| 第一个 `0x0b` 的 u16（A） | 1089 … 1189 | 69 个 | CG 所属的**场景/图库分组** |
-| 第二个 `0x0b` 的 u16（B） | 1190 … 2674 | 394 个 | **该 CG 的编号 = 索引 `CG_Achievement.ws2` 的键** |
-
-⇒ 引擎侧的映射是「**CG 编号（B）→ `CG_Achievement.ws2` 条目 → CG 计数 `var[55]` → 收集里程碑 `F0 idx`**」；成就数据与触发条件完全由脚本层决定，**引擎只负责按 `F0` 的 idx 查运行时表并调用 Steam API**（表由 Steam 的 `GetAchievementName(i)` 顺序构建，见 [engine-mechanics.md](engine-mechanics.md)）。故**只要复用 Steam 版脚本里原样写好的 `0x0b` 变量对 + 那条 16 字节调用，就必然复现原版成就行为**，无需理解引擎内部实现。
+**闸门** `script/checks/cg_unlock_check.py`（四项 HARD）：① 不得出现非 Steam 原生解锁对
+（含「同名未反查」）；② Steam 基线逐脚本的解锁对集合必须仍在产物同名脚本里（**只比存在性**，
+前移会改位置）；③ `CG_PAGE*` 每个条目号必须在产物（含未交付的 `Rio1.arc`）里被置位，且
+`CG_ACHIEVEMENT` 最高阈值 ≤ 可置位条目数；④ 带钩子的解锁对实例数不得少于 Steam 基线。
+**幂等收尾** `script/build/fix_cg_unlocks.py`（对已存在的 `asset/Rio.arc` 施加同一套规则，
+无需原版目录；`--apply` 才写入，先备份 `asset/Rio.arc.before_cg_unlock`）。
 
 ## 定制 Lua 5.3 字节码（读 + 写）✅
 

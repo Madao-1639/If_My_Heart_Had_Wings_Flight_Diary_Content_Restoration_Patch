@@ -10,7 +10,7 @@
 | 全量验收 | `python script/final_verification.py` | 构建阶段 40 PASS / 0 FAIL / 2 SKIP（payload 未重建的 2 项明确 SKIP）；发布阶段（`--stage release`，payload 已重建）**41 PASS / 0 FAIL / 1 SKIP**（仅无语音重指表）；含 5c 层内修复回读（repair 3）、**2b 回想出口不得多于 Steam 基线**（`replay_guards.json` 7 条声明）、**9b 尾表**（112 个 `.ws2`）、**9c 选项头**、**9d 选项文本/人名规范**、**9e 人名帧一致性**、**9f 跳转自洽**、**9f2 `.lng` 槽位等式**、**9g 选项帧内无 `0x16`**、**9h 新增选项规则可复用（演练）** |
 | 演出同步 | `python script/checks/perf_sync_check.py` | 14,528 槽对账，HARD 0 / REVIEW 0；判定表 41 条逐条落地；**顺序闸**：53 条 `replace` 槽的产物演出序列 = 原版行序列（逐条逐序，`perf_sync_checked 53`）；**前置检验**：命中「文本无需还原 + 演出序列已相同 + 素材原生」的站点不改字节、不跑顺序闸（当前 `perf_sync_noop 0`，纯回归保护） |
 | CG 序列 | `python script/checks/cg_seq_check.py` | 25 脚本，同序 22 / 差异 3（= 变体共存追加的 Steam 体 CSEV 段，登记为继承审查差异）；HARD 0；REVIEW 0（变体分支体槽由 `variants.variant_body_slots` 跳过） |
-| CG 解锁 | `python script/checks/cg_unlock_check.py` | 1,669 个 CG 显示点（含变体体），有解锁对 1,668（唯一例外是白名单水印 CG `FDSDEV14_02B/S`）；**保留的 Steam 解锁对必须带 `04 CG_ACHIEVEMENT`**（逐实例）；成就钩子 **749 = Steam 基线 723 + 变体搬运体 107 − 原版分支剔除 81**（`variants.body_hook_counts` / `variants.ach_removed_counts`），逐脚本一致——**原版分支不再挂 Steam 的解锁对与成就钩子**（删格时不保留，成就由 Steam 分支原生提供）；CG 名零缺失。**不做跨分支重放**：分支体各带各的解锁点（多出的钩子会被本闸当场抓住） |
+| CG 解锁 | `python script/checks/cg_unlock_check.py` | 四项 HARD：① 产物里**不得出现非 Steam 原生解锁对**（含「同名未反查」）；② Steam 基线逐脚本的解锁对集合必须仍在产物同名脚本里（**只比存在性**：删格会把组**提前**到存活格入口，位置变了、组合不变）；③ `CG_PAGE01..09` 每个画廊条目号必须在产物（含未交付的 `Rio1.arc`）里被置位，且 `CG_ACHIEVEMENT` 最高阈值 ≤ 可置位条目数；④ 带 `04 CG_ACHIEVEMENT` 的解锁对实例数不得少于 Steam 基线。成就钩子总数 **749 = 基线 723 + 变体搬运体 107 − 原版分支剔除 81**、逐脚本一致。**解锁组的保存方式**（删格前移 / 抛弃原版独有 / 同名反查）见 [file-formats.md](file-formats.md)「CG 显示、解锁组与成就钩子」；幂等收尾 `python script/build/fix_cg_unlocks.py` |
 | 变体共存 | `python script/checks/variant_route_check.py` | **15 脚本 / 8 变量**（`{1960,1961,1962,1965,1966,1967,1968,1969}`）：choice 8 个（KAN_3001_2、HUS_001、AFT_003、AFT_007_3、HOT_002、BEF_003、BEF_004、KAN_2001）+ route 7 个（KAN_3001_3/4/5、KAN_3002_1/2、HOT_003/004）；变量两侧基线 0 占用且各归其主；选项帧按**落盘布局**（`slot_sources[sc].variant.targets`）回读：条目落点/`0b var val`/`14 "%P"`/`0e` 头/提示句/汇合点；Steam 体与基线逐指令等值（route 整脚本 / choice 行区间），`KAN_3002_2` 的**声明尾跳分叉**（→ `3002_3_E`）单列；`variant`/`vchoice` 槽中文逐条非空；**画廊解锁点条件可达且归属各自分支**（Steam 站点不丢（还原区间豁免）/ 显示与解锁对同区 / 分支头部无连续 `0b` 夹带） |
 | CG/立绘 内容一致性 | `python script/checks/perf_consistency_check.py` | 14,001 槽全部内容一致；CG 差异 0 行、立绘差异 0 行；槽级豁免 5（`perf_waivers.json`：翻译拆行 2 / 水印 CG 1 / Steam 新增行 1 / 句序 1）。**在屏状态模型必须展开 `0x37` 的族级（`bg`/`st`）与通配（`*`）清屏**（`tool/perfsync.py`，见 [engine-mechanics.md](engine-mechanics.md)「图层清屏 `0x37`」）；不展开时「显示被 `37 *` 抹掉」这类黑背景缺陷是静默假绿 |
 | 同名 CG 命名隔离 | `python script/checks/cg_isolation_check.py` | 5 个 9XX 隔离名（`BEF_03_901B/901S`、`KAN_01_901S/905S/906B`）：原名成员 == Steam 字节（Steam 路径用）、9XX 成员 == 原版字节（A 路径用）、**9XX 不得出现在任何 B 体**、每个 9XX 至少被引用一次；比较类闸（`cg_seq_check`/`perf_consistency_check`/`perf_sync_check`/`insert_boundary_check`）按 `censormap.normalize()` 折算回原编号 |
@@ -80,10 +80,9 @@
 ## 成就触发点完整性
 
 > 原则：成就由开发者与 Steam 共同管理，本补丁**只保留触发点**（不修改、不新增、不重算 id）。见 `AGENTS.md`「项目目的」第 1 条、[engine-mechanics.md](engine-mechanics.md) §成就触发点契约。
-> 基线数据：`resource/achievement_map.json`。
 
 - [ ] 全部 `CG_ACHIEVEMENT` 调用点（基线 **723 处 / 39 脚本**）逐字节保留，未被删除、合并或重排
-- [ ] 每个调用点的 `0x0b` 变量对（A = 场景分组、B = CG 编号）取值与基线**逐一对应**，未改写、未重算
+- [ ] 每个**保留的 Steam** 调用点的 `0x0b` 变量对（A = CG 组号、B = 画廊缩略图条目号）取值与基线**逐一对应**，未改写、未重算；**原版编号的对不得进产物**（处置见 [file-formats.md](file-formats.md)「CG 显示、解锁组与成就钩子」）
 - [ ] 全部 `0xF0 <idx>` 触发点（基线 **33 处**）保留，`idx` 取值集合与基线一致；越界点**原样保留**，不得"修正"为合法值
 - [ ] **四连不被切断**：`0x33 <CG 显示> → 0x0b A → 0x0b B → 0x04 "CG_ACHIEVEMENT"` 四条指令逐字节原位、相对次序不变。删格不摘显示头（画面还原走归档字节层，见 [restoration-route.md](restoration-route.md) §7 V-9）
 - [ ] **未新增**任何成就触发指令：被删 5 脚本（`ASA_002/004`、`YOR_003/005/007`）内回填的 CG 显示点未补钩子（332 处）

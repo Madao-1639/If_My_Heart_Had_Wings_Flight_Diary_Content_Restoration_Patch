@@ -41,6 +41,7 @@ except Exception:
 from tool import arcbuild, paths, perfsync, pnaids, ws2, ws2dis, ws2conv, ws2fmt, writer  # noqa: E402
 from tool import variants  # noqa: E402
 from tool import censormap  # noqa: E402  （9XX 号段命名隔离）
+from tool import cgunlock  # noqa: E402  （解锁组保存方式：抛弃 ORIG / 同名反查）
 
 ACH = (0x04, b'CG_ACHIEVEMENT\x00')
 JUMP_RENAME = {'KAN_3002_2': {'KAN_3002_3_E': 'KAN_3003_E'}}
@@ -102,12 +103,16 @@ def prep_orig(dec, orig_fmts, name_map, jump_map, pna_map=None):
     """原版解码流 → (instrs, orig_offs, tail)：改名（`%LC` 名 / `0x07` 目标）。
 
     ⚠️ **不注入成就**（2026-10-16 实测定案）：
-      * ORIG 与 Steam 的 CG 固有 id 对（`0x33` 后两条 `0x0b`）**交集为 0**（14 个脚本全为 0）
-        ⇒ 按 ORIG 的 id 注入 `04 CG_ACHIEVEMENT` 是**空操作**（Steam 成就表里没有该 id）；
-      * Steam 侧原有的 `0x0b`×2 + `04 CG_ACHIEVEMENT` 属 `KEEP_OPS` / 非 `LAYER_ORDER` 调用
-        ⇒ **删格时已被 `writer.drop_units` 保留**，成就可达性不受影响
-        （实测：被删区间内"只此一处"的 Steam 成就触发点 14 个，其 `0x0b`×2+成就调用全部留存）；
+      * 按 ORIG 的 id 注入 `04 CG_ACHIEVEMENT` 是**空操作**（Steam 成就表按 B 索引，
+        原版 B 查不到）；
       * `AGS_001` 是**整条被删的线路**，Steam 侧不存在任何对应成就 ⇒ 更无须注入。
+    ⚠️ **解锁组（`0b A 01 0b B 01`）另按 ASF 口径处置**（2026-10-28 定案，
+    `tool/cgunlock.py` + `tool/writer.py`）：原版编号的解锁对**不得**进产物——
+    原版 B 值域（1180..1922）与 Steam 画廊条目号（1170..1488）重叠，会误点亮没看过的
+    缩略图并虚增 CG 收集计数。因此：插入块与 `replace` 补块**不搬原版 `0b` 对**；
+    还原块的显示点若无 Steam 同名，则不点亮任何条目（原版 CG 在 Steam 画廊里本就没有
+    条目）；若有 Steam 同名显示点，则**同名反查**改成 Steam 那一对（后处理负责）。
+    详见 doc/file-formats.md「CG 解锁组（`0b A 01 0b B 01`）的保存方式」。
     """
     ins, tail = ws2conv.parse(dec, orig_fmts)
     offs, q = [], 0
@@ -230,6 +235,7 @@ def main():
     by_name = {nb.decode('utf-16le'): i for i, (nb, _) in enumerate(steam_members)}
 
     slot_sources, report, ach_steam = {}, [], {}
+    cg_unlock_stat = {}
     evret_steam = {}
     for sc, p in sorted(plan['scripts'].items()):
         raw = orig[p['orig_file']]
@@ -371,6 +377,8 @@ def main():
             _dec16b, _n16b = ws2.drop_choice_frame_op16(ws2.decode(res['raw']))
             assert _n16b == 0, '%s 变体帧内出现 0x16 ×%d（拼接器缺陷）' % (sc, _n16b)
             steam_members[i] = (steam_members[i][0], res['raw'])
+            if res.get('cg_unlock'):
+                cg_unlock_stat[sc] = res['cg_unlock']
             slots = [[k, v] for k, v in res['slot_sources']]
             report.append('| %s | host | %s | %d 槽（插 %d） | fixup=%d/%d（回落 %d） | lc=%d jump=%d ach=%d ids=%d flag46=%d flag47=%d | noop=%d |'
                           % (sc, p['steam_file'], res['n_slots'],
@@ -382,6 +390,30 @@ def main():
         if sc in variant_detail:
             # 变体布局（供闸门直接使用：条目落点 brA/brB、汇合点 conf、区间、槽位信息）
             slot_sources[sc]['variant'] = variant_detail[sc]
+
+    # ── 解锁组的保存方式（ASF 口径，见 tool/cgunlock.py 与 doc/file-formats.md）──
+    # 逐脚本：① **抛弃**原版命名空间的解锁对（Steam 表里不存在 ⇒ 空操作，但其 B 会
+    # 与 Steam 画廊条目号碰撞而误点亮没看过的缩略图 / 虚增 CG 完成度）；
+    # ② **同名反查**：原版显示的那张 CG 在 Steam 里也有同名显示点时，改写为 Steam 的
+    # 解锁对（同一张画面两版各一套编号）。删除后统一重定基，回读校验。
+    _cg_idx, _cg_native = cgunlock.steam_index(
+        {nb.decode('utf-16le').upper(): d
+         for nb, d in arcbuild.read_raw(os.path.join(paths.STEAM, 'Rio.arc'))
+         if nb.decode('utf-16le').lower().endswith('.ws2')})
+    _cg_spec = cgunlock.scan(
+        {nb.decode('utf-16le').upper(): d for nb, d in steam_members},
+        _cg_idx, _cg_native)
+    cg_stat = {}
+    for _i, (_nb, _d) in enumerate(steam_members):
+        _nm = _nb.decode('utf-16le').upper()
+        _sp = _cg_spec.get(_nm)
+        if not _sp or (not _sp['drop'] and not _sp['repoint']):
+            continue
+        _new, _st = cgunlock.plan_bytes(_d, _sp)
+        steam_members[_i] = (_nb, _new)
+        cg_stat[_nm] = _st
+        print('  ~ %-22s 解锁组：抛弃 ORIG %d / 同名反查 %d（%d -> %d B）'
+              % (_nm, _st['drop'], _st['repoint'], len(_d), len(_new)))
 
     out_arc = os.path.join(ROOT, 'asset', 'Rio.arc')
     os.makedirs(os.path.dirname(out_arc), exist_ok=True)
