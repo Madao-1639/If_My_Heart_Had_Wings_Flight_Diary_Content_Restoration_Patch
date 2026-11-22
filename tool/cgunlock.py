@@ -107,7 +107,19 @@ def scan(scripts, index, native):
 
 
 def _rebase(dec, ins, removed, changes):
-    """按删除区间重定基全部流内绝对偏移。`removed` = [(lo, hi)] 降序区间。"""
+    """按删除区间重定基全部流内绝对偏移。`removed` = [(lo, hi)] 降序区间。
+
+    重定基面必须**与 `ws2`/`ws2conv` 的 `REBASE_OPS` 同口径**，并额外覆盖
+    **`0f` 条目内联的 `06 <u32>` 跳转**（条目跳转不在 `REBASE_FIELDS` 里，是
+    `0x0f` 操作数内部的结构）。
+
+    ⚠️ **历史缺陷（`final_verification` 9d/9f 的 7 处失败）**：本函数原先只重定基
+    `0x01`/`0x02`/`0x06`，漏了 `0f` 条目。后果只在**同时含 `0f` 与可删解锁对**的脚本上
+    显现：条目跳转停在旧坐标 ⇒ 落在指令中部（引擎行为未定义）。7 个 choice 变体脚本
+    （`AFT_003`/`AFT_007_3`/`BEF_003`/`BEF_004`/`HOT_002`/`HUS_001`/`KAN_2001`）全中。
+    修法：条目跳转按 `move()` 同口径平移。
+    """
+    from . import ws2dis
     starts = {x[0]: x for x in ins}
 
     def move(v):
@@ -135,6 +147,19 @@ def _rebase(dec, ins, removed, changes):
             if any(lo <= v < hi for lo, hi in removed):
                 raise AssertionError('跳转目标 %#x 落在被删的解锁组内（须先改流程）' % v)
             new[base + k:base + k + 4] = struct.pack('<I', move(v))
+        if op == 0x0F:
+            # `0f` 条目**内联**在操作数里（条目 = strid + text + label + 0 + `06 <u32>`）。
+            # 条目跳转是流内绝对偏移，必须与普通跳转**同口径**平移；它不在
+            # `REBASE_FIELDS` 里（那是操作数字段的算法），漏掉就会停在旧坐标。
+            for _so, _to, _lo, _jo, _kind, _val in ws2dis.choice_entries(dec, off):
+                if _kind != 'abs' or not _val:
+                    continue
+                assert _val in starts, '0f 条目跳转 %#x 不在指令起点' % _val
+                if any(lo <= _val < hi for lo, hi in removed):
+                    raise AssertionError(
+                        '0f 条目跳转 %#x 落在被删的解锁组内（须先改流程）' % _val)
+                _no = move(off) + (_jo - off)       # 条目跳转字段在删除后的绝对位置
+                new[_no:_no + 4] = struct.pack('<I', move(_val))
     return bytes(new)
 
 
@@ -161,7 +186,9 @@ def plan_bytes(raw, spec):
         changes[off] = struct.pack('<H', a2) + a[3][2:]
         changes[b[0]] = struct.pack('<H', b2) + b[3][2:]
     out = _rebase(dec, ins, removed, changes)
-    # 回读：跳转全部落到指令起点
+    # 回读：**全部**流内绝对偏移（含 `0f` 条目跳转）必须落到指令起点。
+    # ⚠️ 旧版回读只查 `REBASE_FIELDS`，与 `_rebase` 漏 `0f` 是同一个盲点——
+    # 写入端与闸同时漏，所以 9d/9f 的 7 处错误直到独立闸才暴露。两者必须同口径。
     ins2, ok2 = ws2dis.disassemble(out)
     assert ok2, '改写后线性解析失步'
     st2 = {x[0] for x in ins2}
@@ -172,4 +199,40 @@ def plan_bytes(raw, spec):
             v = struct.unpack_from('<I', ops, k)[0]
             if v:
                 assert v in st2, '回读：op %#x 目标 %#x 不在指令起点' % (op, v)
-    return ws2.encode(out), {'drop': len(removed), 'repoint': len(spec['repoint'])}
+        if op == 0x0F:
+            for _e in ws2dis.choice_entries(out, off):
+                if _e[4] == 'abs' and _e[5]:
+                    assert _e[5] in st2, \
+                        '回读：0f@%#x 条目跳转 %#x 不在指令起点' % (off, _e[5])
+    return ws2.encode(out), {'drop': len(removed),
+                             'repoint': len(spec['repoint']),
+                             'removed': list(removed)}
+
+
+def shift_targets(stat, targets):
+    """按 `plan_bytes` 的删除区间平移一组「解码流内绝对偏移」→ 新坐标。
+
+    `stat` = `plan_bytes` 返回的统计字典（需含 `removed` = 真实删除区间 [lo,hi)）；
+    `targets` = {名: 偏移}（如 `slot_sources[sc]['variant']['targets']` 的 brA/brB/conf）。
+
+    **为什么需要**：`variants.apply` 先把 brA/brB/conf 的绝对偏移写进 `slot_sources`，
+    `plan_bytes` 之后才删解锁组并整体前移 ⇒ 那些偏移全部作废。不重算会发生
+    「落盘布局（targets）与产物字节脱钩」，闸按 targets 回读时一律报「不在指令起点」
+    （`variant_route_check` 35 项 FAIL 即此）。
+
+    ⚠️ **删除区间必须从 `stat` 取、不得按「每对固定 N 字节」推算**：一对解锁组是
+    `0b <u16 A> 01` + `0b <u16 B> 01` = 4+4 = **8 B**（不是 12——早期按 12 算会让
+    平移量偏大 50%，与「`removed` 的 hi-lo」互相矛盾而静默算错）。
+    ⚠️ 落点若**落在被删区间内**，说明该落点本身要被删掉——那是结构错误（分支起点/
+    汇合点不可能在解锁组里），直接断言失败，不做静默吸附。
+    """
+    spans = [(lo, hi) for lo, hi in (stat or {}).get('removed') or []]
+    if not spans:
+        return dict(targets)
+    out = {}
+    for k, v in targets.items():
+        cut = sum(hi - lo for lo, hi in spans if v >= hi)
+        assert not any(lo <= v < hi for lo, hi in spans), \
+            '变体落点 %s=%#x 落在被删的解锁组内 %r（结构错误）' % (k, v, spans)
+        out[k] = v - cut
+    return out

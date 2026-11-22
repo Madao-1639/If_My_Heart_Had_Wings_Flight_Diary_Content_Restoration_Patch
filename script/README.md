@@ -4,8 +4,8 @@
 
 | 目录/脚本 | 用途 |
 |---|---|
-| `build/` | 还原流水线：`build_restore_plan` → `build_pna_id_map` → `build_patch` → `build_l3` → `build_l4_extra` → `build_pna_repair` → `build_lng`；**`fix_cg_unlocks.py`** = 对已存在的 `asset/Rio.arc` 幂等施加「解锁组保存方式」（无需原版目录，`--apply` 才写） |
-| `checks/` | 验收闸：内容一致性、演出同步、CG 序列/解锁、PNA 记录号、**回想守卫/出口（`replay_guard_check.py`）**、**WS2 尾表（`ws2_tail_check.py`）**、**选项头（`choice_header_check.py`）**、**选项文本/人名规范（`choice_spec_check.py`）**、**人名帧一致性（`name_frame_check.py`）**、**跳转自洽/槽位等式（`choice_jump_check.py`）**、**选项帧内无 `0x16`（`choice_frame_check.py`）**、语料预检/回读、资源覆盖 |
+| `build/` | 还原流水线：`build_restore_plan` → `build_pna_id_map` → `build_patch` → `build_l3` → `build_l4_extra` → `build_pna_repair` → `build_lng`，最后 **`build_seam_scope`**（产 `resource/seam_scope.json`，需 `asset/` 已就绪）；**`fix_cg_unlocks.py`** = 对已存在的 `asset/Rio.arc` 幂等施加「解锁组保存方式」（无需原版目录，`--apply` 才写） |
+| `checks/` | 验收闸：内容一致性、演出同步、CG 序列/解锁、PNA 记录号、**回想守卫/出口（`replay_guard_check.py`）**、**WS2 尾表（`ws2_tail_check.py`）**、**选项头（`choice_header_check.py`）**、**选项文本/人名规范（`choice_spec_check.py`）**、**人名帧一致性（`name_frame_check.py`）**、**跳转自洽/槽位等式（`choice_jump_check.py`）**、**选项帧内无 `0x16`（`choice_frame_check.py`）**、**跨脚本接缝（`seam_check.py`，纯检测不改产物）**、语料预检/回读、资源覆盖 |
 | `final_verification.py` | 全量验收（归档/调用链/成就/资源/零破坏/可复现） |
 | `generate_payload.py` | `asset/` vs `backup/` → `payload/` 增量包 + 回读重放校验 |
 | `pack.sh` | PyInstaller 打包 `tool/install.py` → `releases/` |

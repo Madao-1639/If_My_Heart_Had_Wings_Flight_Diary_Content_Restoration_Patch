@@ -243,6 +243,34 @@ def apply_choice(script, steam_raw, prod_raw, slots, spec, var_id):
     ]
     raw, tc = _finish(groups)
 
+    # ── 落点自校验（硬约束）───────────────────────────────────────────────
+    # `brA`/`brB`/`conf` 是**纯算术**算出来的新流坐标，必须真的是各自分支的落点。
+    # 历史缺陷：计划值与实际布局差 400–1000 B，症状只表现为「`0f` 条目跳转不落在
+    # 指令起点」（`final_verification` 9f 才能发现）。在此就地断言四项。
+    # 不能靠下游闸发现：错位一旦流出去，引擎就是跳进指令中部（行为未定义）。
+    _dec = ws2.decode(raw)
+    _ins, _ok = ws2dis.disassemble(_dec)
+    assert _ok, '%s 变体拼接后线性解析不自洽' % script
+    _at = {o: (op, ops) for o, op, _sz, ops in _ins}
+    for _nm, _v in (('brA', brA), ('brB', brB), ('conf', conf)):
+        assert _v in _at, \
+            '%s %s=%#x 不在指令起点（计划值比实际布局大 %d B）' % (
+                script, _nm, _v,
+                _v - max((o for o in _at if o <= _v), default=0))
+    _fl0 = _flag(t['opt1']['var_val'])
+    _fl1 = _flag(t['opt2']['var_val'])
+    assert (_at[brA][0] == 0x0B
+            and int.from_bytes(_at[brA][1][:2], 'little') == var_id
+            and _at[brA][1][2] == _fl0), '%s brA 处不是 `0b var %d`' % (script, _fl0)
+    assert (_at[brB][0] == 0x0B
+            and int.from_bytes(_at[brB][1][:2], 'little') == var_id
+            and _at[brB][1][2] == _fl1), '%s brB 处不是 `0b var %d`' % (script, _fl1)
+    _jp = [o for o, op, _sz, _ops in _ins if op == 0x06 and brA < o < brB]
+    assert _jp and int.from_bytes(_at[_jp[-1]][1][:4], 'little') == conf, \
+        '%s 分支 A 的收尾 06 目标不是 conf=%#x（实测 %s）' % (
+            script, conf,
+            [hex(int.from_bytes(_at[o][1][:4], 'little')) for o in _jp[-2:]])
+
     # 槽位表（文件序）：head 槽 + prompt/opt1/opt2/pp1 + 分支 A 槽（区间内）+ pp2
     # + Steam 行槽（分支 B 整段，含与分支 A 重复的共享行——文件里出现两次，各占一槽）
     # + 汇合点之后的尾部槽

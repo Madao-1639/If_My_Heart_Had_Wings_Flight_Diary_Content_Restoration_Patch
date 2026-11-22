@@ -400,8 +400,12 @@ def main():
         {nb.decode('utf-16le').upper(): d
          for nb, d in arcbuild.read_raw(os.path.join(paths.STEAM, 'Rio.arc'))
          if nb.decode('utf-16le').lower().endswith('.ws2')})
+    # `scan` 入参**必须**与 `steam_index` 同口径只给 `.ws2`：归档里还有 `NameTable.txt`
+    # 等非脚本成员，把全表交给 `scan` 会对它反汇编 ⇒
+    # `opcode 0x?? undefined in format table @0x36` ⇒ 构建直接失败。
     _cg_spec = cgunlock.scan(
-        {nb.decode('utf-16le').upper(): d for nb, d in steam_members},
+        {nb.decode('utf-16le').upper(): d for nb, d in steam_members
+         if nb.decode('utf-16le').lower().endswith('.ws2')},
         _cg_idx, _cg_native)
     cg_stat = {}
     for _i, (_nb, _d) in enumerate(steam_members):
@@ -412,6 +416,17 @@ def main():
         _new, _st = cgunlock.plan_bytes(_d, _sp)
         steam_members[_i] = (_nb, _new)
         cg_stat[_nm] = _st
+        # 变体布局（`slot_sources[sc].variant.targets`）记的是**删解锁组前**的坐标：
+        # `variants.apply` 先写表、`plan_bytes` 后删字节（每对 12 B）⇒ 必须同步平移，
+        # 否则「落盘布局」与产物字节脱钩，闸按 targets 回读会一律报「不在指令起点」。
+        _sc = _nm[:-len('_E.WS2')] if _nm.endswith('_E.WS2') else _nm
+        _vd = variant_detail.get(_sc)
+        if _vd and _vd.get('targets'):
+            _old = dict(_vd['targets'])
+            _vd['targets'] = cgunlock.shift_targets(_st, _old)
+            _vd.setdefault('targets_pre_cg', _old)
+            assert _vd['targets'] != _old or not _st['drop'], \
+                '%s 解锁组删除 %d 处但变体布局未平移' % (_sc, _st['drop'])
         print('  ~ %-22s 解锁组：抛弃 ORIG %d / 同名反查 %d（%d -> %d B）'
               % (_nm, _st['drop'], _st['repoint'], len(_d), len(_new)))
 

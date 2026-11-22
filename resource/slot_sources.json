@@ -4315,8 +4315,8 @@
    ],
    "targets": {
     "brA": 63360,
-    "brB": 122542,
-    "conf": 129040
+    "brB": 121902,
+    "conf": 128400
    },
    "tail_counts": [
     1073,
@@ -4324,7 +4324,12 @@
    ],
    "slots": 1075,
    "ach_in_body": 4,
-   "ach_removed": 4
+   "ach_removed": 4,
+   "targets_pre_cg": {
+    "brA": 63360,
+    "brB": 122542,
+    "conf": 129040
+   }
   }
  },
  "AFT_005": {
@@ -9289,8 +9294,8 @@
    ],
    "targets": {
     "brA": 7444,
-    "brB": 52364,
-    "conf": 58613
+    "brB": 51876,
+    "conf": 58125
    },
    "tail_counts": [
     484,
@@ -9298,7 +9303,12 @@
    ],
    "slots": 486,
    "ach_in_body": 3,
-   "ach_removed": 3
+   "ach_removed": 3,
+   "targets_pre_cg": {
+    "brA": 7444,
+    "brB": 52364,
+    "conf": 58613
+   }
   }
  },
  "AGS_001": {
@@ -18903,8 +18913,8 @@
    ],
    "targets": {
     "brA": 43024,
-    "brB": 79729,
-    "conf": 88272
+    "brB": 79297,
+    "conf": 87840
    },
    "tail_counts": [
     1272,
@@ -18912,7 +18922,12 @@
    ],
    "slots": 1274,
    "ach_in_body": 6,
-   "ach_removed": 6
+   "ach_removed": 6,
+   "targets_pre_cg": {
+    "brA": 43024,
+    "brB": 79729,
+    "conf": 88272
+   }
   }
  },
  "BEF_004": {
@@ -22919,8 +22934,8 @@
    ],
    "targets": {
     "brA": 116687,
-    "brB": 164767,
-    "conf": 169552
+    "brB": 163759,
+    "conf": 168544
    },
    "tail_counts": [
     993,
@@ -22928,7 +22943,12 @@
    ],
    "slots": 997,
    "ach_in_body": 2,
-   "ach_removed": 2
+   "ach_removed": 2,
+   "targets_pre_cg": {
+    "brA": 116687,
+    "brB": 164767,
+    "conf": 169552
+   }
   }
  },
  "BEF_005": {
@@ -35135,8 +35155,8 @@
    ],
    "targets": {
     "brA": 197470,
-    "brB": 238481,
-    "conf": 245358
+    "brB": 237993,
+    "conf": 244870
    },
    "tail_counts": [
     1576,
@@ -35144,7 +35164,12 @@
    ],
    "slots": 1578,
    "ach_in_body": 11,
-   "ach_removed": 10
+   "ach_removed": 10,
+   "targets_pre_cg": {
+    "brA": 197470,
+    "brB": 238481,
+    "conf": 245358
+   }
   }
  },
  "HOT_003": {
@@ -53653,8 +53678,8 @@
    ],
    "targets": {
     "brA": 50814,
-    "brB": 136851,
-    "conf": 194154
+    "brB": 136299,
+    "conf": 193602
    },
    "tail_counts": [
     1193,
@@ -53662,7 +53687,12 @@
    ],
    "slots": 1195,
    "ach_in_body": 15,
-   "ach_removed": 12
+   "ach_removed": 12,
+   "targets_pre_cg": {
+    "brA": 50814,
+    "brB": 136851,
+    "conf": 194154
+   }
   }
  },
  "KAN_1001": {
@@ -57029,8 +57059,8 @@
    ],
    "targets": {
     "brA": 3889,
-    "brB": 84710,
-    "conf": 173332
+    "brB": 84694,
+    "conf": 173316
    },
    "tail_counts": [
     751,
@@ -57038,7 +57068,12 @@
    ],
    "slots": 753,
    "ach_in_body": 9,
-   "ach_removed": 6
+   "ach_removed": 6,
+   "targets_pre_cg": {
+    "brA": 3889,
+    "brB": 84710,
+    "conf": 173332
+   }
   }
  },
  "KAN_2002": {

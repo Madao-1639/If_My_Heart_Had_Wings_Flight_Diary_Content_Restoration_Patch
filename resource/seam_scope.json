@@ -1,0 +1,107 @@
+{
+ "note": "跨脚本接缝的适用范围与实测结论（产出端 script/build/build_seam_scope.py，消费方 script/checks/seam_check.py 与 script/final_verification.py 4c）。适用范围按**结构枚举**（why=whole 整脚本回填 ∪ why=head_slot0 首个改动槽位为 0 的宿主），不按「哪里测出残留」反推——按缺陷反推等于把筛子钉在已知缺陷上，换一处形态就静默漏检。字段分工：union_diff／residual 是诊断量（前序末尾不同 ≠ 玩家看得到差别，同一通道会被目标前缀区的显示覆盖）；carried／orig_carried 是缺陷判据的原料（前序残留原样活到目标首行），hard_channels = 产物 carried − 原版 carried 的定案值。**空集也列**：区分「查过且为空」与「没查」。",
+ "scope": {
+  "AGS_001": {
+   "why": "whole",
+   "entry_sources": [
+    "MAINMENU",
+    "REPLAY_EXE"
+   ],
+   "union_diff": [],
+   "residual": {},
+   "carried": {},
+   "orig_carried": {},
+   "hard_channels": []
+  },
+  "HUS_001": {
+   "why": "head_slot0",
+   "entry_sources": [
+    "MAINMENU",
+    "REPLAY_EXE"
+   ],
+   "union_diff": [],
+   "residual": {},
+   "carried": {},
+   "orig_carried": {},
+   "hard_channels": []
+  },
+  "KAN_1004": {
+   "why": "head_slot0",
+   "entry_sources": [
+    "KAN_1003"
+   ],
+   "union_diff": [],
+   "residual": {},
+   "carried": {},
+   "orig_carried": {},
+   "hard_channels": []
+  },
+  "KAN_2001": {
+   "why": "head_slot0",
+   "entry_sources": [
+    "KAN_1004"
+   ],
+   "union_diff": [
+    "bg01"
+   ],
+   "residual": {},
+   "carried": {},
+   "orig_carried": {},
+   "hard_channels": []
+  },
+  "KAN_3001_3": {
+   "why": "head_slot0",
+   "entry_sources": [
+    "KAN_3001_2",
+    "REPLAY_EXE"
+   ],
+   "union_diff": [],
+   "residual": {
+    "ev": [
+     "KAN_04_008B.PNG"
+    ]
+   },
+   "carried": {
+    "ev": "KAN_04_008B.PNG"
+   },
+   "orig_carried": {
+    "ev": "KAN_04_008B.PNG"
+   },
+   "hard_channels": []
+  },
+  "KAN_3001_4": {
+   "why": "head_slot0",
+   "entry_sources": [
+    "KAN_3001_3"
+   ],
+   "union_diff": [],
+   "residual": {},
+   "carried": {},
+   "orig_carried": {},
+   "hard_channels": []
+  },
+  "KAN_3002_2": {
+   "why": "head_slot0",
+   "entry_sources": [
+    "KAN_3002_1",
+    "REPLAY_EXE"
+   ],
+   "union_diff": [],
+   "residual": {},
+   "carried": {},
+   "orig_carried": {},
+   "hard_channels": []
+  },
+  "KAN_3004_2": {
+   "why": "head_slot0",
+   "entry_sources": [
+    "KAN_3004_1"
+   ],
+   "union_diff": [],
+   "residual": {},
+   "carried": {},
+   "orig_carried": {},
+   "hard_channels": []
+  }
+ }
+}

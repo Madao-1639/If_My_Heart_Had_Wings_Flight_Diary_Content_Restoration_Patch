@@ -384,7 +384,18 @@ def _layout(dec, spec):
 
 
 def _sites(ins):
-    """画廊显示站点 → [(偏移, CG 名, (A 旗标, B 旗标))]；对 = 显示后窗口内前两条 `0b`。"""
+    """画廊显示站点 → [(偏移, CG 名, (A 旗标, B 旗标))]。
+
+    配对口径**与 `tool/cgunlock.pair_instances` 严格一致**：只认**相邻**的
+    `0b <u16 A> 01` + `0b <u16 B> 01`（两条都要 `val == 1`）；扫描窗口 = 「本显示点之后、
+    到下一条 `0x14`／下一条显示（`0x33`/`0x34`）之前」——正是 `cgunlock` 里的 `owner` 作用域。
+
+    ⚠️ **旧实现是「跳过任意指令凑两条 `0b`」，会产生假对**：实测 `HUS_001` 的
+    `HUS_01_001S` 之后，`1042`（原版**场景旗标**，在原版里也是单条出现）与 `1404`
+    （Steam 画廊条目号，原版 0 次）被语音 `2e`+`28` 隔开，却被凑成 `(1042, 1404)`
+    报「不在同一区」。两者从来不是同一对，那个 FAIL 属闸的假阳。
+    **两边口径不一致时，恰是宽松的那一侧在自造结论**。
+    """
     out = []
     for i, (off, op, _sz, ops) in enumerate(ins):
         if op != 0x33:
@@ -392,15 +403,18 @@ def _sites(ins):
         parts = [x for x in ops.split(b'\x00') if x]
         if len(parts) < 2 or not CG_RX.match(parts[1]):
             continue
-        pair = []
-        for j in range(i + 1, min(len(ins), i + 120)):
-            if ins[j][1] in (0x14, 0x33):
-                break
-            if ins[j][1] == 0x0b:
-                pair.append(struct.unpack('<H', ins[j][3][:2])[0])
-                if len(pair) == 2:
-                    break
-        out.append((off, parts[1].decode('ascii', 'replace').upper(), tuple(pair)))
+        pair = ()
+        for j in range(i + 1, len(ins)):
+            op2 = ins[j][1]
+            if op2 in (0x14, 0x33, 0x34):
+                break                      # 换行 / 换显示点 ⇒ 换 owner，窗口结束
+            if op2 != 0x0b or j + 1 >= len(ins) or ins[j + 1][1] != 0x0b:
+                continue
+            a, b = ins[j][3], ins[j + 1][3]
+            if len(a) >= 3 and len(b) >= 3 and a[2] == 1 and b[2] == 1:
+                pair = (struct.unpack('<H', a[:2])[0], struct.unpack('<H', b[:2])[0])
+            break                          # 首对相邻 0b+0b 即定案（不论是否合格）
+        out.append((off, parts[1].decode('ascii', 'replace').upper(), pair))
     return out
 
 

@@ -671,3 +671,196 @@ def restored_scope(s_own, o_own, drops, inserts, n_steam):
                 if src == 'steam' and setter[chan] is not None:
                     out[setter[chan]] = True
     return out
+
+
+# ── 跨脚本接缝（seam）────────────────────────────────────────────────────────
+# 机制前提（移植姊妹作「跨脚本接缝」判据，见 doc/restoration-route.md §4.1、
+# doc/lessons-learned.md「跨脚本跳转不重置在屏状态」条）：
+# `0x07 <脚本名>` 只是「换一个脚本接着跑」——它**不重置在屏图层**。所以
+# 「某脚本第一行看到什么」取决于**谁跳进来**（前序脚本末尾的画面会被带进目标脚本），
+# 而单脚本视角（`row_setters`／`perf_rows` 从空屏起算）在结构上看不见这件事。
+#
+# 姊妹作的缺陷形态：Steam 在被删段收场处新增一幕全黑图（`st03 = BG00_01S.PNG`），
+# 整脚本回填后该黑幕无人接管、一路盖住新还原的场景 ⇒ **黑屏**。
+#
+# 本项目实测（2026-11-22，原版目录就位后）：scope 8 脚本的入口差集**全为空**，
+# 未出现该缺陷——本作唯一整脚本回填 `AGS_001` 的每条入边前序末尾通道（`bg01`）
+# 都在目标头部前 3 条指令内被自己的显示覆盖。故本模块当前只服务**闸**，
+# 产出端不插入任何清屏（插入无必要的清屏会改变首帧淡入）。
+#
+# 判据（三层，逐层收窄；上层只是诊断，下层才是缺陷判据）：
+#   ① 并集差  = ∪{前序末尾通道}（产物） − ∪{前序末尾通道}（原版）    → 诊断
+#   ② 残留    = 前序末尾通道中、目标**前缀区**（首条 `0x14` 之前）未接管的  → 诊断
+#   ③ 携入    = 残留中、其值**原样活到目标首行**的                        → 缺陷
+# 判据 ③ 是缺陷口径：只有「前序的图真的一路留到目标首行」才会让玩家看到错画面。
+# ② 里「被同一通道的别的显示覆盖」的项不构成缺陷（画面已换，看不到前序的图）。
+#
+# 适用范围**按结构枚举**，不按「哪里测出残留」反推（防下一批内容静默复发）：
+#   scope = {整脚本回填的脚本} ∪ {首个改动槽位为 0 的宿主}
+# 两者合起来恰好是「还原内容的**前缀**落在脚本最前面」的位置——那里的第一行画面
+# 完全由前序决定，宿主自身没有任何前缀指令可以兜住接缝。
+JUMP = 0x07
+
+
+def script_jumps(instrs):
+    """该脚本的跨脚本跳转目标名（大写原样；不做 `.ws2`／`_E` 归一，由调用方决定口径）。"""
+    out = []
+    for x in instrs:
+        op, ops = _pair(x)
+        if op != JUMP:
+            continue
+        s = _strs(ops)
+        if s:
+            out.append(s[0].upper())
+    return out
+
+
+def script_profile(instrs, canon=None):
+    """单脚本画像 → {'end': 末尾在屏, 'jumps': 跳转目标, 'took': 前缀区接管集}。
+
+    * `end`：整个脚本跑完时的在屏图像通道（`ev`／`st*`／`bg*`，值已归一）；
+    * `jumps`：`0x07` 目标名（大写）；
+    * `took`：**前缀区**（首条 `0x14` 之前）被接管（显示或清屏命中）的通道标记。
+      清屏按族级/通配展开成 `'#bg'`／`'#st'`／`'#ALL'`，供 `seam_hit()` 判。
+
+    `canon`：跳转目标名的归一函数（**必须给**）。两版命名空间不同（Steam `X_E` /
+    原版 `X`），不归一会把同一条边算成两条无关的边——`seam_entry` 会直接把目标判成
+    「无入边」，于是残留判据全空、闸假绿。归一**只用于对边**，不用于取文件。
+    """
+    state, jumps, took = {}, [], set()
+    first_row = False
+    for x in instrs:
+        op, ops = _pair(x)
+        s = _strs(ops)
+        if op == JUMP:
+            if s:
+                t = s[0].upper()
+                jumps.append(canon(t) if canon else t)
+            continue
+        if op in DISPLAY:
+            if len(s) >= 2 and _is_img_chan(s[0]):
+                state[s[0]] = norm_sprite(s[1])
+                if not first_row:
+                    took.add(s[0])
+        elif op == CLEAR:
+            if not s:
+                continue
+            c = s[0]
+            if not first_row:
+                if c == WILDCARD:
+                    took.add('#ALL')
+                elif c in FAMILY:
+                    took.add('#' + c)
+                else:
+                    took.add(c)
+            pop_clear(state, c)
+        elif op == ROW:
+            first_row = True
+    return {'end': {k: v for k, v in state.items() if _is_img_chan(k)},
+            'jumps': jumps, 'took': took}
+
+
+def seam_hit(took, chan):
+    """该通道是否已被目标前缀区接管（精确名／族级／通配三者任一命中）。"""
+    return (chan in took or '#ALL' in took
+            or ('#' + chan[:2] in took and chan[:2] in FAMILY))
+
+
+def seam_entry(profiles, targets):
+    """逐目标脚本 → {通道: {各入边路径的末尾取值}}（只沿 `0x07` 边）。"""
+    out = {t: {} for t in targets}
+    for pre, p in profiles.items():
+        for t in p['jumps']:
+            if t not in out or t == pre:
+                continue
+            for c, v in p['end'].items():
+                out[t].setdefault(c, set()).add(v)
+    return out
+
+
+def seam_resid(profiles, targets):
+    """逐目标脚本 → {通道: {值}}，只留**目标前缀区未接管**的（判据 ②）。"""
+    out = {}
+    for t, chans in seam_entry(profiles, targets).items():
+        took = profiles[t]['took'] if t in profiles else set()
+        left = {c: vs for c, vs in chans.items() if not seam_hit(took, c)}
+        if left:
+            out[t] = left
+    return out
+
+
+def seam_carried(prod_instrs, profiles, targets):
+    """逐目标脚本 → {(通道, 值)}：前序残留中**原样活到目标首行**的那些（判据 ③）。
+
+    对**每一条**入边 `pre -> tgt` 单独算：以 `pre` 的末尾在屏状态为**初始状态**跑
+    `tgt` 的前缀区，再看哪些通道「既未被本区改写、也未被清掉、且值仍等于 pre 的末尾值」。
+    这些通道就是前序留下、且会一路被玩家看到的图。
+
+    ⚠️ **必须按边分别算，不能按目标聚合**：同一目标可有多个前序（剧情前序、回想列表
+    页 `REPLAY_EXE` 等），各前序末尾状态不同，聚合会把「某条边带进来的图」与「另一条
+    边带进来的图」混成一个不存在的状态（姊妹作把这条写进 §4.1 的判定前提②）。
+    """
+    out = {}
+    for t in targets:
+        if t not in prod_instrs:
+            continue
+        got = {}
+        for pre, p in profiles.items():
+            if t not in p['jumps'] or pre == t or not p['end']:
+                continue
+            first = _first_row_state(prod_instrs[t], p['end'])
+            took = profiles[t]['took'] if t in profiles else set()
+            for c, v in p['end'].items():
+                if seam_hit(took, c):
+                    continue                      # 目标前缀区已接管该通道
+                if first.get(c) == v:             # 前序的图原样留到首行
+                    got[c] = v
+        if got:
+            out[t] = got
+    return out
+
+
+def _first_row_state(instrs, entry):
+    """以 `entry` 为**初始状态**跑前缀区，返回首条 `0x14` 时刻的在屏图像通道（值归一）。
+
+    `entry` 是前序脚本末尾的在屏状态（**不是空屏**）——接缝的整个问题就在这里：
+    前序的画会被带进本脚本。以空屏起算等于回到了「单脚本视角」，看不见接缝。
+    """
+    state = dict(entry or {})
+    for x in instrs:
+        op, ops = _pair(x)
+        s = _strs(ops)
+        if op in DISPLAY:
+            if len(s) >= 2 and _is_img_chan(s[0]):
+                state[s[0]] = norm_sprite(s[1])
+        elif op == CLEAR:
+            if s:
+                pop_clear(state, s[0])
+        elif op == ROW:
+            return {k: v for k, v in state.items() if _is_img_chan(k)}
+    return {k: v for k, v in state.items() if _is_img_chan(k)}
+
+
+def seam_scope(plan_scripts):
+    """结构枚举适用范围 → 排序后的脚本名集合。
+
+    `plan_scripts` = `restore_plan.json` 的 `scripts` 段。
+    * `kind == 'whole'`：整脚本回填（整个脚本的前缀都是还原内容）；
+    * `kind == 'host'` 且**首个改动槽位为 0**：还原内容的前缀落在宿主最前面
+      （`inserts` 锚 -1 归一为 0、`drops`／`perf_sync` 落在槽 0）。
+    """
+    out = set()
+    for sc, p in plan_scripts.items():
+        if p.get('kind') == 'whole':
+            out.add(sc.upper())
+            continue
+        if p.get('kind') != 'host':
+            continue
+        cand = []
+        for a, _r0, _r1 in (p.get('inserts') or []):
+            cand.append(a if a >= 0 else 0)
+        cand.extend(p.get('drops') or [])
+        cand.extend(int(k) for k in (p.get('perf_sync') or {}))
+        if cand and min(cand) == 0:
+            out.add(sc.upper())
+    return sorted(out)

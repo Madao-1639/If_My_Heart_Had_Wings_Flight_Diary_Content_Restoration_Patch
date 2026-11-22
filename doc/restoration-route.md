@@ -75,6 +75,35 @@
 4. **不设默认语言**：安装器**不写注册表、不改游戏默认语言**。`zh-CN/{Rio,SysGraphic,...}.arc` 等语言包文件与其它交付条目一样由 `payload/METADATA.json` 落盘，语言生效与否沿用游戏自身既有设置（引擎在「注册表无值」时的行为见 [engine-mechanics.md](engine-mechanics.md)「语言包」）。姊妹作那条「写 `HKCU\Software\WillPlus\AdvHD\LanguageSettings`」的工序本作**不采用**。
 5. **交付面仍由 METADATA 决定**：安装器不写死归档名单，按条目 `kind` 分派（`merge` 走成员重组、`copy` 整档覆盖、`loose` 逐文件复制），显示名由 `LABELS` 表按界面语言取。
 
+### 4.2 跨脚本接缝（在屏状态跨 `0x07` 跳转的连续性）
+
+**机制前提**：`0x07 <脚本名>` 只是「换一个脚本接着跑」，**不重置在屏图层**。所以「某脚本第一行看到什么」取决于**谁跳进来**——前序脚本末尾的画面会被带进目标脚本。单脚本视角（`perfsync.row_setters`／`perf_rows` 从空屏起算）在结构上看不见这件事；同名的状态规范化（§5.1 的 `writer.align_state`）只覆盖**脚本内**的插入块边界，**接缝不在那两条边界上**。
+
+**适用范围＝结构枚举**（不按「哪里测出残留」反推——按缺陷反推等于把筛子钉在已知缺陷上，换一处形态就静默漏检）：
+
+    scope = { 整脚本回填的脚本（`kind=whole`）}
+          ∪ { 首个改动槽位为 0 的宿主（插入锚 -1／`drops` 落槽 0／`perf_sync` 落槽 0）}
+
+两者合起来恰好是「还原内容的**前缀**落在脚本最前面」的位置——那里的第一行画面完全由前序决定，宿主自身没有任何前缀指令兜住接缝。范围内**所有入边全查**，不看当前有没有差异。生产端 `tool/perfsync.seam_scope()`（枚举）＋ `script/build/build_seam_scope.py`（复算写表），入库表 `resource/seam_scope.json`。
+
+**三层判据**（逐层收窄；①② 只作诊断，③ 才是缺陷口径）：
+
+| 层 | 定义 | 用途 |
+|---|---|---|
+| ① 并集差 | `∪{前序末尾通道}(产物) − ∪{前序末尾通道}(原版)` | 诊断 |
+| ② 残留 | 前序末尾通道中、目标**前缀区**（首条 `0x14` 之前）未被接管的 | 诊断 |
+| ③ 携入 | 残留中、其值**原样活到目标首行**的 | **缺陷（HARD）** |
+
+**为什么不能拿 ① 判**：①非空只说明「前序末尾不同」，不说明「玩家看得到差别」——同一通道会被目标前缀区的显示覆盖。按 ① 判会为 0 收益插入清屏，反而改变首帧淡入。实例与读数见 [lessons-learned.md](lessons-learned.md)「跨脚本跳转不重置在屏图层」条。
+
+**必须按边分别算，不能按目标聚合**：同一目标可有多个前序（剧情前序、回想列表页 `REPLAY_EXE` 等），各前序末尾状态不同，聚合会造出一个不存在的状态。
+
+**当前定案**：范围 8 脚本（`AGS_001` 整脚本 + `HUS_001`/`KAN_1004`/`KAN_2001`/`KAN_3001_3`/`KAN_3001_4`/`KAN_3002_2`/`KAN_3004_2` 首改动槽位 0），**③ 携入全为空** ⇒ **产物不插任何清屏**。逐脚本读数见 `resource/seam_scope.json`。
+
+**法门只做检测，不改产物**：产出端 `script/build/build_seam_scope.py`（幂等复算并写表）；闸 `script/checks/seam_check.py`（`final_verification` 第 **4c** 项）。双向 HARD：③ 非空（缺治理）／入库表与实算漂移（范围或定案被改而未重定案）。明细写 `tmp/seam_check.md`（逐条入边带两侧状态，不只给计数）。
+
+⚠️ 若将来往脚本**头部**新增还原内容而该脚本首条显示不接管前序通道，③ 会变非空 ⇒ 要么让还原块自带清屏、要么在头部插入 `37 <通道>`（插到 offset 0 且全量重定基，并与 `0x14` 条数等式、尾表重算一并处理），**不得**静默跳过。
+
 ---
 
 ## 5. 验收
@@ -96,7 +125,10 @@
 - `script/checks/pna_id_check.py`（立绘记录号 / 层内修复）：产物所有 `0x39` 记录号必须落在产物 PNA 记录表内；`repair` 记录的子图/box 必须等于原版、非 repair 记录必须等于 Steam 基线；产物引用到「改画记录」时必须已修复或成员已登记 `perf_waivers`；`repair` 不得与 `waive` 重叠。
 - `script/checks/ws2_tail_check.py`（WS2 尾表）：产物每个 `.ws2` 的**末尾 8 字节明文** `[u32 消息数][u32 选项条目数]` 必须等于实算的 `0x14`/`0x0f` 条数。偏小 ⇒ 引擎「已读位图」容量不足 ⇒ 写位越界写坏堆 ⇒ 概率性闪退；见 [file-formats.md](file-formats.md)「尾部 8 字节」与 [lessons-learned.md](lessons-learned.md) 「改写 ws2 必须同步重写末尾 8 字节明文尾表」条。
 - `script/checks/replay_guard_check.py`（回想守卫/出口）：`resource/replay_guards.json` 的 `action=drop` 脚本，产物里 `07 NextFile EVRET` 必须为 0；`action=keep` 脚本的 EVRET 处数必须等于 Steam 基线；**全局**任何宿主不得比 Steam 基线多出 EVRET（= 不得出现孤立的回想出口，见 [route-mechanics.md](route-mechanics.md) §1.5）。
-- `script/checks/variant_route_check.py`（变体共存，14 脚本 / 8 变量）：路由变量 {1960,1961,1962,1965,1966,1967,1968,1969} 在两侧基线全库 0 占用、产物里只出现在变体脚本；choice 结构**按落盘布局回读**（`resource/slot_sources.json` 的 `[sc].variant.targets`：brA/brB/conf）——条目落点、`0b var val`、`14 "%P"`、`0e` 头、提示句、汇合 `06`；route 的 Steam 体与基线**逐指令等值**（`0x14` 只比正文，绝对偏移按统一 delta 平移），`KAN_3002_2` 的尾跳分叉由表内 `tail_jump_diverges` 声明；choice 的分支 B 体同样逐指令等值 Steam 行区间；`variant`/`vchoice` 槽的中文逐条非空；**画廊解锁点条件可达且归属各自分支**（Steam 站点不丢（还原区间豁免）/ 显示与解锁对同区 / 分支头部无**连续 `0b`** 夹带，政策见 [restoration-scope.md](restoration-scope.md) §8）。
+- `script/checks/seam_check.py`（跨脚本接缝）：`0x07` 跳转**不重置在屏图层** ⇒ 目标脚本第一行看到什么取决于谁跳进来。范围按**结构枚举**（整脚本回填 ∪ 首个改动槽位为 0 的宿主），范围内**所有入边全查**；判据分三层，只有 ③「前序残留**原样活到目标首行**」才判 HARD（①② 只作诊断——前序末尾不同 ≠ 玩家看得到差别，同通道会被目标前缀区的显示覆盖）。入库表 `resource/seam_scope.json`（**空集也列**），与实算不符即 HARD。机制与本节定案见 §4.2。
+- `script/checks/variant_route_check.py`（变体共存，15 脚本 / 8 变量）：路由变量 {1960,1961,1962,1965,1966,1967,1968,1969} 在两侧基线全库 0 占用、产物里只出现在变体脚本；choice 结构**按落盘布局回读**（`resource/slot_sources.json` 的 `[sc].variant.targets`：brA/brB/conf）——条目落点、`0b var val`、`14 "%P"`、`0e` 头、提示句、汇合 `06`；route 的 Steam 体与基线**逐指令等值**（`0x14` 只比正文，绝对偏移按统一 delta 平移），`KAN_3002_2` 的尾跳分叉由表内 `tail_jump_diverges` 声明；choice 的分支 B 体同样逐指令等值 Steam 行区间；`variant`/`vchoice` 槽的中文逐条非空；**画廊解锁点条件可达且归属各自分支**（Steam 站点不丢（还原区间豁免）/ 显示与解锁对同区 / 分支头部无**连续 `0b`** 夹带，政策见 [restoration-scope.md](restoration-scope.md) §8）。
+  - ⚠️ **解锁对的配对口径必须与 `tool/cgunlock.pair_instances` 严格一致**：闸侧只认**相邻**的 `0b <A> 01` + `0b <B> 01`，作用域＝「本显示点之后到下一个 `0x14`／显示点之前」。旧实现「跳过任意指令凑两条 `0b`」会拼出**假对**（实测 `HUS_001` 把原版场景旗标 `1042` 与 Steam 画廊条目号 `1404` 凑成一对，而两者在原版里一个单条出现、一个 0 次，从来不是一对）。两边口径不一致时，**恰是宽松的那一侧在自造结论**。
+  - `targets` 记的是**删解锁组前**的坐标：`variants.apply` 先写表、`cgunlock.plan_bytes` 后删字节（每对 8 B）⇒ 写盘期必须用 `cgunlock.shift_targets()` 按**真实删除区间**（`stat['removed']`，**不得按「每对固定 N 字节」推算**）平移回写，并保留平移前的值到 `targets_pre_cg`；不平移即「落盘布局与产物字节脱钩」。
 - `script/final_verification.py`（全量验收）：归档完整性、调用链、成就触发点、资源配对、零破坏性、可复现性（`--stage build` 时 payload 未重建 ⇒ 明确 SKIP，`--stage release` 强制）、交付项完整性、WS2 线性自洽、语音重指。本作基线：`CG_ACHIEVEMENT` 723 处（+变体搬运体 102 = 825）、`0xF0` 33 处；回想出口期望 = Steam 基线 + 搬运体自带（`variants.body_evret_counts`，仅 `KAN_3002_2` 1 处）；交付归档 13 个。
 
 `resource/carrier_map.json` 在本作是**实表**（107 脚本 / 8,579 锚点），用于 `build_perf_sync_map.py` 生成演出判定表；产物侧的逐槽对账仍以 `slot_sources`（计划器产出、逐槽权威）为准，闸不直接用承载图推断在屏状态。

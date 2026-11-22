@@ -30,7 +30,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tool import arcbuild, variants, ws2, ws2dis, lng, paths, pna  # noqa: E402
+from tool import arcbuild, variants, ws2, ws2dis, lng, paths, pna, perfsync  # noqa: E402
+from tool import ws2conv  # noqa: E402  （4c 接缝闸：原版格式表）
 
 ASSET = os.path.join(ROOT, 'asset')
 BACKUP = os.path.join(ROOT, 'backup')
@@ -625,6 +626,53 @@ def main(argv=None):
     check('9h 新增选项规则可复用（演练：规范闸 + 跳转/槽位闸 + 头 + 尾表）',
           not _reh_fail, str(_reh_fail[:3]))
 
+
+    # ── 4c. 跨脚本接缝（seam）：范围内全部入边的入口状态 ──
+    # `0x07` 跨脚本跳转**不重置在屏图层** ⇒ 「某脚本第一行看到什么」取决于谁跳进来。
+    # 单脚本视角（`perfsync.row_setters`/`perf_rows` 从空屏起算）在结构上看不见接缝；
+    # 姊妹作实测缺陷：整脚本回填后前序残留的全黑图无人接管 ⇒ 黑屏。
+    # 判据与适用范围见 script/checks/seam_check.py 文件头、doc/restoration-route.md §4.1。
+    # 本闸是**纯检测**（不在产物里插任何清屏）：本作实测 ③ 携入全空。
+    _seam_fail = []
+    try:
+        import importlib.util as _ilu2
+        _sp2 = _ilu2.spec_from_file_location(
+            'seam_check', os.path.join(ROOT, 'script', 'checks', 'seam_check.py'))
+        _seam = _ilu2.module_from_spec(_sp2)
+        _sp2.loader.exec_module(_seam)
+        _odir = os.environ.get('IMHFD_ORIG_DIR') or paths.orig_dir()
+        _plan = json.load(open(os.path.join(ROOT, 'resource', 'restore_plan.json'), encoding='utf-8'))
+        _scope = perfsync.seam_scope(_plan['scripts'])
+        _prod, _pbad = _seam.load_prod(os.path.join(ASSET, 'Rio.arc'))
+        _ofmt = ws2conv.load_orig_formats(_odir)
+        _orig, _obad = _seam.load_orig(os.path.join(_odir, 'Rio.arc'), _ofmt)
+        _srows, _shard, _ = _seam.cmp_carried(_prod, _orig, _scope, _seam.canon)
+        if _pbad:
+            _seam_fail.append('产物解析失败 %r' % (_pbad[:3],))
+        if not _scope:
+            _seam_fail.append('结构枚举出的范围为空')
+        if _shard:
+            _seam_fail.append('③ 携入非空：%r' % [(r['script'], r['hard_new'], r['hard_diff'])
+                                                for r in _shard])
+        # 入库表不得漂移（范围与定案都变了必须重新定案并写表）
+        _stp = os.path.join(ROOT, 'resource', 'seam_scope.json')
+        if not os.path.exists(_stp):
+            _seam_fail.append('resource/seam_scope.json 缺失')
+        else:
+            _decl = json.load(open(_stp, encoding='utf-8')).get('scope') or {}
+            if sorted(_decl) != sorted(_scope):
+                _seam_fail.append('范围漂移：表 %r != 实算 %r' % (sorted(_decl), sorted(_scope)))
+            for _r in _srows:
+                _d = _decl.get(_r['script']) or {}
+                _want = sorted(_d.get('hard_channels') or [])
+                _got = sorted(set(_r['hard_new']) | set(_r['hard_diff']))
+                if _want != _got:
+                    _seam_fail.append('%s 定案漂移：表 %r != 实算 %r'
+                                      % (_r['script'], _want, _got))
+    except Exception as _re2:
+        _seam_fail.append('接缝闸执行失败：%s' % _re2)
+    check('4c 跨脚本接缝（范围 %d 脚本逐条入边，③ 携入 = 0）' % len(_scope)
+          if not _seam_fail else '4c 跨脚本接缝', not _seam_fail, str(_seam_fail[:3]))
 
     # ── 10. 语音重指（人工定案） ──
     vp = os.path.join(ROOT, 'resource', 'voice_repoint_manual.json')

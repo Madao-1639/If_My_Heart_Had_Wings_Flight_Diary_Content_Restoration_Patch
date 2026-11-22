@@ -34,6 +34,7 @@
 | `perf_waivers.json` | **已复核、不纠正的演出差异**：槽级（翻译拆行/Steam 新增行/水印 CG/句序）、成员级（朱莉线新美术、W 立绘画布重心裁切）、全局（无语音自证的文本块） | 人工定案（全量演出评审） | `script/checks/perf_consistency_check.py`、`script/checks/pna_id_check.py` | ✅ 5 槽 + 7 成员 + 1 全局 |
 | `align_fixes.json` | **人工定案对齐**：`{脚本: {Steam 槽: 原版行｜null}}`；机械对齐（承载图锚 + 语音自证 + 等长内插）给不出映射时使用。当前登记 BEF_005 的 27 个槽（原版 O#1116 整行删除 + O#1119 被 Steam 拆成两格） | 人工复核 | `tool/perfsync.py`、`script/checks/perf_consistency_check.py` | ✅ BEF_005 27 条 |
 | `orig_deleted.json` | **原版有、Steam 整行删去的行号**（逐脚本）：对齐闸/内插先剔除，避免等长缺口把后续槽整体映射错位 | 人工复核 | `script/checks/perf_consistency_check.py` | ✅ BEF_005 O#1116 |
+| `seam_scope.json` | **跨脚本接缝的适用范围与实测读数**：逐脚本 `why`（`whole` 整脚本回填 / `head_slot0` 首个改动槽位为 0 的宿主）、`entry_sources`（产物侧入边前序）、`union_diff`／`residual`（诊断量，不判失败）、`carried`／`orig_carried`（缺陷判据原料）、`hard_channels`（定案值 = 产物 carried − 原版 carried，**空集也列**）。判据分三层，只有 ③「前序残留**原样活到目标首行**」才判 HARD——①② 非空不等于玩家看得到差别（同一通道会被目标前缀区的显示覆盖）。**范围按结构枚举，不按「哪里测出残留」反推** | `script/build/build_seam_scope.py`（读 `asset/Rio.arc` + 原版 `Rio.arc`/`AdvHD.exe` + `restore_plan.json` 复算；幂等） | `script/checks/seam_check.py`、`script/final_verification.py` 4c | ✅ 范围 8 脚本，③ 携入全空、`hard_channels` 全空 |
 | `corpus/jp/*.json` | 原版日文逐脚本条目底稿（`script` / `total` / `texts[]`） | 文本提取脚本 | 译文匹配、翻译 | ⬜（已由 `corpus/cn/` 的 `jp` 字段覆盖） |
 | `corpus/zh/*.json` | 中文条目底稿（官方 `zh-CN` lng 提取） | 文本提取脚本 | 译文匹配 | ⬜ |
 | `corpus/pairing.jsonl` | 日↔中逐行配对（`script`/`kind`/`idx`/`off`/`seq`/`jp`/`cn`/`src`/`crc`） | 配对脚本 | 翻译、lng 生成 | ⬜ |
