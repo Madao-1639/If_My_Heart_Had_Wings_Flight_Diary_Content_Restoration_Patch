@@ -365,16 +365,15 @@ def main():
 
     steam = members(os.path.join(paths.STEAM, 'Graphic.arc'))
     orig = members(os.path.join(paths.orig_dir(), 'Graphic.arc'))
-    # 只处理 **censor_map keep** 的同名 PNA：`overwrite` 成员的产物字节已是原版
-    # （记录表即原版）⇒ 记录号不能换算，也不能层内修复。
-    cmap = json.load(open(os.path.join(ROOT, 'resource', 'censor_map.json'), encoding='utf-8'))
-    keep_names = {m['name'].upper() for m in cmap['members']
-                  if m.get('action') == 'keep' and m.get('archive') == 'Graphic.arc'
-                  and m['name'].upper().endswith('.PNA')}
-    names = sorted(n for n in steam if n in orig and n.upper().endswith('.PNA')
-                   and n.upper() in keep_names)
+    # 处理**所有两侧同名但记录表不等价**的 PNA。
+    # 依据不再是 `censor_map` 的 `keep` 名单，而是**两侧记录表是否等价**：
+    #   · 等价  ⇒ `censor_map=overwrite`（整名覆盖，产物记录表即原版）⇒ 无需映射
+    #   · 不等价 ⇒ 必须给映射，否则原版来源块的 `0x39` 记录号会错位
+    # 这样 9XX 隔离成员（action=isolate）也能被覆盖到——它们的原名保 Steam 记录表，
+    # 原版画走 9XX 整份，二者都需要一张可靠的「原版→Steam 记录号」表。
+    names = sorted(n for n in steam if n in orig and n.upper().endswith('.PNA'))
     if not names:
-        raise SystemExit('censor_map 中无 keep 的同名 PNA（检查资源表）')
+        raise SystemExit('两侧无同名 PNA（检查素材目录）')
     ss, plan, idx, added = load_slot_index()
     refs = arc_scripts(paths.STEAM, set(names))
     orig_rio = {nb.decode('utf-16le', 'replace'): d

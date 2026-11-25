@@ -1,6 +1,6 @@
 # PNA 图层资源与命名规则
 
-> ⚠️ **本文自姊妹作项目迁移；PNA 容器格式、子层号、同名 PNA 跨版本处置已按本作实测重写（2026-10-20），命名规则/号段等段仍含姊妹作结论。** 引用前先核对本作事实。
+> ⚠️ **本文自姊妹作项目迁移；PNA 容器格式、子层号、同名 PNA 跨版本处置已按本作实测重写，命名规则/号段等段仍含姊妹作结论。** 引用前先核对本作事实。
 > 迁移状态见 [README.md](README.md)「文档清单与来源」。
 
 
@@ -37,7 +37,38 @@ Lua 侧 `initSubLayer` / `setSubLayerVisible` / `MenuButtonSet` 引用的 **subl
 
 > 待确认：`u0=1/2` 哨兵的“组边界”语义未从引擎代码定案；本作靠“PNA 里本就存在无哨兵的组（记录 `0..3`、`41..44`）”判定“组末哨兵缺失安全”，需实机复核。
 
-## 同名 PNA 的跨版本记录表差异与处置 ✅（2026-10-20 定案）
+## 改画层的可见性（`.pna` 该不该处理）✅
+
+`.pna` 是图层容器，但**引擎不会把所有记录都画出来**：脚本每条显示块后跟一条
+`0x39 <通道> <3字节头> <条数> <u16 记录号…>`，**列出的记录号才是当前可见子层**（按序 = z 序），通常仅 2–4 条。
+⇒ 判「要不要处理某层」的唯一有效问题是**它在还原后的产物里会不会被播放**。
+
+| `visible_orig` | `visible_steam` | `verdict` | 处置 |
+|---|---|---|---|
+| 是 | 是 | `conflict` | 两侧都可见 ⇒ 层内修复 |
+| 是 | 否 | `empty_canvas` | 仅原版可见（Steam 那层改了画却从未被播放） |
+| 否 | 是 | `steam_only` | Steam 独有 ⇒ 不动 |
+| 否 | 否 | `noop` | 不动 |
+
+排除项：`kind=size`（`_W` 变体**画布重心裁切**，整画布平移）与重编码级差异（`big<0.01 且 mean<1.0`）一律 `noop`。
+
+**必须先做位移校正**：`_W` 画布被按重心裁过（`+0,+1`／`+7,+8`，个别 `0,-133` px），
+不校正会报 15–45% 的假差异。做法＝FFT 相位相关求全局平移 → 全分辨率 ±4 精修 →
+**只在共同覆盖区**算残余。
+
+**本作实测**（`resource/pna_censor_verdict.json`）：19 成员 / 50 `noop` / **3 `empty_canvas`** / **0 `conflict`**。
+3 个 `empty_canvas` 与 `pna_id_map.repair` 的 3 条**一一对应**（`ほたるST02_M #39→#31`、
+`佳奈子ST02_L #36→#26`、`佳奈子ST02_L #41→#29`）——「仅原版可见的改画」正是层内修复该管的那几层。
+
+**两条硬性红线**（违反即判据失效）：
+
+1. **不得用「全记录叠加」判 `.pna`**——会把互斥差分与未启用图层一并糊上画面。
+2. **图层按表索引配对，不按 `layer_id`**——本作两侧 `layer_id` 排序不同
+   （`layer_id = layer_count-1-index` 只是原版规律）。
+
+---
+
+## 同名 PNA 的跨版本记录表差异与处置 ✅
 
 本作 25 个还原脚本里，同名 `.pna` 立绘共有 **21 个**落在 `censor_map keep`（两侧记录表不等价，不能整名覆盖）。实测差异只有三类，处置各不相同：
 
@@ -52,7 +83,7 @@ Lua 侧 `initSubLayer` / `setSubLayerVisible` / `MenuButtonSet` 引用的 **subl
 - **`resource/pna_id_map.json`**（生产者 `script/build/build_pna_id_map.py`）逐成员给出 `map`（原版记录号 → Steam 记录号）、`changed`（改画/裁切记录）、`repair`（允许层内修复的 Steam 记录）、`waive`（有差但不得修复，带引用上下文证据）。
 - **记录号换算**：`script/build/build_patch.py` 在发出原版块前，按该行前缀区里 `0x33`/`0x34` 的当前显示名找到成员，再按 `map` 改写 `0x39` 的每个 u16（`tool/pnaids.py`）。**原版来源块**（插入格 + `perf_sync replace` 带回的原版块）都要换算；Steam 侧块保持自己的记录号。
 - **层内修复**：`script/build/build_pna_repair.py` 只替换 `repair` 记录的子图字节与 box，保持记录数/顺序/`layer_id`/`u0`/画布不变 ⇒ Steam 侧既有调用点完全不受影响。
-- **硬约束（用户 2026-10-20）**：被换图**不得**出现在 Steam 新增段/未还原段复用的记录上，否则会把新路线/新写场景改成原版画面。生产者扫描 Steam 全库脚本的 `0x39` 引用并分类（`steam_added` / `steam_route` / `other_script` 一律禁止修复；`restored_slot` / `dropped_row` 允许）；`script/checks/pna_id_check.py` 复核「产物引用的改画记录必须已修复或成员已登记 `resource/perf_waivers.json`」。
+- **硬约束**：被换图**不得**出现在 Steam 新增段/未还原段复用的记录上，否则会把新路线/新写场景改成原版画面。生产者扫描 Steam 全库脚本的 `0x39` 引用并分类（`steam_added` / `steam_route` / `other_script` 一律禁止修复；`restored_slot` / `dropped_row` 允许）；`script/checks/pna_id_check.py` 复核「产物引用的改画记录必须已修复或成员已登记 `resource/perf_waivers.json`」。
 - **实测规模**：21 成员 / 839 条映射 / 53 条改画 / **3 条层内修复**（`ほたるST02_M` 记录 31、`佳奈子ST02_L` 记录 26/29）；其余 50 条落入 `waive`（朱莉线新美术 / W 裁切 / 未被还原块引用）。
 
 ## 角色立绘命名规则 ✅

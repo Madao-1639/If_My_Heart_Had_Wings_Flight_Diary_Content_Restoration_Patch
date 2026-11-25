@@ -13,8 +13,7 @@ the source scripts; everything else keeps the **official English** text of the S
 For personal use with a legitimately purchased copy. This repository contains no game assets.
 
 > **Current version: v0.0.6** — content restoration, all route entries wired up, both performance
-> variants preserved; this release fixes an out-of-range CG unlock-group issue (original-release ids
-> could light up gallery thumbnails never seen).
+> variants preserved; awaiting full play-through verification.
 
 ![Beamer](https://shared.steamstatic.com/store_item_assets/steam/apps/923810/library_hero.jpg?t=1573643900)
 
@@ -267,8 +266,7 @@ issue and we will point you at the relevant parts.
 python script/build/build_restore_plan.py     # S2 restoration plan
 python script/build/build_pna_id_map.py --write  # S2b sprite record map / repair table
 python script/build/build_patch.py            # S3 Rio.arc
-python script/build/build_l3.py --write-asset # S3b same-name visual overlay
-python script/build/build_l4_extra.py         # S3c missing assets added
+python script/build/build_assets.py --write # S3b+S3c visual overlay + missing assets (one writer)
 python script/build/build_pna_repair.py       # S3d in-layer sprite repair
 python script/build/build_lng.py              # S4 text layer (.lng)
 python script/final_verification.py           # acceptance run

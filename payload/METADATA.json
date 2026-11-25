@@ -1385,7 +1385,7 @@
   },
   "Chip7.arc": {
     "kind": "merge",
-    "checksum": "e9c818b5475f2b546f116ff9ca7f2bad6b70098779660ab6c69091e9d6b4735d",
+    "checksum": "769d8a8209faddb48452286c8f31c0c4fb92dddfe1744f284a6055cc862ea808",
     "members": [
       {
         "name": "AFT_01_001b.png",
@@ -2764,18 +2764,18 @@
         "type": "added"
       },
       {
-        "name": "BEF_03_901B.png",
+        "name": "bef_03_901b.png",
         "type": "added"
       },
       {
-        "name": "BEF_03_901S.png",
+        "name": "bef_03_901s.png",
         "type": "added"
       }
     ]
   },
   "Chip8.arc": {
     "kind": "merge",
-    "checksum": "258a477fc57fbea0e3dd07977688cb73298dc671d9beb127a765ec76c408c1ed",
+    "checksum": "5e79ccfe9d800550053890431894cfdfb4bd6f44756cbdf3d3a6d14901d4e8be",
     "members": [
       {
         "name": "HOT_01_001B.png",
@@ -2987,55 +2987,107 @@
       },
       {
         "name": "NOV_02_003B.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_003S.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_004S.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_005S.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_010B.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_010S.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_011S.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_017B.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_017S.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_019B.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_019S.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_024S.png",
-        "type": "keep"
+        "type": "modified"
       },
       {
         "name": "NOV_02_027S.png",
-        "type": "keep"
+        "type": "modified"
+      },
+      {
+        "name": "HOT_04_007b.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_007s.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_009b.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_009s.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_010b.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_010s.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_012b.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_012s.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_013b.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_013s.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_014b.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_014s.png",
+        "type": "added"
+      },
+      {
+        "name": "HOT_04_015s.png",
+        "type": "added"
       },
       {
         "name": "AGS_01_001b.png",
@@ -3303,58 +3355,6 @@
       },
       {
         "name": "AGS_03_038S.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_007b.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_007s.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_009b.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_009s.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_010b.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_010s.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_012b.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_012s.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_013b.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_013s.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_014b.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_014s.png",
-        "type": "added"
-      },
-      {
-        "name": "HOT_04_015s.png",
         "type": "added"
       },
       {
@@ -3676,64 +3676,12 @@
       {
         "name": "HOT_08_012S.png",
         "type": "added"
-      },
-      {
-        "name": "NOV_02_003b.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_003s.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_004s.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_005s.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_010b.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_010s.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_011s.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_017b.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_017s.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_019b.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_019s.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_024s.png",
-        "type": "added"
-      },
-      {
-        "name": "NOV_02_027s.png",
-        "type": "added"
       }
     ]
   },
   "Chip9.arc": {
     "kind": "merge",
-    "checksum": "358c4ebac9bec411814c8c5e8d32eccf55fa776973e9e7506642a68326107445",
+    "checksum": "0b90c8a64bc48489f1a3da55b2c21daac6915efb438741dd8c37445af2e59c36",
     "members": [
       {
         "name": "HUS_03_001b.png",
@@ -4764,15 +4712,15 @@
         "type": "added"
       },
       {
-        "name": "KAN_01_901s.png",
+        "name": "kan_01_901s.png",
         "type": "added"
       },
       {
-        "name": "KAN_01_905s.png",
+        "name": "kan_01_905s.png",
         "type": "added"
       },
       {
-        "name": "KAN_01_906b.png",
+        "name": "kan_01_906b.png",
         "type": "added"
       }
     ]

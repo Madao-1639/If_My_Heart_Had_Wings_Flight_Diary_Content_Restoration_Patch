@@ -31,7 +31,7 @@
 
 | 文档 | 内容 |
 |---|---|
-| [restoration-targets.md](restoration-targets.md) | 还原目标、范围分层（L1–L4）、判定标准 |
+| [restoration-targets.md](restoration-targets.md) | 还原目标、**还原目标分层 L0–L6**、判定标准 |
 | [restoration-route.md](restoration-route.md) | 还原路线、差分标准、流水线、发布链 |
 | [route-mechanics.md](route-mechanics.md) | 路线入口机制、Steam 侧缺口、可行性判定、实现方案；**L6 已落地并实机通过**（§0.1 交付与复现、§3.5 按钮、§3.8 base 入口、§3.9 角色高亮） |
 | [third-party-patch-analysis.md](third-party-patch-analysis.md) | 国外还原补丁 / 中文汉化补丁的改动面与缺陷成因、不可沿用的做法 |

@@ -69,7 +69,7 @@
    "zoom": null
   },
   {
-   "action": "keep",
+   "action": "isolate",
    "alias": null,
    "archive": "Chip7.arc",
    "bbox": [
@@ -80,12 +80,23 @@
    ],
    "big_pixels": 1733915,
    "big_ratio": 0.926522,
+   "censor_refs": {
+    "orig_scripts": [
+     "BEF_003"
+    ],
+    "orig_sites": 3,
+    "var_scripts": [
+     "BEF_003"
+    ],
+    "var_sites": 3
+   },
    "class": "censor",
    "dims": {
     "orig_size": 3275830,
     "steam_size": 1502030
    },
    "frame": "bef_03_001",
+   "isolate": "bef_03_901b.png",
    "max_abs": 255,
    "mean_diff": 67.87,
    "name": "BEF_03_001B.png",
@@ -100,11 +111,10 @@
    "review": "machine",
    "series": "Chip7.arc/bef_03",
    "size_diff": true,
-   "zoom": null,
-   "isolate": "BEF_03_901B.png"
+   "zoom": null
   },
   {
-   "action": "keep",
+   "action": "isolate",
    "alias": {
     "frame": "bef_03_006",
     "mad": 0.23,
@@ -119,12 +129,23 @@
    ],
    "big_pixels": 828994,
    "big_ratio": 0.899516,
+   "censor_refs": {
+    "orig_scripts": [
+     "BEF_003"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [
+     "BEF_003"
+    ],
+    "var_sites": 2
+   },
    "class": "reuse",
    "dims": {
     "orig_size": 999862,
     "steam_size": 892201
    },
    "frame": "bef_03_001",
+   "isolate": "bef_03_901s.png",
    "max_abs": 255,
    "mean_diff": 64.45,
    "name": "BEF_03_001S.png",
@@ -139,8 +160,7 @@
    "review": "machine",
    "series": "Chip7.arc/bef_03",
    "size_diff": false,
-   "zoom": null,
-   "isolate": "BEF_03_901S.png"
+   "zoom": null
   },
   {
    "action": "keep",
@@ -154,6 +174,14 @@
    ],
    "big_pixels": 829189,
    "big_ratio": 0.899728,
+   "censor_refs": {
+    "orig_scripts": [],
+    "orig_sites": 0,
+    "var_scripts": [
+     "BEF_003"
+    ],
+    "var_sites": 1
+   },
    "class": "censor",
    "dims": {
     "orig_size": 1000985,
@@ -188,6 +216,16 @@
    ],
    "big_pixels": 389382,
    "big_ratio": 0.105627,
+   "censor_refs": {
+    "orig_scripts": [
+     "KAN_1001",
+     "KAN_2001",
+     "KAN_3001_4"
+    ],
+    "orig_sites": 7,
+    "var_scripts": [],
+    "var_sites": 0
+   },
    "class": "censor",
    "dims": {
     "orig_size": 3780754,
@@ -211,7 +249,7 @@
    "zoom": null
   },
   {
-   "action": "keep",
+   "action": "isolate",
    "alias": null,
    "archive": "Chip9.arc",
    "bbox": [
@@ -222,12 +260,28 @@
    ],
    "big_pixels": 108638,
    "big_ratio": 0.11788,
+   "censor_refs": {
+    "orig_scripts": [
+     "KAN_1001",
+     "KAN_2001",
+     "KAN_2003",
+     "KAN_2004",
+     "KAN_3001_4",
+     "KAN_3004_2"
+    ],
+    "orig_sites": 11,
+    "var_scripts": [
+     "KAN_2001"
+    ],
+    "var_sites": 1
+   },
    "class": "censor",
    "dims": {
     "orig_size": 1087828,
     "steam_size": 1156896
    },
    "frame": "kan_01_001",
+   "isolate": "kan_01_901s.png",
    "max_abs": 252,
    "mean_diff": 6.36,
    "name": "KAN_01_001s.png",
@@ -242,8 +296,7 @@
    "review": "machine",
    "series": "Chip9.arc/kan_01",
    "size_diff": false,
-   "zoom": null,
-   "isolate": "KAN_01_901s.png"
+   "zoom": null
   },
   {
    "action": "overwrite",
@@ -257,6 +310,16 @@
    ],
    "big_pixels": 389382,
    "big_ratio": 0.105627,
+   "censor_refs": {
+    "orig_scripts": [
+     "KAN_1001",
+     "KAN_1004",
+     "KAN_2001"
+    ],
+    "orig_sites": 4,
+    "var_scripts": [],
+    "var_sites": 0
+   },
    "class": "censor",
    "dims": {
     "orig_size": 3781704,
@@ -291,6 +354,15 @@
    ],
    "big_pixels": 108637,
    "big_ratio": 0.117879,
+   "censor_refs": {
+    "orig_scripts": [
+     "KAN_1001",
+     "KAN_1004"
+    ],
+    "orig_sites": 2,
+    "var_scripts": [],
+    "var_sites": 0
+   },
    "class": "censor",
    "dims": {
     "orig_size": 1088200,
@@ -325,6 +397,16 @@
    ],
    "big_pixels": 389382,
    "big_ratio": 0.105627,
+   "censor_refs": {
+    "orig_scripts": [
+     "KAN_1001",
+     "KAN_1004",
+     "KAN_2001"
+    ],
+    "orig_sites": 3,
+    "var_scripts": [],
+    "var_sites": 0
+   },
    "class": "censor",
    "dims": {
     "orig_size": 3782321,
@@ -359,6 +441,15 @@
    ],
    "big_pixels": 108644,
    "big_ratio": 0.117886,
+   "censor_refs": {
+    "orig_scripts": [
+     "KAN_1001",
+     "KAN_1004"
+    ],
+    "orig_sites": 2,
+    "var_scripts": [],
+    "var_sites": 0
+   },
    "class": "censor",
    "dims": {
     "orig_size": 1088475,
@@ -393,6 +484,15 @@
    ],
    "big_pixels": 108577,
    "big_ratio": 0.117814,
+   "censor_refs": {
+    "orig_scripts": [
+     "KAN_1001",
+     "KAN_1004"
+    ],
+    "orig_sites": 3,
+    "var_scripts": [],
+    "var_sites": 0
+   },
    "class": "censor",
    "dims": {
     "orig_size": 1086626,
@@ -427,6 +527,15 @@
    ],
    "big_pixels": 389388,
    "big_ratio": 0.105628,
+   "censor_refs": {
+    "orig_scripts": [
+     "KAN_1001",
+     "KAN_1004"
+    ],
+    "orig_sites": 3,
+    "var_scripts": [],
+    "var_sites": 0
+   },
    "class": "censor",
    "dims": {
     "orig_size": 3775013,
@@ -450,7 +559,7 @@
    "zoom": null
   },
   {
-   "action": "keep",
+   "action": "isolate",
    "alias": null,
    "archive": "Chip9.arc",
    "bbox": [
@@ -461,12 +570,24 @@
    ],
    "big_pixels": 108609,
    "big_ratio": 0.117848,
+   "censor_refs": {
+    "orig_scripts": [
+     "KAN_1001",
+     "KAN_2001"
+    ],
+    "orig_sites": 3,
+    "var_scripts": [
+     "KAN_2001"
+    ],
+    "var_sites": 1
+   },
    "class": "censor",
    "dims": {
     "orig_size": 1085862,
     "steam_size": 1155251
    },
    "frame": "kan_01_005",
+   "isolate": "kan_01_905s.png",
    "max_abs": 252,
    "mean_diff": 6.35,
    "name": "KAN_01_005s.png",
@@ -481,11 +602,10 @@
    "review": "machine",
    "series": "Chip9.arc/kan_01",
    "size_diff": false,
-   "zoom": null,
-   "isolate": "KAN_01_905s.png"
+   "zoom": null
   },
   {
-   "action": "keep",
+   "action": "isolate",
    "alias": null,
    "archive": "Chip9.arc",
    "bbox": [
@@ -496,12 +616,24 @@
    ],
    "big_pixels": 389382,
    "big_ratio": 0.105627,
+   "censor_refs": {
+    "orig_scripts": [
+     "KAN_2001",
+     "KAN_3001_4"
+    ],
+    "orig_sites": 2,
+    "var_scripts": [
+     "KAN_2001"
+    ],
+    "var_sites": 1
+   },
    "class": "censor",
    "dims": {
     "orig_size": 3773038,
     "steam_size": 3706530
    },
    "frame": "kan_01_006",
+   "isolate": "kan_01_906b.png",
    "max_abs": 253,
    "mean_diff": 5.46,
    "name": "KAN_01_006b.png",
@@ -516,8 +648,7 @@
    "review": "machine",
    "series": "Chip9.arc/kan_01",
    "size_diff": false,
-   "zoom": null,
-   "isolate": "KAN_01_906b.png"
+   "zoom": null
   },
   {
    "action": "overwrite",
@@ -531,6 +662,15 @@
    ],
    "big_pixels": 108548,
    "big_ratio": 0.117782,
+   "censor_refs": {
+    "orig_scripts": [
+     "KAN_1004",
+     "KAN_3001_4"
+    ],
+    "orig_sites": 4,
+    "var_scripts": [],
+    "var_sites": 0
+   },
    "class": "censor",
    "dims": {
     "orig_size": 1085531,
@@ -2792,15 +2932,485 @@
    "series": "GRAPHIC.arc/小鳥fdst02_w.pna",
    "size_diff": null,
    "zoom": null
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "HOT_002"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_007b.png",
+   "orig_name": "hot_04_007b.png",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [],
+    "orig_sites": 0,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_007s.png",
+   "orig_name": "hot_04_007s.png",
+   "reason": "Steam 归档无同名成员（原版帧被 Steam 整批删除），原版有 ⇒ 按原编号插入。原版剧情脚本引用 0 处 ⇒ 仅作素材完整性补入，不改引用。",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "HOT_002"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_009b.png",
+   "orig_name": "hot_04_009b.png",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "HOT_002"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_009s.png",
+   "orig_name": "hot_04_009s.png",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "HOT_002"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_010b.png",
+   "orig_name": "hot_04_010b.png",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [],
+    "orig_sites": 0,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_010s.png",
+   "orig_name": "hot_04_010s.png",
+   "reason": "Steam 归档无同名成员（原版帧被 Steam 整批删除），原版有 ⇒ 按原编号插入。原版剧情脚本引用 0 处 ⇒ 仅作素材完整性补入，不改引用。",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "HOT_002"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_012b.png",
+   "orig_name": "hot_04_012b.png",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "HOT_002"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_012s.png",
+   "orig_name": "hot_04_012s.png",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "HOT_002"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_013b.png",
+   "orig_name": "hot_04_013b.png",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "HOT_002"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_013s.png",
+   "orig_name": "hot_04_013s.png",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "HOT_002",
+     "HOT_004"
+    ],
+    "orig_sites": 3,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_014b.png",
+   "orig_name": "hot_04_014b.png",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "HOT_002"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_014s.png",
+   "orig_name": "hot_04_014s.png",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "insert_orig",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "HOT_002"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "hot_04_015s.png",
+   "orig_name": "hot_04_015s.png",
+   "review": "visual",
+   "series": "Chip8.arc/hot_04"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_003b.png",
+   "orig_name": "nov_02_003b.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 2,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_003s.png",
+   "orig_name": "nov_02_003s.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_004s.png",
+   "orig_name": "nov_02_004s.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_005s.png",
+   "orig_name": "nov_02_005s.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_010b.png",
+   "orig_name": "nov_02_010b.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 3,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_010s.png",
+   "orig_name": "nov_02_010s.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_011s.png",
+   "orig_name": "nov_02_011s.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_017b.png",
+   "orig_name": "nov_02_017b.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 3,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_017s.png",
+   "orig_name": "nov_02_017s.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_019b.png",
+   "orig_name": "nov_02_019b.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_019s.png",
+   "orig_name": "nov_02_019s.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_024s.png",
+   "orig_name": "nov_02_024s.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
+  },
+  {
+   "action": "overwrite",
+   "archive": "Chip8.arc",
+   "censor_refs": {
+    "orig_scripts": [
+     "NOV_001"
+    ],
+    "orig_sites": 1,
+    "var_scripts": [],
+    "var_sites": 0
+   },
+   "class": "censor",
+   "frame": null,
+   "name": "nov_02_027s.png",
+   "orig_name": "nov_02_027s.png",
+   "review": "visual",
+   "series": "Chip8.arc/nov_02"
   }
  ],
  "meta": {
   "archives": [
    "Chip2.arc",
    "Chip7.arc",
+   "Chip8.arc",
    "Chip9.arc",
    "Graphic.arc"
-  ]
+  ],
+  "decision_note": "动作三类：overwrite=产物无保留 Steam 差分格 ⇒ 整名覆盖；isolate=仍有保留 Steam 差分格 ⇒ 原版画改 9XX；insert_orig=Steam 归档无同名成员（原版帧被整批删）⇒ 按原编号插入、不占号段；keep=不动。censor_refs 记录判据读数。　insert_orig 的判定不要求「原版有引用」：只要 Steam 无同名成员而原版有，就按原编号补入（素材完整性）。",
+  "decision_version": "v2-2026-11 三问定案"
  },
  "series": {
   "CHIP2.arc/fdsdev14_02": {

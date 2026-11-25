@@ -31,7 +31,7 @@
 | 原版素材导入 | `script/build/import_route_assets.py`（原版 → `resource/`，幂等；`--check` 只校验）——**唯一读原版目录的地方** |
 | 写盘 | `script/build/build_route_entry.py` → `asset/Script.arc`、`asset/SysGraphic.arc`、`asset/zh-CN/SysGraphic.arc` |
 | 验收 | `script/checks/check_route_entry.py`（Lua 表/上界、中文 PNA、base PNA、Cast 分支、`initSubLayer` 覆盖、分派表、朱莉线） |
-| 发布 | `script/generate_payload.py`（`asset/` → `payload/`）→ `bash script/pack.sh`（安装器 → `releases/`）。⚠️ `payload/` 已在 2026-10-21 按当时 `asset/` 重建；**`releases/` 里的安装器仍早于最近的脚本改动（含回想出口剥离），发布前必须重跑 `script/pack.sh`** |
+| 发布 | `script/generate_payload.py`（`asset/` → `payload/`）→ `bash script/pack.sh`（安装器 → `releases/`） |
 
 ```
 python script/build/import_route_assets.py    # 仅在需要重建 resource 素材时跑
@@ -148,7 +148,7 @@ SETLIST R4[1..8] := {108, 101, 103, 104, 105, 106, 107, 102}
 | **G3** | 第 8 个按钮图形不存在 | `SysGraphic.arc` `SYS_C_Story.pna` | 1 对图层（亮/暗） | ✅ **已补**（逐字拼字生成，记录 19/20） |
 | **G4** | 回想条目 `AGS_01/02/03` 被删 | `menu_gallery.lua` | 3 条 | 按需补（非阻塞） |
 | **G5** | ほたる线（`HOT_00x`）H 内容被全年龄版顶替 | `HOT_002_E`/`HOT_004_E` 等 | 指令级差分 | 见 L2 |
-| **G6** | 姬城线 CG / 语音缺失 | `Chip7` `Chip8` `Voice` | 数百成员 | 见 L3/L4 |
+| **G6** | 姬城线 CG / 语音缺失 | `Chip7` `Chip8` `Voice` | 数百成员 | 画面处置＋并集补入，见 [restoration-targets.md](restoration-targets.md) 的 L3／L4 目标层 |
 | **G7** | 姬城线中文缺失 | `zh-CN/Rio.arc` | 新 `.lng` | 见 L5 |
 
 ---
@@ -279,7 +279,7 @@ SETLIST R4[1..8] := {108, 101, 103, 104, 105, 106, 107, 102}
 
 ---
 
-## 附：跨版本搬运必要性的**字节级**证据（2026-10-16）
+## 附：跨版本搬运必要性的**字节级**证据
 
 > 起因：曾用「原版脚本在 Steam 表下撞未定义 opcode」当判据。**该判据不成立**——未定义 opcode 只是
 > **解析早已失步**的症状，不能证明字节流本身有问题。以下是不依赖任何格式表的证据。

@@ -5,7 +5,7 @@
 ------------
 * `resource/pna_id_map.json` 的 `repair` 清单（逐成员、逐记录）；该清单已由
   `script/build/build_pna_id_map.py` 做「不得被 Steam 新增段/未还原段复用」的引用核对；
-* `backup/Graphic.arc`（Steam 基线）与 `asset/Graphic.arc`（若 L3 已写盘则以其为底）；
+* `backup/Graphic.arc`（Steam 基线）与 `asset/Graphic.arc`（若已写盘则以其为底）；
 * 原版发行目录的 `Graphic.arc`。
 
 动作
@@ -121,7 +121,7 @@ def main():
     out = os.path.join(ROOT, 'asset', ARCH)
     os.makedirs(os.path.dirname(out), exist_ok=True)
     arcbuild.write_arc(steam_members, out)
-    # Windows 保留首次创建的拼写；build_l3 默认写成大写 `GRAPHIC.arc`。交付名单按
+    # Windows 保留首次创建的拼写；build_assets.py 默认写成大写 `GRAPHIC.arc`。交付名单按
     # backup 的 `Graphic.arc` 匹配 ⇒ 这里把文件名规范回 backup 拼写。
     want = os.path.join(ROOT, 'asset', ARCH)
     if os.path.abspath(out) != os.path.abspath(want):

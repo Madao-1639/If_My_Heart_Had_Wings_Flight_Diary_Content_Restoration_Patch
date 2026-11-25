@@ -6,7 +6,7 @@
 
 本补丁仅供已购买正版游戏的用户使用，不包含任何游戏本体文件。
 
-> **当前版本：v0.0.6** — 内容还原 + 中文落地 + 全路线入口 + 保留两版演绎；本版修复 CG 解锁组越界（原版编号误点亮鉴赏缩略图）。
+> **当前版本：v0.0.6** — 内容还原 + 中文落地 + 全路线入口 + 保留两版演绎，等待全量实机验证。
 
 ![Beamer](https://shared.steamstatic.com/store_item_assets/steam/apps/923810/library_hero.jpg?t=1573643900)
 
@@ -198,8 +198,7 @@ Steam 版把本作的 H 场景改写成全年龄段落，并为此新录配音�
 python script/build/build_restore_plan.py     # S2 还原计划
 python script/build/build_pna_id_map.py --write  # S2b 立绘记录映射/修复表
 python script/build/build_patch.py            # S3 Rio.arc
-python script/build/build_l3.py --write-asset # S3b 同名画面覆盖
-python script/build/build_l4_extra.py         # S3c 缺失素材补入
+python script/build/build_assets.py --write # S3b+S3c 画面覆盖 + 素材补入（同一写盘器）
 python script/build/build_pna_repair.py       # S3d 立绘层内修复
 python script/build/build_lng.py              # S4 中文 .lng
 python script/final_verification.py           # 验收

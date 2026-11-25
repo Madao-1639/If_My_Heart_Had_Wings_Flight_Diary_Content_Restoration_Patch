@@ -50,7 +50,7 @@
 
 **噪声排除**：`\x14` 巧合命中二进制块（flag≠0、speaker 不是 char/空、text 含 NUL、空 speaker 但 text 不是 `%P`）一律丢弃；`FLAG_CHECK` 扫描只认真标签（必 cp932 可解码且含非 ASCII 字符，否则 `CO1_018` 这类脚本的槽位数会虚增到 3 万余）。
 
-接口：`script_rows(name, data)`、`collect_scripts(orig_dir)`、`all_rows(orig_dir)`、`crc32_signed(bytes)`；原版素材目录由 `IFMH_ORIG_DIR` 提供。消费方：`script/corpus/align_corpus.py`、`script/corpus/build_fan_translations.py`、`script/build/build_carrier_map.py`、`script/build/build_l4.py`、`script/build/convert_sl_ws2.py`、`tool/v5lib.py`。
+接口：`script_rows(name, data)`、`collect_scripts(orig_dir)`、`all_rows(orig_dir)`、`crc32_signed(bytes)`；原版素材目录由 `IFMH_ORIG_DIR` 提供。消费方：`script/corpus/align_corpus.py`、`script/corpus/build_fan_translations.py`、`script/build/build_carrier_map.py`、`script/build/build_assets.py`、`script/build/convert_sl_ws2.py`、`tool/v5lib.py`。
 
 ## 2. 民汉表的性质
 

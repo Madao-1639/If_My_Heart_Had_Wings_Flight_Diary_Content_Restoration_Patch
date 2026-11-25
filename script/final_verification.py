@@ -6,12 +6,12 @@
                        `SL_*` 后日谈脚本与 `DEBG01` 调试脚本为 Steam 未交付项，豁免）
 3  成就触发点完整性  ：CG_ACHIEVEMENT 723 处 + 0xF0 触发 33 处，逐脚本与 backup 相同
 4  资源配对正确性    ：0x33/0x34/0x28/0x1E 引用可解析（交付归档取 asset，未交付者取 backup）
-5  零破坏性          ：同名成员替换只允许落在「计划脚本 / lng / L4 交付 / censor 覆盖名单」内；
+5  零破坏性          ：同名成员替换只允许落在「计划脚本 / lng / 并集补入 / censor 处置名单」内；
                       覆盖名单条数 == 实际替换数
 6  可复现性          ：asset 哈希 == payload/METADATA.json（`--stage build` 时 payload 未按
                       本次产物重建 ⇒ 明确 SKIP；`--stage release` 时强制）
 7  实机测试          ：人工（打印清单）
-8  交付项完整性      ：AGS_001（脚本+lng）、24 个宿主 lng 条数 == 槽数、L4 两处 pna、
+8  交付项完整性      ：AGS_001（脚本+lng）、24 个宿主 lng 条数 == 槽数、后日谈两处 pna、
                       Script.arc Lua、orig 来源槽的语音成员全部在位
 9  WS2 线性自洽      ：产物全部 ws2 恰好在 0xff 收尾（本作无尾表）
 10 语音重指          ：`resource/voice_repoint_manual.json` 存在时逐条验 token/字节；本作无表 ⇒ 跳过
@@ -365,7 +365,7 @@ def main(argv=None):
 
     script_a = read_members(os.path.join(ASSET, 'Script.arc'))
     script_b = read_members(os.path.join(BACKUP, 'Script.arc'))
-    check('8 Script.arc LegacyGame.lua 已改（L4 按钮表）',
+    check('8 Script.arc LegacyGame.lua 已改（后日谈按钮表）',
           script_a.get('LegacyGame.lua') != script_b.get('LegacyGame.lua'))
     sg_a = read_members(os.path.join(ASSET, 'SysGraphic.arc'))
     sg_b = read_members(os.path.join(BACKUP, 'SysGraphic.arc'))

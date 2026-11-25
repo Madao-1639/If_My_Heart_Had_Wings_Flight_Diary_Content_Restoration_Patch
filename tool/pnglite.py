@@ -1,7 +1,7 @@
 """纯标准库 PNG 解码与像素比对（8-bit，colortype 0/2/3/4/6）。
 
-用途：PNA 子图逐像素比对（L3 同名判定、立绘记录映射与层内修复）。
-不依赖第三方包（本机离线）。`decode_png` 与 `script/build/build_l3.py` 原实现同源，
+用途：PNA 子图逐像素比对（同名冲突判定、立绘记录映射与层内修复）。
+不依赖第三方包（本机离线）。`decode_png` 与 `script/build/build_assets.py` 原实现同源，
 抽出到 `tool/` 供构建脚本与闸共用。
 """
 import struct

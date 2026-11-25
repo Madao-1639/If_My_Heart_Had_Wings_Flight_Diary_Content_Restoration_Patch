@@ -12,7 +12,7 @@ Steam 路径要 Steam 画），单一成员名就装不下两份画 ⇒ 必须�
   * 9XX 名（原版画）——由**产品侧（A 路径与共享内容）**的 `33/34` 显示引用；
   * 两个名字**同长度** ⇒ 脚本里改名不需要重定基。
 
-消费方：`script/build/build_l3.py`（写 9XX 成员 + 原名回 Steam 字节）、
+消费方：`script/build/build_assets.py`（写 9XX 成员 + 原名回 Steam 字节）、
 `script/build/build_patch.py`（把产品侧显示名改成 9XX）、
 `script/checks/*`（比较口径用 `normalize()` 折算回原编号）。
 """
@@ -63,3 +63,18 @@ def isolate_refs():
 def isolate_members():
     """→ [(原编号名(小写), 9XX 成员名(原始大小写))]。"""
     return sorted(RESET_MAP.items())
+
+
+def insert_members():
+    """→ {归档名: [成员名(原始大小写)]}：台账里 `action=insert_orig` 的成员。
+
+    Steam 归档**没有**这个同名成员（原版帧被整批删）⇒ 无法覆盖，
+    按**原编号**把原版成员补进归档。不占号段、不改脚本引用。
+    """
+    with open(TABLE, encoding='utf-8') as fh:
+        cm = json.load(fh)
+    out = {}
+    for m in cm.get('members') or []:
+        if m.get('action') == 'insert_orig':
+            out.setdefault(m['archive'], []).append(m['name'])
+    return {k: sorted(v) for k, v in out.items()}

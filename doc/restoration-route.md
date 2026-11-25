@@ -55,8 +55,7 @@
 | **S2 计划生成** ✅ | `resource/restore_scope.json` + `backup/` + 原版目录 | `resource/restore_plan.json`（逐脚本 `drops`/`inserts`/成就数）+ `tmp/restore_plan.md`；工具 `script/build/build_restore_plan.py` |
 | **S2b 立绘记录映射** ✅ | 计划 + `censor_map keep` 的 21 个同名 PNA + 两侧 `Graphic.arc` | `resource/pna_id_map.json`（原版记录号 → Steam 记录号、改画清单、层内修复/豁免清单）；工具 `script/build/build_pna_id_map.py`。**必须在 S3 之前**（写盘器要按表换算 `0x39`） |
 | **S3 写盘** ✅ | 计划 + `pna_id_map.json` + 原版脚本 | `asset/Rio.arc`（14 个 `*_E.ws2` 就地重建 + 新增 `AGS_001.ws2`；原版来源块的 `0x39` 记录号已按表换算、`0x46` 子层槽绑定标志与 `0x47` 参数来源标志均已跨引擎归一（`0x80→0xf0` / `0x80→0x10|0xc0`，`tool/ws2conv.norm_flags`，见 [engine-mechanics.md](engine-mechanics.md) 「`0x47 Effect1` 语义与跨引擎标志换算」）；**回想出口三连按 `resource/replay_guards.json` 剥离**；**选项帧内的 `0x16` 按 `tool/ws2.drop_choice_frame_op16()` 剔除**（Steam 侧它会永久关闭输入门，删后提示句与选项同屏）、**末尾 8 字节明文尾表按新条数重写**）；**变体共存**：`resource/variant_routes.json` 声明的脚本在宿主重建后做「新增选项 / 变量路由」拼接（`tool/variants.py`，Steam 差分情节原字节接回，见 [restoration-scope.md](restoration-scope.md) §8）；工具 `script/build/build_patch.py` + `tool/writer.py` + `tool/pnaids.py` + `tool/variants.py`；槽位表 `resource/slot_sources.json` |
-| **S3b 画面覆盖** ✅ | `censor_map.json` + 两侧图像归档 | `asset/Graphic.arc`/`Chip*.arc` 同名整名覆盖；工具 `script/build/build_l3.py --write-asset` |
-| **S3c 素材补入** ✅ | `asset/` + 原版目录 | 缺失成员按原版名补入（`Graphic.arc`/`Chip1`/`Chip2`/`Se`）；工具 `script/build/build_l4_extra.py` |
+| **S3b 归档素材写盘** ✅ | `censor_map.json` + 两侧图像归档 + 原版目录 | 一步完成四件事：①**画面处置**（`overwrite` 整名覆盖 / `isolate` 写 9XX + 原名回 Steam / `insert_orig` 按原编号补入）；②**并集补入**（原版有、底里没有、非 `.MOS`）；③**名字规范化**（同名多拼写只留与 `backup/` 一致的一份）；④**回读校验**（逐名断言 + 「名单数＝替换数」）。覆盖 `Chip1/2/7/8/9`、`Graphic`、`Se`、`Voice` 共 8 档；工具 `script/build/build_assets.py --write` |
 | **S3d 层内修复** ✅ | `pna_id_map.json` 的 `repair` + `asset/Graphic.arc` + 原版 | 把被 Steam 改画的子图/box 换回原版（不改记录数/顺序/画布）；工具 `script/build/build_pna_repair.py`。**必须在 S3b/S3c 之后**（以它们的产物为底），并把 `GRAPHIC.arc` 的文件名规范回 backup 的 `Graphic.arc` |
 | **S4 文本** ✅ | 槽位表 + 官方 lng + 本项目语料 | `asset/zh-CN/Rio.arc`（15 个 `.lng` **整体重建** + 新增 `AGS_001.lng`）；工具 `script/build/build_lng.py` |
 | **S5 校验** | `asset/` | 验收闸（见 §5） |
@@ -212,8 +211,7 @@
 5. ~~**L2**：就地还原~~ ✅ 已完成（14 脚本，`drops`/`inserts` 落地；成就站点覆盖 100%、`%LC` 转 Steam 键、`KAN_3002_2` 尾跳改指 `KAN_3003_E`；**回想出口三连按 `resource/replay_guards.json` 剥离**——Steam 侧头部入口分派已删，只搬出口会在场景末尾提前回主菜单，见 [route-mechanics.md](route-mechanics.md) §1.5）。
 6. ~~**L5 中文**：lng 重建~~ ✅ 已完成（`asset/zh-CN/Rio.arc`：15 个 `.lng` 整体重建，条数 == 槽数、逐条非空、无假名残留）。
 7. **S5 校验 / S6 发布**：跑 [acceptance-criteria.md](acceptance-criteria.md) 全闸 → `script/generate_payload.py`（`asset/` → `payload/` + `METADATA.json`，自带回读重放）→ `bash script/pack.sh`（PyInstaller 安装器 → `releases/`）。
-   ⚠️ `payload/` 已于 2026-10-21 按当时 `asset/` 重建；**`releases/` 的安装器仍早于最近的脚本改动（含回想出口剥离），发布前必须重跑 `bash script/pack.sh`**。
-8. ~~**L3 画面还原**~~ ✅ 已完成（`Graphic.arc` 59 覆盖 / 21 层序不等价 keep；`Chip2.arc` 2 覆盖；台账 `resource/censor_map.json`）；~~L4 补漏~~ ✅ 已完成（`Chip1/Chip2/Graphic/Se` 并集，资源覆盖闸 0 缺口）。
+8. **L3 画面还原 + L4 素材补齐** ✅ 已完成（同一个写盘器 `script/build/build_assets.py`：`overwrite` 82 ／ `isolate` 5 ／ `insert_orig` 13 ／ `keep` 22；并集补入覆盖 `Chip1/2/7/8/9`、`Graphic`、`Se`、`Voice` 共 8 档，资源覆盖闸 0 缺口）。
 9. **残余**：③ `BEF_004` 的 `0x0f` 选项菜单文案仍是日文（原版即嵌在脚本窄字节里）。
 
 ## 8. 与既有产物的关系

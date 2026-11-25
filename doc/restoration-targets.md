@@ -26,9 +26,9 @@
 | **L0 · 工具链前置** | ✅ **已完成**：本作 WS2 操作数格式表已从 `AdvHD.exe` 标定（`resource/ws2_formats.json`），Steam 侧 111/111 剧本可 100% 反汇编 | [route-mechanics.md](route-mechanics.md) §5 |
 | **L1 · 路线级还原** | 姬城姐妹线：`AGS_001.ws2`（あげは，整条被删）补回 + 注入成就调用 | [route-mechanics.md](route-mechanics.md) §2 G1 |
 | **L2 · 指令级还原** | 现存路线内被替换/删除的段落（`KAN_3002_1_E`、`AFT_003_E`、`AFT_007_3_E`、`BEF_003_E`、`BEF_004_E`、`HOT_002_E`、`HOT_004_E`、`HUS_001_E`、`KAN_3001_3_E`、`KAN_3001_4_E`）—— **含ほたる线（姫城妹）的 H 内容** | 同上 G5；[third-party-patch-analysis.md](third-party-patch-analysis.md) §2.6 |
-| **L3 · 画面还原** | 同名 CG/图层被和谐改画。**本作实测**（按小写折叠同名逐成员比 sha256）：`Graphic.arc` 同名 253 个、**内容不同 80 个（全部 `.pna`）**；`Chip2.arc` 同名 59、内容不同 2；`Chip1.arc` 同名 233、**内容不同 0**；`Chip3/4/5/6`、`Se/Bgm/SysVoice` 均 0；`Effect.arc` 的 15 个 `.fx` 是引擎着色器**不在范围**。
-**判定结果（`script/build/build_l3.py`）**：`Graphic.arc` 80 个内容差里 **59 个判 overwrite**（层数/层序等价 + 子图改画）、**21 个判 keep**（层数/层序不等价 ⇒ 覆盖会让 Steam 侧既有 `layer_id` 调用点越界，一律不动）；`Chip2.arc` 2 个判 overwrite。台账 `resource/censor_map.json`（82 条：61 overwrite + 21 keep）。 | [third-party-patch-analysis.md](third-party-patch-analysis.md) §2.3 |
-| **L4 · 素材补齐** | 被删归档成员：`Chip7`（298）、`Chip8`（296）、`Chip9`（325）、`Voice`（还原场景语音）。**`.MOS` 成员不补入**（用户决策） | 同上 §2.3/§2.4 |
+| **L3 · 画面还原**（目标层）| 同名 CG/图层被和谐改画。**本作实测**（按小写折叠同名逐成员比 sha256）：`Graphic.arc` 同名 253 个、**内容不同 80 个（全部 `.pna`）**；`Chip2.arc` 同名 59、内容不同 2；`Chip1.arc` 同名 233、**内容不同 0**；`Chip3/4/5/6`、`Se/Bgm/SysVoice` 均 0；`Effect.arc` 的 15 个 `.fx` 是引擎着色器**不在范围**。
+**判定结果**（人工逐张看图定案，台账 `resource/censor_map.json`）：共 **122 条** = `overwrite` 82 ／ `isolate` 5 ／ `insert_orig` 13 ／ `keep` 22。动作只由两问判据给出（原版剧情脚本引用 × 产物保留的 Steam 差分格），**与改画形态无关**；`.pna` 另按改画层可见性判（见 [pna-resources.md](pna-resources.md)「改画层的可见性」）。 | [third-party-patch-analysis.md](third-party-patch-analysis.md) §2.3 |
+| **L4 · 素材补齐**（目标层）| 被删归档成员：`Chip7`（298）、`Chip8`（296）、`Chip9`（325）、`Voice`（还原场景语音）。**`.MOS` 成员不补入**（用户决策） | 同上 §2.3/§2.4 |
 | **L5 · 中文覆盖** | 还原内容的 `.lng` + `NameTable.txt`；每次增删正文后**整体重建 lng** | [restoration-route.md](restoration-route.md) |
 | **L6 · 路线入口/回想** | ✅ **入口已开（实机通过）**：① 按钮图形（中/英两版，`resource/route_entry/` 定版）② Lua 按钮表 7→8（插回 102）+ 滑入动画上界 8 ③ PNA 按钮图层（记录 19/20）④ 角色高亮 Cast 图层（记录 29）+ `StorySelCursor` 的 `id==102` 分支；仅剩回想条目 `AGS_01/02/03` 按需补 | [route-mechanics.md](route-mechanics.md) §0.1/§3、`resource/route_entry.json` |
 
@@ -86,17 +86,17 @@
 
 > 以上清单来自**本项目自己的三方差分扫描**（ORIG↔STEAM 语音锚点 + STEAM↔PATCH 文本锚点，134 区间逐处语义判定），不再依赖国外补丁的改动面反推；逐区间的形态、处置与格号见 [restoration-scope.md](restoration-scope.md) §3。
 
-### L3 · 画面还原
+### L3 · 画面还原（目标层）
 
 **本作实测**：`Graphic.arc` 同名 253 个、内容不同 **80 个（全部 `.pna`）**；`Chip2.arc` 同名 59、内容不同 **2 个**（`FDSDEV14_02b.png`/`FDSDEV14_02s.png`）；`Chip1.arc` 同名 233、**内容不同 0**。
 `.pna` 是图层容器 ⇒ **字节不同 ≠ 图像不同**，必须解析 PNA 逐层比图（[resource-naming.md](resource-naming.md) 五步判据）。判定台账 `resource/censor_map.json`（`members` 列表形态，消费端 `script/final_verification.py`）。
 
 本作 80 个同名 `.pna` 的处置分两路（实测规模）：
 
-- **59 个**两侧记录数/层序等价 ⇒ `overwrite` 整名覆盖回原版（`build_l3.py`）。
+- **59 个** `.pna` 两侧记录数/层序等价 ⇒ 随 `overwrite` 整名覆盖回原版。
 - **21 个**不等价 ⇒ `keep` 保留 Steam PNA，改走 **记录号映射 + 层内修复**（`resource/pna_id_map.json`，下一层 S2b/S3d）：原版来源块的 `0x39` 记录号换算成 Steam 记录号；被 Steam 改画、且**未被 Steam 新增段/未还原段复用**的身体层子图换回原版（本作 3 条）。朱莉线 `H朱莉_01*` 与 `*_W` 的裁切版保留 Steam 字节，登记 `resource/perf_waivers.json`（详见 [pna-resources.md](pna-resources.md)「同名 PNA 的跨版本记录表差异与处置」）。
 
-### L4 · 素材补齐
+### L4 · 素材补齐（目标层）
 
 | 归档 | 原版 | Steam | 需补 |
 |---|---|---|---|
@@ -109,8 +109,8 @@
 | `Graphic.arc` | 301 | 275 | **+48**（`CUTIN_98_05A/B.PNG` 等） |
 | `Se.arc` | ？ | 223 | **+19**（`SUB-TITLE_*`、`T_SE16/80`、`TRSE_125`、`WBSE_185`、`YUSE_65` 等） |
 
-> **L4 范围由「资源配对正确性闸」反推，不靠猜**：`script/checks/restore_asset_coverage.py` 扫还原块引用的全部资源名（2413 个），凡「交付面没有、原版有」的即列出 ⇒ 据此确定需并集的归档。当前闸为 **0 缺口**。
-> 并集写盘 `script/build/build_l4_extra.py`（以 `asset/<归档>` 为底，保留 L3 的画面覆盖结论）。 |
+> **L4 目标层的范围由「资源配对正确性闸」反推，不靠猜**：`script/checks/restore_asset_coverage.py` 扫还原块引用的全部资源名（2413 个），凡「交付面没有、原版有」的即列出 ⇒ 据此确定需并集的归档。当前闸为 **0 缺口**。
+> **L3 与 L4 由同一个写盘器一次完成**：`script/build/build_assets.py`（起底 `asset/<归档>` → 画面处置 → 并集补入 → 名字规范化 → 回读校验）。分步串行会让顺序变成隐藏依赖，见 [restoration-route.md](restoration-route.md) S3b。
 
 > `.MOS` 成员（`Chip7` 118 个、`Chip8` 138 个）：**用途未定**（❓），需先判定是否被引擎引用，再决定是否补入。
 

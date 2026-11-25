@@ -14,7 +14,7 @@ Steam 自带那份）。
 
 缺口有两种，必须分开报：
 * **归档内缺成员** —— 该资源名在 Steam 与 `asset/` 里都不存在，但在原版归档里有
-  ⇒ **L4 素材补齐的范围漏了**（需把该归档纳入并集）。
+  ⇒ **并集补入的范围漏了**（需把该归档纳入 `script/build/build_assets.py` 的归档清单）。
 * **两版都缺** —— 原版也没有 ⇒ 引用名有误或该资源另有来源（`RIO/` 裸目录等）。
 
 用法：`python script/checks/restore_asset_coverage.py`
@@ -125,7 +125,7 @@ def main():
     print('还原块引用资源名 %d 个（去重）' % len(refs))
     print('交付面（asset/ ∪ backup/）已覆盖 %d 个' % len([n for n in refs if n in have]))
     print()
-    print('❌ 归档内缺成员（原版有、交付面没有）%d 个 —— L4 补齐范围漏了：' % len(miss_asset))
+    print('❌ 归档内缺成员（原版有、交付面没有）%d 个 —— 并集补入范围漏了：' % len(miss_asset))
     for n in miss_asset:
         where = sorted(a for a, s in orig_idx.items() if n in s)
         print('   %-28s 原版位于 %s（引用 %d 次）' % (n, where, refs[n]))
