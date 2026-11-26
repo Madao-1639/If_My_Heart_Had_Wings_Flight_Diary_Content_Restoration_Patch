@@ -30,13 +30,12 @@
 - **中文通路**：官方简中 = `zh-CN/` 语言包（`AdvHDLang.dll` + `Fonts.arc` + `Rio.arc` 的 `.lng`/`NameTable.txt` + `Script.arc` + `SysGraphic.arc`）；`.lng` 与脚本**按位置对应**，正文一增删就整体错位
 - **WS2 指令集需重新标定**：GalRev 现有操作数格式表在本作 `mainmenu.ws2` 上遇 `0x82` 报 `UnknownInstruction`，**必须先读本作 `AdvHD.exe` 的格式表**
 
-以上均为直接对比 Steam 版归档、原版发行版归档与两个第三方补丁得出的实测结论，详见 `doc/` 目录；第三方补丁的改动面与**不可沿用的做法**见 `doc/third-party-patch-analysis.md`。
+以上均为直接对比 Steam 版归档与原版发行版归档得出的实测结论，详见 `doc/` 目录。
 
 ## 素材来源
 
 - Steam 版基线（只读参考）：`backup/`（另见环境变量 `IMHFD_STEAM_DIR`）
 - 原版发行版素材：环境变量 `IMHFD_ORIG_DIR`，或与补丁目录同级自动发现（见 `doc/restoration-targets.md` §素材来源）
-- 第三方补丁参考（**不可信，冲突时以我们的为准**）：见 `doc/restoration-targets.md`
 - 引擎逆向知识：`D:\My_Code\tmp\GamePatch\GalRevserse\GalRev`
 
 > **外部素材先入库**：`backup/` 里没有、只能从原版发行版取得、且**不可由脚本再生**的二进制素材（如姬城线的角色高亮 Cast 图、base UI 的原版日文入口图形），必须先落成 `resource/` 下的显式输入（`resource/route_entry/`），**build 只读 `backup/` + `resource/`**；原版目录仅用于由导入脚本（`script/build/import_route_assets.py`）重建这些文件。缺文件时 build 中止，不静默回退去读仓库外路径。**已定版的成品素材**（如路线入口按钮 PNG，即便理论上可由脚本再生）一旦在 `resource/` 入库，build 就只读该定版件，并保留对 `backup/` 官方素材的校验闸。
@@ -99,7 +98,7 @@
 - 归档成员名、脚本内资源名/对白：Shift-JIS 或 UTF-16LE（视字段，见 `doc/file-formats.md`）
 - 控制台输出使用 ASCII，或对 stdout 做 UTF-8 reconfigure；解码出的日文/中文文本不要直接 print，先写入 UTF-8 文件再用文件查看工具核对
 - 使用 NUL 前缀的精确替换模式改写脚本内的资源引用，不要用朴素字符串替换
-- **中文只写 `.lng`（UTF-16LE）与 `NameTable.txt`**：不要尝试把简体中文编码进 ws2 窄字节（CP932 写不出简体专用字，见 `doc/third-party-patch-analysis.md` §3.2）
+- **中文只写 `.lng`（UTF-16LE）与 `NameTable.txt`**：不要尝试把简体中文编码进 ws2 窄字节（CP932 写不出简体专用字）
 
 ### 5. 验收流程
 
@@ -138,7 +137,6 @@
 - [doc/restoration-targets.md](doc/restoration-targets.md) - 还原目标、范围分层与判定标准
 - [doc/restoration-route.md](doc/restoration-route.md) - 还原路线、流水线与发布链
 - [doc/route-mechanics.md](doc/route-mechanics.md) - 路线机制与「线路完备」可行性
-- [doc/third-party-patch-analysis.md](doc/third-party-patch-analysis.md) - 第三方补丁改动面与不可沿用做法
 - [doc/file-formats.md](doc/file-formats.md) - 文件格式规范
 - [doc/engine-mechanics.md](doc/engine-mechanics.md) - 引擎运行时机制
 - [doc/achievement-mechanics.md](doc/achievement-mechanics.md) - 成就系统机制

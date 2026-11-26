@@ -5,7 +5,7 @@
       + 原版发行目录。
 产出：`resource/restore_plan.json`（写盘器 `tool/writer.py` 的唯一输入）+ `tmp/restore_plan.md`。
 
-对齐轴（与 `script/scope/scope_mech.py` 同一套，保证区间口径一致）
+对齐轴（与 `resource/restore_scope.json` 的区间口径一致）
 --------------------------------------------------------------
 `0x14` 台词行 = 「格」。ORIG ↔ STEAM 的锚点 = **语音名 LCS**（Steam 未删改的格沿用原版
 语音文件名 ⇒ 同名即同一格）。相邻锚点之间的行区间 = 一个 gap；gap 内两侧行数不等、或

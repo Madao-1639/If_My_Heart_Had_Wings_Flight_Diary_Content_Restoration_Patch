@@ -430,6 +430,62 @@ def main():
         print('  ~ %-22s 解锁组：抛弃 ORIG %d / 同名反查 %d（%d -> %d B）'
               % (_nm, _st['drop'], _st['repoint'], len(_d), len(_new)))
 
+    # ── 语音重指：Steam 重录名 -> 原版录音名（`resource/voice_repoint_manual.json`）──
+    # 必须在 `cgunlock.plan_bytes`（删解锁组）**之后**：删字节会让此前算出的绝对偏移作废，
+    # 且改名本身会改变指令长度 ⇒ 需再平移一次 `variant.targets`。
+    # 裁决（2026-11-26）：「优先还原，遵循出处」——A/B 双体脚本只换 A 体，B 体保留 Steam 配音。
+    _vpath = os.path.join(ROOT, 'resource', 'voice_repoint_manual.json')
+    if os.path.exists(_vpath):
+        _vrep = json.load(open(_vpath, encoding='utf-8')).get('repoints') or []
+        _by_sc = {}
+        for _e in _vrep:
+            _by_sc.setdefault(_e['script'].upper(), []).append(_e)
+        for _i, (_nb, _d) in enumerate(steam_members):
+            _nm = _nb.decode('utf-16le').upper()
+            if not _nm.endswith('.WS2'):
+                continue
+            _sc = _nm[:-len('_E.WS2')] if _nm.endswith('_E.WS2') else _nm[:-len('.WS2')]
+            _items = _by_sc.get(_sc)
+            if not _items:
+                continue
+            _ins = ws2dis.disassemble(ws2.decode(_d), formats=ws2dis.FORMATS)[0]
+            _g = None
+            if _ins and _ins[0][1] == 0x01 and _ins[0][2] == 16:
+                _v = struct.unpack('<H', _ins[0][3][1:3])[0]
+                if _v >= 1955:
+                    _g = struct.unpack('<I', _ins[0][3][11:15])[0]
+            _cut = _g
+            if _cut is None:
+                _vd0 = variant_detail.get(_sc)
+                if _vd0 and _vd0.get('targets'):
+                    _cut = _vd0['targets'].get('brB')
+            _full, _aonly = {}, {}
+            for _e in _items:
+                (_aonly if _e.get('only_a') else _full)[_e['from'].encode()] = _e['to'].encode()
+            _before = len(_d)
+            _newd, _hits = writer.voice_repoint(_d, _full)
+            if _aonly:
+                _newd, _h2 = writer.voice_repoint(_newd, _aonly, only_a_cut=_cut)
+                _hits += _h2
+            if not _hits:
+                continue
+            steam_members[_i] = (_nb, _newd)
+            # 改名改变指令长度 ⇒ 同步平移变体布局坐标
+            _vd = variant_detail.get(_sc)
+            if _vd and _vd.get('targets'):
+                _delta = len(_newd) - _before
+                _old = dict(_vd['targets'])
+                _ins2 = ws2dis.disassemble(ws2.decode(_newd), formats=ws2dis.FORMATS)[0]
+                _newmap = {o: i for i, (o, _op, _sz, _ops) in enumerate(_ins2)}
+                _ins1 = ws2dis.disassemble(ws2.decode(_d), formats=ws2dis.FORMATS)[0]
+                for _k, _v in _old.items():
+                    if _v in {x[0] for x in _ins1}:
+                        _j = [i for i, x in enumerate(_ins1) if x[0] == _v][0]
+                        _vd['targets'][_k] = _ins2[_j][0]
+                _vd['targets_delta'] = _delta
+            for _o, _a, _b2 in _hits:
+                print('  ~ %-10s 语音重指 %s -> %s' % (_sc, _a, _b2))
+
     out_arc = os.path.join(ROOT, 'asset', 'Rio.arc')
     os.makedirs(os.path.dirname(out_arc), exist_ok=True)
     n_orig = len(steam_members) - sum(1 for sc, p in plan['scripts'].items() if p['kind'] == 'whole')

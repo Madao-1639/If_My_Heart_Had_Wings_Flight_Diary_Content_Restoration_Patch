@@ -1,0 +1,94 @@
+{
+ "meta": {
+  "note": "Steam 重录语音 → 原版录音的改名入库表（用户 2026-11-26 裁决）。\n\n裁决原文：『优先还原，遵循出处。4-9 原版分支用原版，steam版分支用steam版。12 只有steam版就复用。剩余语音用原版』\n\n落地判据：\n  * `only_a=false`（无变体脚本）：整篇为还原内容 ⇒ 全篇换成原版录音。\n  * `only_a=true`（KAN_2001 这类 A/B 双体）：同一句在 A 体（原版还原体）与 B 体（Steam 演绎体）各出现一份 ⇒ **只换 A 体那份**，B 体保留 Steam 配音。这是『遵循出处』的直接体现。\n  * 原版侧无对应录音 ⇒ 不入表（复用 Steam 录音）。\n\n消费方：`script/build/build_patch.py` 的语音重指步骤（在 CG 解锁组删除之后执行，并同步平移 `slot_sources[sc].variant.targets`）；闸：`script/final_verification.py` 第 10 项。",
+  "source": "tmp/perf_review_report.md §6 逐槽评审（14,129 槽）",
+  "apply_order": "必须在 cgunlock.plan_bytes（删解锁组）之后：删字节会让此前算出的绝对偏移作废"
+ },
+ "repoints": [
+  {
+   "script": "BEF_005",
+   "from": "VTAT0001.OGG",
+   "to": "TATUYA_0232.OGG",
+   "only_a": false,
+   "note": "多田（TATUYA）台词：原版 77761 B 与 asset/Voice.arc 内字节一致"
+  },
+  {
+   "script": "HOT_005",
+   "from": "VHOT0011.OGG",
+   "to": "HOTARU_0953.OGG",
+   "only_a": false,
+   "note": "萤线，无变体脚本"
+  },
+  {
+   "script": "HOT_005",
+   "from": "VHOT0012.OGG",
+   "to": "HOTARU_0956.OGG",
+   "only_a": false,
+   "note": "萤线，无变体脚本"
+  },
+  {
+   "script": "HUS_001",
+   "from": "VASA0010.OGG",
+   "to": "ASA_0422.OGG",
+   "only_a": false,
+   "note": "亚纱；`0x14` 只有 1 处，位于 A 体"
+  },
+  {
+   "script": "KAN_2001",
+   "from": "VAGE0004.OGG",
+   "to": "AGEHA_0713.OGG",
+   "only_a": true,
+   "note": "A+B 双体，只换 A 体"
+  },
+  {
+   "script": "KAN_2001",
+   "from": "VKAN0015.OGG",
+   "to": "KANA_0242.OGG",
+   "only_a": true,
+   "note": "A+B 双体，只换 A 体"
+  },
+  {
+   "script": "KAN_2001",
+   "from": "VKAN0016.OGG",
+   "to": "KANA_0243.OGG",
+   "only_a": true,
+   "note": "A+B 双体，只换 A 体"
+  },
+  {
+   "script": "KAN_2001",
+   "from": "VYOR0000.OGG",
+   "to": "YORU_0211.OGG",
+   "only_a": true,
+   "note": "A+B 双体，只换 A 体"
+  },
+  {
+   "script": "KAN_2001",
+   "from": "VKAN9001.OGG",
+   "to": "KANA_2001.OGG",
+   "only_a": true,
+   "note": "A+B 双体，只换 A 体"
+  },
+  {
+   "script": "KAN_2004",
+   "from": "VKAN0030.OGG",
+   "to": "KANA_0338.OGG",
+   "only_a": false,
+   "note": "佳奈子，无变体脚本"
+  },
+  {
+   "script": "KAN_2004",
+   "from": "VKAN0031.OGG",
+   "to": "KANA_0416.OGG",
+   "only_a": false,
+   "note": "佳奈子，无变体脚本"
+  }
+ ],
+ "waived": [
+  {
+   "script": "KAN_1001",
+   "from": "VKAN0000.OGG",
+   "reason": "Steam 独有的整行（原版该格无语音），原版侧无对应录音 ⇒ 按裁决『12 只有steam版就复用』保留 Steam 录音，不改",
+   "decision": "复用 Steam"
+  }
+ ]
+}

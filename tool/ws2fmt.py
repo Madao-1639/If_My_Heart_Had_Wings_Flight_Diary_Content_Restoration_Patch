@@ -3,7 +3,7 @@
 **表来源**：本作 `AdvHD.exe` 的操作数格式表 —— IDA 实测基址 `0x57ada8`（.rdata），
 由 `sub_4D40B0` 以 `*(&off_57ADA8 + opcode)` 直接索引；每项指向 .data 中一段
 以 **高位置 1 的字节**（本作全部为 `0xff`）结尾的类型码串；指针为 0 表示该 opcode 未实现。
-导出脚本见 `script/scan/dump_formats.py`，落盘 `resource/ws2_formats.json`。
+落盘于 `resource/ws2_formats.json`。
 
 **类型码 → 字节**（由 `sub_4D45E0` 的 switch 与全语料 100% 平铺实证）：
   0 u8(1) | 1 i16(2) | 2 u16(2) | 3 i32(4) | 4 u32(4) | 5 f32(4)

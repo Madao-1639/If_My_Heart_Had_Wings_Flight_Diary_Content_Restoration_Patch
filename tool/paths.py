@@ -5,8 +5,7 @@
   ROOT  = PATCH 的父目录（原版发行目录与 PATCH 同级）
   STEAM = PATCH/backup（Steam 原始基线，只读）
 
-第三方补丁（国外还原补丁 / 中文汉化补丁）只作**改动面线索**，不作依据，故不纳入本模块的常规解析；
-需要时用 `third_party_dir()` 显式取。
+本项目只依赖两个输入：**Steam 基线**（`backup/`）与**原版发行版**（`orig_dir()`）。
 """
 import os
 
@@ -15,7 +14,6 @@ ROOT = os.path.dirname(PATCH)
 STEAM = os.path.join(PATCH, 'backup')
 
 _ORIG = None
-_THIRD = None
 
 
 def orig_dir():
@@ -33,21 +31,6 @@ def orig_dir():
     if _ORIG is None:
         raise RuntimeError('original release dir not found under %s' % ROOT)
     return _ORIG
-
-
-def third_party_dir():
-    """第三方还原补丁目录（只作线索，不作依据）。"""
-    global _THIRD
-    if _THIRD is None:
-        env = os.environ.get('IMHFD_THIRD_DIR')
-        if env:
-            _THIRD = env
-        else:
-            for d in os.listdir(ROOT):
-                if 'Restoration Patch' in d:
-                    _THIRD = os.path.join(ROOT, d)
-                    break
-    return _THIRD
 
 
 def listing(dirpath):

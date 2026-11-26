@@ -1,7 +1,7 @@
 # 还原目标
 
 > 状态图例：✅ 已确认 ／ ⚠️ 部分确认 ／ ❓ 未知
-> 本文写**还原目标、范围分层与判定标准**；机制依据见 [route-mechanics.md](route-mechanics.md) 与 [third-party-patch-analysis.md](third-party-patch-analysis.md)，技术方案见 [restoration-route.md](restoration-route.md)。
+> 本文写**还原目标、范围分层与判定标准**；机制依据见 [route-mechanics.md](route-mechanics.md)，技术方案见 [restoration-route.md](restoration-route.md)。
 >
 > **逐剧本逐区间的动作定案**（哪个脚本、哪些格号区间、用什么形态处置）见 **[restoration-scope.md](restoration-scope.md)**，机器可读版 = `resource/restore_scope.json`（计划生成器与写盘器的唯一输入）。
 
@@ -25,9 +25,9 @@
 |---|---|---|
 | **L0 · 工具链前置** | ✅ **已完成**：本作 WS2 操作数格式表已从 `AdvHD.exe` 标定（`resource/ws2_formats.json`），Steam 侧 111/111 剧本可 100% 反汇编 | [route-mechanics.md](route-mechanics.md) §5 |
 | **L1 · 路线级还原** | 姬城姐妹线：`AGS_001.ws2`（あげは，整条被删）补回 + 注入成就调用 | [route-mechanics.md](route-mechanics.md) §2 G1 |
-| **L2 · 指令级还原** | 现存路线内被替换/删除的段落（`KAN_3002_1_E`、`AFT_003_E`、`AFT_007_3_E`、`BEF_003_E`、`BEF_004_E`、`HOT_002_E`、`HOT_004_E`、`HUS_001_E`、`KAN_3001_3_E`、`KAN_3001_4_E`）—— **含ほたる线（姫城妹）的 H 内容** | 同上 G5；[third-party-patch-analysis.md](third-party-patch-analysis.md) §2.6 |
+| **L2 · 指令级还原** | 现存路线内被替换/删除的段落（`KAN_3002_1_E`、`AFT_003_E`、`AFT_007_3_E`、`BEF_003_E`、`BEF_004_E`、`HOT_002_E`、`HOT_004_E`、`HUS_001_E`、`KAN_3001_3_E`、`KAN_3001_4_E`）—— **含ほたる线（姫城妹）的 H 内容** | 同上 G5 |
 | **L3 · 画面还原**（目标层）| 同名 CG/图层被和谐改画。**本作实测**（按小写折叠同名逐成员比 sha256）：`Graphic.arc` 同名 253 个、**内容不同 80 个（全部 `.pna`）**；`Chip2.arc` 同名 59、内容不同 2；`Chip1.arc` 同名 233、**内容不同 0**；`Chip3/4/5/6`、`Se/Bgm/SysVoice` 均 0；`Effect.arc` 的 15 个 `.fx` 是引擎着色器**不在范围**。
-**判定结果**（人工逐张看图定案，台账 `resource/censor_map.json`）：共 **122 条** = `overwrite` 82 ／ `isolate` 5 ／ `insert_orig` 13 ／ `keep` 22。动作只由两问判据给出（原版剧情脚本引用 × 产物保留的 Steam 差分格），**与改画形态无关**；`.pna` 另按改画层可见性判（见 [pna-resources.md](pna-resources.md)「改画层的可见性」）。 | [third-party-patch-analysis.md](third-party-patch-analysis.md) §2.3 |
+**判定结果**（人工逐张看图定案，台账 `resource/censor_map.json`）：共 **122 条** = `overwrite` 82 ／ `isolate` 5 ／ `insert_orig` 13 ／ `keep` 22。动作只由两问判据给出（原版剧情脚本引用 × 产物保留的 Steam 差分格），**与改画形态无关**；`.pna` 另按改画层可见性判（见 [pna-resources.md](pna-resources.md)「改画层的可见性」）。 | — |
 | **L4 · 素材补齐**（目标层）| 被删归档成员：`Chip7`（298）、`Chip8`（296）、`Chip9`（325）、`Voice`（还原场景语音）。**`.MOS` 成员不补入**（用户决策） | 同上 §2.3/§2.4 |
 | **L5 · 中文覆盖** | 还原内容的 `.lng` + `NameTable.txt`；每次增删正文后**整体重建 lng** | [restoration-route.md](restoration-route.md) |
 | **L6 · 路线入口/回想** | ✅ **入口已开（实机通过）**：① 按钮图形（中/英两版，`resource/route_entry/` 定版）② Lua 按钮表 7→8（插回 102）+ 滑入动画上界 8 ③ PNA 按钮图层（记录 19/20）④ 角色高亮 Cast 图层（记录 29）+ `StorySelCursor` 的 `id==102` 分支；仅剩回想条目 `AGS_01/02/03` 按需补 | [route-mechanics.md](route-mechanics.md) §0.1/§3、`resource/route_entry.json` |
@@ -41,7 +41,7 @@
 
 - **成就触发点完整**：`CG_ACHIEVEMENT` 调用**原样保留、不新增**（Steam 侧原有调用在删格时被保留；ORIG 侧注入是空操作，见 [restoration-scope.md](restoration-scope.md) §6.7）。
 - **不碰朱莉线**：`Rio1.arc`、`Chip10.arc`、`AKA_*` 脚本与语音、`zh-CN/Rio1.arc` 全程保持 Steam 原样。
-- **中文只走宽字符通路**：`.lng`（UTF-16LE，key `0x3E`）+ `NameTable.txt`；**不采用**第三方补丁"把中文写进 ws2 窄字节"的做法（CP932 写不出简体专用字，见 [third-party-patch-analysis.md](third-party-patch-analysis.md) §3.2）。
+- **中文只走宽字符通路**：`.lng`（UTF-16LE，key `0x3E`）+ `NameTable.txt`；**不得**把中文写进 ws2 窄字节（CP932 写不出简体专用字）。
 - **幂等与回读**：所有改写脚本必须可重复运行，改后回读校验。
 
 ### 不做
@@ -49,7 +49,7 @@
 - 不还原 Steam 的**界面改版**（`SysGraphic.arc` 的 UI 重做、`Script.arc` 的 Lua 重构）——除非路线入口需要。
 - 不统一两版**语音命名方案**（原版 `AGE_xxxx.ogg` ↔ Steam `AGEHA_xxxx.ogg`）；还原语音以 Steam 侧命名为准，原版名按映射表转换。
 - 不动重编码噪声（同名归档里仅因重压缩而不同的成员）。
-- 不做**英文化**：不引入国外补丁的英文文本，也不引入其日文原文缝合段。
+- 不做**英文化**：不缝合英文文本，也不做日文原文缝合段。
 
 ---
 
@@ -84,7 +84,7 @@
 
 **画廊**：`CG_PAGE01…04_E` 未按原版重建（相对原版缺 71/101/114/113 条、顺序不同）。
 
-> 以上清单来自**本项目自己的三方差分扫描**（ORIG↔STEAM 语音锚点 + STEAM↔PATCH 文本锚点，134 区间逐处语义判定），不再依赖国外补丁的改动面反推；逐区间的形态、处置与格号见 [restoration-scope.md](restoration-scope.md) §3。
+> 以上清单来自**本项目自己的三方差分扫描**（ORIG↔STEAM 语音锚点 + 文本锚点，134 区间逐处语义判定）；逐区间的形态、处置与格号见 [restoration-scope.md](restoration-scope.md) §3。
 
 ### L3 · 画面还原（目标层）
 
@@ -138,8 +138,6 @@
 |---|---|
 | Steam 版基线（只读） | `E:\SteamLibrary\steamapps\common\IF MY HEART HAD WINGS FLIGHT DIARY`；补丁仓库内 `backup/` |
 | 原版发行版（日文） | 环境变量 `IMHFD_ORIG_DIR` 或与补丁目录同级自动发现 |
-| 国外还原补丁（参考，**不可信**） | `…\If_My_Heart_Had_Wings_Flight_Diary_Restoration Patch` |
-| 中文汉化补丁（参考） | 上者 `Chinese_Localization_Patch/` |
 | 引擎逆向知识 | `D:\My_Code\tmp\GamePatch\GalRevserse\GalRev` |
 
 ---

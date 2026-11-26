@@ -681,10 +681,22 @@ def main(argv=None):
     else:
         reps = json.load(open(vp, encoding='utf-8')).get('repoints') or []
         for e in reps:
-            key = e['script'] + '.ws2'
+            key = e['script'] + '_E.ws2'
+            if key not in rio:
+                key = e['script'] + '.ws2'
             dec = ws2.decode(rio[key]) if key in rio else b''
-            check('10 语音重指 %s %s→%s' % (e['script'], e['from'], e['to']),
-                  e['from'].encode('ascii') not in dec and e['to'].encode('ascii') in dec)
+            _from, _to = e['from'].encode('ascii'), e['to'].encode('ascii')
+            # `only_a=true` 的条目**只换 A 体**（原版还原体），B 体（Steam 演绎体）保留
+            # Steam 原配音 ⇒ `from` 名允许残留 1 份；判定改为「恰好 1 份」。
+            if e.get('only_a'):
+                _ok = dec.count(_from) == 1 and _to in dec
+                _why = 'A 体已换、B 体保留 1 份' if _ok else 'A/B 体处置不符'
+            else:
+                _ok = _from not in dec and _to in dec
+                _why = '' if _ok else 'from 未清除或 to 未落'
+            check('10 语音重指 %s %s→%s%s' % (e['script'], e['from'], e['to'],
+                                              '（仅 A 体）' if e.get('only_a') else ''),
+                  _ok, _why)
 
     # ── 汇总 ──
     lines.append('')

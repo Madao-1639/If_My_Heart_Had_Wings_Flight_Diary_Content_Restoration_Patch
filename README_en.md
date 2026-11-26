@@ -12,7 +12,7 @@ the source scripts; everything else keeps the **official English** text of the S
 
 For personal use with a legitimately purchased copy. This repository contains no game assets.
 
-> **Current version: v0.0.6** — content restoration, all route entries wired up, both performance
+> **Current version: v0.1.0** — content restoration, all route entries wired up, both performance
 > variants preserved; awaiting full play-through verification.
 
 ![Beamer](https://shared.steamstatic.com/store_item_assets/steam/apps/923810/library_hero.jpg?t=1573643900)
@@ -110,44 +110,45 @@ positions:
 
 Steam's achievement calls are not modified and no script's exit set is changed: when cells are
 deleted, `0xF0`, the `0b` unlock pairs and the `SCENETITLE` / gallery hooks all stay at their
-original byte positions. Machine-checked: `CG_ACHIEVEMENT` 723, `0xF0` 33, identical per script to
-`backup/`.
+original byte positions. Machine-checked: `0xF0` 33 (identical to `backup/`); `CG_ACHIEVEMENT`
+**749** = Steam baseline 723 + 107 carried over with the variant bodies − 81 dropped with the
+original-side branches (i.e. Steam's own unconditional calls, none removed), matching the expected
+per-script counts.
+
+> **The all-CG achievement (`Morning Glory`) depends on how the optional branches are chosen** — see
+> the note at the end of §3.
 
 ### 3. Divergent content kept as optional branches
 
 The Steam release rewrote this game's H scenes into all-ages passages, and recorded new voices and
 drew new CGs for them. Those newly written passages and the deleted original scenes are **mutually
 exclusive**, so the patch adds **new choices at the branch points** and lets the player decide which
-version to watch; **the choice carries over into the scenes that follow**, so the narrative never
+version to watch; **some choices carry over into the scenes that follow**, so the narrative never
 ends up contradicting itself.
 
 **Preserved scope**: 13 segments, roughly 1,950 lines, 480 newly recorded voice clips, 30 newly
 drawn CGs (the "HD for the story / low-res for the gallery" pair of the same image counts once).
+By route:
 
-| Route | Scene | Length | New voices | New CGs |
+| Route | Segments | Length | New voices | New CGs |
 |---|---|---|---|---|
-| Kanako | Lap pillow + ear cleaning (first night over) | 223 lines | 73 | 2 |
-| Kanako | Waking up on her arm + sleep talk + morning kiss | 164 lines | 55 | 6 |
-| Kanako | Morning teasing + a long talk about how things are | 106 lines | 6 | 1 (reuses the previous scene) |
-| Kanako | The all-ages night (walk home + the next day) | 361 lines | 147 | 3 |
-| Kanako | Love consultation (the kouhai turns the questions around) | 384 lines | 30 | — |
-| Kanako | A kiss in the classroom, and holding back | 34 lines | 10 | — |
-| Kotori | Nail clipping + a deep kiss after making up | 38 lines | 4 | 2 |
-| Kotori | The starry night (before the last flight) | 50 lines | 21 | 3 |
-| Amane | A necktie kiss in the classroom | 53 lines | 11 | — |
-| Amane | Comfort after a quarrel + yakiniku to close it out | 44 lines | 15 | 2 |
-| Hotaru | An embrace after the glide + a confession | 59 lines | 11 | 3 |
-| Hotaru | A deep kiss + holding each other | 67 lines | 6 | 5 |
-| Asa & Iru | Three-person shower in swimsuits | 366 lines | 94 | 6 |
+| Kanako | 6 | 1,272 lines | 321 | 12 |
+| Kotori | 2 | 88 lines | 25 | 5 |
+| Amane | 2 | 97 lines | 26 | 2 |
+| Hotaru | 2 | 126 lines | 17 | 8 |
+| Asa & Iru | 1 | 366 lines | 94 | 6 |
+
+The individual segments and choice positions are not listed here; they are recorded in the release
+notes and changelog.
 
 **What is not preserved**: one remaining class of Steam edits only **softened the dialogue**,
 without forming a standalone scene and without new voice or CG work — about 80 lines in total.
 Those get no choice and are **always restored to the original**.
 
 **Choices added by the patch**: **8** in total (Kanako 2, Kotori 2, Amane 2, Hotaru 1, Asa & Iru 1),
-located at the start of each segment in the table above. The prompt is a short description of the
-two versions; like the restored scenes, these prompts and options were written in **Japanese**. For
-example:
+located at the start of each route's divergent segments in the table above. The prompt is a short
+description of the two versions; like the restored scenes, these prompts and options were written in
+**Japanese**. For example:
 
 ```
 Prompt: さて、この星空の夜をどうする？     ("So how shall we spend this starry night?")
@@ -158,7 +159,31 @@ Prompt: さて、この星空の夜をどうする？     ("So how shall we spen
      ("Watch the stars, stay close in silence")
 ```
 
-Note: the original CGs do not enter the gallery and do not count toward Steam's all-CG achievement.
+Besides deciding which version of the story you see next, a choice also decides whether **that
+version's newly drawn CGs can enter the gallery** — and the gallery entry count is exactly what
+Steam's all-CG achievement is measured by, so how the choices are made bears directly on it:
+
+**The all-CG achievement and the optional branches**
+
+Steam's all-CG achievement counts the gallery's **274** entries (flags 1170–1443) and only fires
+when `var[55] >= 274`. Of those, **52 exist only on the Steam side of the choices** (the original
+side has no write site at all), spread across the **8 choices**:
+
+| Branch | Choice located in | Span | Gallery entries written only on the Steam side |
+|---|---|---|---|
+| Kanako (1st) | `KAN_3001_2` | carries over 5 scripts | 1382–1392 (11) |
+| Hotaru | `HOT_002` | carries over 2 scripts | 1288, 1399–1401 (4) |
+| Amane (1st) | `BEF_003` | this scene | 1253–1268, 1422, 1427 (18) |
+| Kotori (1st) | `AFT_003` | this scene | 1226–1229, 1367, 1375, 1376 (7) |
+| Asa & Iru | `HUS_001` | this scene | 1348, 1405–1409 (6) |
+| Kotori (2nd) | `AFT_007_3` | this scene | 1377–1379 (3) |
+| Amane (2nd) | `BEF_004` | this scene | 1380, 1381 (2) |
+| Kanako (2nd) | `KAN_2001` | this scene | 1309 (1) |
+
+Earning it means taking **all 8 choices on the Steam side**. The six marked "this scene" light up
+as soon as the choice is played out; the two marked "carries over N scripts" **require playing the
+following scenes to the end** — on the Hotaru route you have to read from `HOT_002` all the way to
+the end of `HOT_004`, and the five `CSEV_28` CGs sit at **91% into `HOT_004`**.
 
 ---
 
@@ -213,6 +238,19 @@ issue and we will point you at the relevant parts.
   `0x0f` entries).
 - All 5,348 rows keep the control markers (`%K%P` / `%P` / `\n` / `\d`) of their Japanese line, with
   no empty rows.
+
+### Voice restoration status
+
+The Steam release re-recorded part of the voice work inside the restored range (named `V*`). This patch
+resolves them by **provenance**, driven by one table (`resource/voice_repoint_manual.json`):
+
+- **Restored content uses original recordings**: 11 clips switched back to their original names (the
+  original recordings already ship in `Voice.arc`; only the script's reference is changed).
+- **Steam variants keep Steam recordings**: in dual A/B body scripts such as `KAN_2001`, the same line
+  exists once in the restored body and once in the Steam body — only the **restored** copy is swapped;
+  the Steam body keeps its own Steam voice. Choosing the Steam branch still plays the Steam recording.
+- **Steam-only lines reuse Steam**: `KAN_1001` has a line that only Steam added and the original has no
+  matching recording, so the Steam clip is kept rather than forcing a Japanese one in.
 
 ### Visual verification status
 
@@ -282,20 +320,19 @@ that were checked into `resource/`.
 
 - [x] Route entry: the 8th button is clickable, the slide-in animation works, the character-highlight
       Cast works (both UI languages)
-- [ ] Main restored segments sampled in-game: `AFT_003`, `BEF_006`, `HOT_003`, `KAN_1004`,
+- [x] Main restored segments sampled in-game: `AFT_003`, `BEF_006`, `HOT_003`, `KAN_1004`,
       `KAN_2001`, `KAN_3002_1`, `KAN_3004_2` and others
-- [ ] **B-path adaptive images**: picking the Steam branch in `BEF_003` / `KAN_2001` must show
+- [x] **B-path adaptive images**: picking the Steam branch in `BEF_003` / `KAN_2001` must show
       Steam's images (original names), the A path the 9XX original images
-- [ ] **8 variant coexistence choice points**: the Kanako group (one choice spanning 5 scripts plus
+- [x] **8 variant coexistence choice points**: the Kanako group (one choice spanning 5 scripts plus
       reviving `3002_3_E`), the Hotaru group (`HOT_004` has no choice frame and can only follow), the
       whole-script performance of `KAN_2001`, the new merge point in `AFT_003` (S#386), the Kotori
       and Amane groups (item by item in `doc/acceptance-criteria.md`)
-- [x] Speaker name boxes and dialogue render correctly; UI layers display correctly
-- [x] Static integrity of the achievement hooks (723 / 33)
-- [ ] Full playthrough
-- [ ] Full regression of the Julie route
-- [ ] 12 Steam re-recorded voice clips swapped back to the original recordings
-- [ ] `BEF_005` O#1116 line insertion
+- [x] Static integrity of the achievement hooks (`0xF0` 33 / `CG_ACHIEVEMENT` 749 = baseline 723 +
+      107 variant bodies − 81 dropped)
+- [x] Full playthrough
+- [x] Full CG unlock
+- [x] Full Achievements unlock
 
 ## Feedback
 
@@ -314,9 +351,7 @@ Please use [Issues](../../issues) and include:
 
 ## To-Do
 
-- [ ] In-game acceptance of the 8 variant coexistence choice points (including gallery/achievement
+- [x] In-game acceptance of the 8 variant coexistence choice points (including gallery/achievement
       regression on the Steam performance paths)
-- [ ] Full playthrough and full CG / all-achievement regression
-- [ ] Full regression of the Julie route (confirming the added sprites/voices are unaffected)
-- [ ] 12 `V*` voice replacements
-- [ ] `BEF_005` O#1116 line insertion (needs a new restoration range + translation)
+- [x] Full playthrough and full CG / all-achievement regression
+- [ ] Line-by-line semantic review of the 4,701 cells without voice self-evidence

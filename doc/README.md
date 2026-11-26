@@ -3,7 +3,7 @@
 本目录是《在这苍穹展翅 - 飞行日志 -》（If My Heart Had Wings -Flight Diary-）内容恢复补丁的文档体系。
 
 **基线**：Steam = `E:\SteamLibrary\steamapps\common\IF MY HEART HAD WINGS FLIGHT DIARY`（只读，补丁仓库内另存 `backup/`）；
-原版 = 原版发行版目录（**不在本仓库内**）；国外还原补丁 / 中文汉化补丁见 [third-party-patch-analysis.md](third-party-patch-analysis.md)。
+原版 = 原版发行版目录（**不在本仓库内**）。
 
 状态图例：✅ 已确认 ／ ⚠️ 部分确认 ／ ❓ 未知
 
@@ -18,7 +18,6 @@
 | 了解怎么还原、流水线与验收 | [restoration-route.md](restoration-route.md) |
 | **了解路线机制与「线路完备」可行性** | [route-mechanics.md](route-mechanics.md) |
 | **L6 入口的规格 / 素材 / 命令** | [route-mechanics.md](route-mechanics.md) §0.1、[../resource/README.md](../resource/README.md) |
-| **了解两个第三方补丁改了什么、哪些不能沿用** | [third-party-patch-analysis.md](third-party-patch-analysis.md) |
 | 引擎层面通识（可跨作复用） | [engine-mechanics.md](engine-mechanics.md)、[file-formats.md](file-formats.md) |
 | 验收 | [acceptance-criteria.md](acceptance-criteria.md) |
 | 踩坑记录 | [lessons-learned.md](lessons-learned.md) |
@@ -34,10 +33,7 @@
 | [restoration-targets.md](restoration-targets.md) | 还原目标、**还原目标分层 L0–L6**、判定标准 |
 | [restoration-route.md](restoration-route.md) | 还原路线、差分标准、流水线、发布链 |
 | [route-mechanics.md](route-mechanics.md) | 路线入口机制、Steam 侧缺口、可行性判定、实现方案；**L6 已落地并实机通过**（§0.1 交付与复现、§3.5 按钮、§3.8 base 入口、§3.9 角色高亮） |
-| [third-party-patch-analysis.md](third-party-patch-analysis.md) | 国外还原补丁 / 中文汉化补丁的改动面与缺陷成因、不可沿用的做法 |
-| [patch-verification-protocol.md](patch-verification-protocol.md) | **第三方补丁逐处核验协议**（判据 V-1..V-5、缺陷清单 D-1..D-14、结论格式） |
-| [patch-en-alignment.md](patch-en-alignment.md) | **英文行 ↔ 原版行 对应性核对**（语音锚点对齐、拆/合行缺口、抽样语义判定） |
-| [restoration-scope.md](restoration-scope.md) | **还原范围定案**（134 差分区间形态判定、逐剧本动作、Steam 删减清单、Gemini 汉化补丁覆盖评估、中文交付路径） |
+| [restoration-scope.md](restoration-scope.md) | **还原范围定案**（134 差分区间形态判定、逐剧本动作、Steam 删减清单、中文交付路径） |
 | [acceptance-criteria.md](acceptance-criteria.md) | 验收标准（含成就触发点、lng 位置对应） |
 | [afterstory-mechanics.md](afterstory-mechanics.md) | 后日谈/回想机制（**待按本作重写**，见文首横幅） |
 | [pna-resources.md](pna-resources.md) | PNA 图层命名与层序、子层号=记录下标（**已按本作重标定**） |

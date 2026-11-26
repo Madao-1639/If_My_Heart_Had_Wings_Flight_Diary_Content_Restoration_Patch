@@ -12,7 +12,7 @@ Each string is UTF-16LE XORed with a single-byte key. 密钥**不是引擎常量
           与 `zh-CN/Rio1.arc` 的 8 个 .lng（2026-10-13 实测，条目与 Steam 英文脚本
           台词严格对应，零解码失败）
     0x88  姊妹作《在这苍穹展翅》Steam 官方简体中文 `zh-CN/Rio.arc`
-    0xCE  姊妹作 oozora_CHSpatch 汉化补丁的 lng
+    0xCE  姊妹作《在这苍穹展翅》中文语言包的 lng
 
 读档拿不准用哪个 key 时用 detect_key()，写档必须显式传 key。
 """
@@ -20,7 +20,7 @@ import struct
 
 KEY_FD = 0x3E          # 本作 Flight Diary
 KEY_STEAM_ZHCN = 0x88  # 姊妹作《在这苍穹展翅》
-KEY_OOZORA = 0xCE      # 姊妹作 oozora 汉化补丁
+KEY_OOZORA = 0xCE      # 姊妹作《在这苍穹展翅》中文语言包
 
 
 def _table(key):

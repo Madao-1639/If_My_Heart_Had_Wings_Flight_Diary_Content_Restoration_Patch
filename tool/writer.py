@@ -1127,3 +1127,89 @@ def rebuild_host(steam_dec, orig_dec, plan, orig_fmts):
         'perf_noop': perf_noop,
         'state_fix': state_fix_log,
     }
+
+
+def voice_repoint(raw, repoints, only_a_cut=None):
+    """把 `0x28` 里的重录音频名改回原版名（含全局重定基）。
+
+    repoints = {旧名(bytes, 带扩展名): 新名(bytes)}；只在**指令操作数**内做 NUL 定界精确替换。
+    only_a_cut = 仅对 `off < cut` 的指令应用（A 体）；None = 全篇。
+
+    为什么必须按指令重编码而不是 `apply_names`：改名会让 `0x28` 操作数变长，
+    其后指令整体移位，而 `0x01`(字段 +7/+11)、`0x02`(0)、`0x06`(0) 是**绝对偏移**。
+    必须在整条解码流上一次性重算——分段处理会让跨段绝对偏移（`0x06`）失效。
+
+    ⚠️ 调用方须保证：被改名串不出现在 `REBASE_OPS` 指令的操作数里（音频名满足）。
+
+    -> (新原始字节, 命中列表)
+    """
+    dec = ws2.decode(raw)
+    ins = ws2dis.disassemble(dec, formats=ws2dis.FORMATS)[0]
+    old_offs = [o for o, _op, _sz, _ops in ins]
+    new_instrs, hits = [], []
+
+    for off, op, sz, ops in ins:
+        b = bytes(ops)
+        if op == 0x28 and (only_a_cut is None or off < only_a_cut):
+            for old, new in repoints.items():
+                for cand in (old, old.upper(), old.lower()):
+                    if b'\x00' + cand not in b and not b.startswith(cand):
+                        continue
+                    nb = b.replace(b'\x00' + cand, b'\x00' + new)
+                    if nb.startswith(cand):
+                        nb = new + nb[len(cand):]
+                    if nb != b:
+                        hits.append((off, old.decode('ascii', 'replace'),
+                                     new.decode('ascii', 'replace')))
+                        b = nb
+                        break
+        new_instrs.append((op, b))
+
+    new_offs, p = {}, 0
+    for (op, ops), o in zip(new_instrs, old_offs):
+        new_offs[o] = p
+        p += 1 + len(ops)
+
+    for k, (op, ops) in enumerate(new_instrs):
+        for f in REBASE_OPS.get(op, ()):
+            if len(ops) < f + 4:
+                continue
+            v = struct.unpack_from('<I', ops, f)[0]
+            if v == 0:
+                continue
+            assert v in new_offs, \
+                'op %#x field %#x target %#x 不在指令起点' % (op, f, v)
+            ops = ops[:f] + struct.pack('<I', new_offs[v]) + ops[f + 4:]
+        new_instrs[k] = (op, ops)
+
+    # `0x0f` 的条目是**内联**在操作数里的 `06 <u32 绝对偏移>`（见 `ws2dis._choice_parse`）
+    # ⇒ 不属于 `REBASE_OPS`，必须单独重定基，否则选项落点仍指旧坐标。
+    for k, (op, ops) in enumerate(new_instrs):
+        if op != 0x0F or not ops:
+            continue
+        buf = bytearray(ops)
+        p = 1                                  # buf[0] = count
+        for _ in range(ops[0]):
+            p += 2                             # strid:u16
+            while p < len(buf) and buf[p] != 0:
+                p += 1                         # cp932 文本
+            p += 1
+            p += 2                             # 标签:u16
+            p += 1                             # u8 0
+            if p >= len(buf):
+                break
+            if buf[p] == 0x06:
+                v = struct.unpack_from('<I', buf, p + 1)[0]
+                if v in new_offs:
+                    struct.pack_into('<I', buf, p + 1, new_offs[v])
+                p += 5
+            elif buf[p] == 0x07:
+                p += 1
+                while p < len(buf) and buf[p] != 0:
+                    p += 1
+                p += 1
+        new_instrs[k] = (op, bytes(buf))
+
+    out = b''.join(bytes([op]) + ops for op, ops in new_instrs)
+    n14, n0f = ws2.tail_counts(out)
+    return ws2.encode(out)[:-8] + struct.pack('<II', n14, n0f), hits
